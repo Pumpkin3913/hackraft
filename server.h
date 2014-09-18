@@ -3,6 +3,7 @@
 
 class Screen;
 class Tile;
+class Luawrapper;
 
 #include "error.h"
 
@@ -11,14 +12,16 @@ class Tile;
 
 #define MAX_SOCKET_QUEUE 8
 
+// TODO : add a mutex to the server to avoid inserting a screen while another thread is iterating through screens.
+
 class Server {
 	private:
 		int connexion_fd;
 		unsigned short port;
 		std::map<std::string, class Tile *> tiles;
 		std::map<std::string, class Screen *> screens;
-		class Screen * spawnScreen;
 		std::thread * acceptThread;
+		class Luawrapper * luawrapper;
 		bool stop;
 
 		static class Tile defaultTile;
@@ -32,11 +35,9 @@ class Server {
 		void _close();
 		bool isOpen();
 		unsigned short getPort();
-		void addScreen(class Screen * screen);
+		void addScreen(std::string id, class Screen * screen);
 		class Screen * getScreen(std::string id);
-		// void rem/delScreen(std::string id); // Don't forget to set spawnScreen to NULL if the spawnScreen is deleted.
-		void setSpawnScreen(std::string id);
-		bool hasSpawnScreen();
+		void delScreen(std::string id);
 		void addTile(class Tile * tile);
 		class Tile * getTile(std::string id);
 		// A Tile must never be remove before the destruction of the server.

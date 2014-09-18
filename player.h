@@ -15,21 +15,22 @@ class Screen;
 class Player {
 	private:
 		int fd;
-		// std::string id;
 		std::string name;
 		std::string description;
 		Aspect aspect;
 		class Screen* screen;
-		unsigned int x;
-		unsigned int y;
+		int x;
+		int y;
 		// std::list<class Object *> objects;
 		// std::map<std::string, class Gauge *> gauges;
 		// std::map<std::string, std::string> tags;
 		// script onDeath;
+		/* XXX //
 		unsigned int movepoints;
 		bool visible;
 		bool solid;
 		bool movable;
+		// XXX */
 		std::thread * loopThread;
 		bool stop;
 
@@ -37,26 +38,26 @@ class Player {
 		std::string receive();
 		void _close();
 		void loopFunction();
+		void parse(); // Receive one line from the socket and execute it. Return false if socket closed.
 
 	public:
-		// Player(int fd, std::string name, std::string description, Aspect aspect, class Screen * spawnScreen); // XXX
 		Player(int fd, std::string name, std::string description, Aspect aspect);
 		~Player();
-		void spawn(class Screen * screen, unsigned int x, unsigned int y); // Add itself to the screen and start the parsing loop.
-		int getFD();
-		// std::string getId(); // XXX
-		int getId();
+		void spawn(class Screen * screen, int x, int y); // Add itself to the screen and start the parsing loop. Do nothing if already running.
+		int getId(); // return FD.
 		std::string getName();
 		void setName(std::string name);
 		std::string getDescription();
 		void setDescription(std::string description);
 		Aspect getAspect();
-		void setAspect(Aspect aspect);
+		void setAspect(Aspect aspect); // and broadcast it.
 		class Screen * getScreen(); // May return NULL.
-		void setScreen(class Screen * screen);
 		unsigned int getX();
 		unsigned int getY();
-		void setXY(unsigned int x, unsigned int y);
+		void setXY(int x, int y); // dont check if canLand(); auto bcast new position.
+		void move(int xShift, int yShift); // check if canLand() and setXY() if yes.
+		void changeScreen(class Screen * newScreen, int x, int y); // exit this screen, enter the new one.
+
 		// getObject();
 		// addObject();
 		// remObject();
@@ -66,6 +67,7 @@ class Player {
 		// getTag();
 		// addTag();
 		// delTag();
+		/* XXX //
 		unsigned int getMovePoints();
 		void setMovePoints(unsigned int points);
 		void resetMovePoints();
@@ -78,16 +80,16 @@ class Player {
 		bool isMovable();
 		void setMovable();
 		void setNotMovable();
+		// XXX */
 
-		void parse(); // Receive one line from the socket and execute it. Return false if socket closed.
-
+		/* Send messages to client */
+		void message(std::string message);
 		void updatePlayer(class Player * player);
 		void updatePlayerExit(class Player * player);
 		void updateFloor();
 		void updateTile(unsigned int x, unsigned int y, Aspect aspect);
 		void updateObject(unsigned int x, unsigned int y, Aspect aspect);
 		void updateNoObject(unsigned int x, unsigned int y);
-		void message(std::string message);
 };
 
 #endif

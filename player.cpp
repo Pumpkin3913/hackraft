@@ -58,6 +58,46 @@ void Player::loopFunction() {
 	delete(this);
 }
 
+void Player::parse() {
+	std::string msg;
+	std::string cmd;
+	std::string arg;
+	std::size_t separator;
+
+	msg = this->receive();
+	separator = msg.find_first_of(' ');
+	if(separator == std::string::npos) {
+		cmd = msg;
+		arg = "";
+	} else {
+		cmd = msg.substr(0, separator);
+		arg = msg.substr(separator+1); // from separator+1 to the end.
+	}
+
+	verbose_info("Player command '"+cmd+"' with args '"+arg+"'."); // XXX
+
+	if(!cmd.compare("move")) {
+		signed int xShift = 0;
+		signed int yShift = 0;
+		if(!arg.compare("north")) {
+			yShift--;
+		} else if(!arg.compare("south")) {
+			yShift++;
+		} else if(!arg.compare("west")) {
+			xShift--;
+		} else if(!arg.compare("east")) {
+			xShift++;
+		}
+		this->move(xShift, yShift);
+	} else if(!cmd.compare("say")) {
+		this->screen->mutex.lock();
+		this->screen->event(this->name+" say "+arg);
+		this->screen->mutex.unlock();
+	} else if(!cmd.compare("quit")) {
+		this->stop = true;
+	}
+}
+
 // PUBLIC
 
 Player::Player(int fd, std::string name, std::string description, Aspect aspect) :
@@ -68,10 +108,12 @@ Player::Player(int fd, std::string name, std::string description, Aspect aspect)
 	screen(NULL),
 	x(0),
 	y(0),
+	/* XXX //
 	movepoints(0),
 	visible(true),
 	solid(true),
 	movable(true),
+	// XXX */
 	loopThread(NULL),
 	stop(false)
 { }
@@ -92,18 +134,16 @@ Player::~Player() {
 	}
 }
 
-void Player::spawn(class Screen * screen, unsigned int x, unsigned int y) {
-	this->screen = screen;
-	this->x = x;
-	this->y = y;
-	this->screen->mutex.lock();
-	this->screen->enterPlayer(this);
-	this->screen->mutex.unlock();
-	this->loopThread = new std::thread(&Player::loopFunction, this);
-}
-
-int Player::getFD() {
-	return(this->fd);
+void Player::spawn(class Screen * screen, int x, int y) {
+	if(!this->loopThread) {
+		this->screen = screen;
+		this->x = x;
+		this->y = y;
+		this->screen->mutex.lock();
+		this->screen->enterPlayer(this);
+		this->screen->mutex.unlock();
+		this->loopThread = new std::thread(&Player::loopFunction, this);
+	}
 }
 
 int Player::getId() {
@@ -114,6 +154,7 @@ std::string Player::getName() {
 	return(this->name);
 }
 
+// TODO : Player::setName() : broadcast new name.
 void Player::setName(std::string name) {
 	this->name = name;
 }
@@ -130,16 +171,13 @@ Aspect Player::getAspect() {
 	return(this->aspect);
 }
 
+// TODO : Player::setAspect() : auto broadcast new aspect.
 void Player::setAspect(Aspect aspect) {
 	this->aspect = aspect;
 }
 
 class Screen * Player::getScreen() {
 	return(this->screen);
-}
-
-void Player::setScreen(class Screen * screen) {
-	this->screen = screen;
 }
 
 unsigned int Player::getX() {
@@ -150,12 +188,35 @@ unsigned int Player::getY() {
 	return(this->y);
 }
 
-void Player::setXY(unsigned int x, unsigned int y) {
+void Player::setXY(int x, int y) {
 	this->x = x;
 	this->y = y;
+	if(this->screen) {
+		this->screen->mutex.lock();
+		this->screen->updatePlayerPosition(this);
+		this->screen->mutex.unlock();
+	}
 }
 
-// void move(unsigned int x, unsigned int y);
+void Player::move(int xShift, int yShift) {
+	int new_x = this->x + xShift;
+	int new_y = this->y + yShift;
+	if(this->screen) {
+		if(this->screen->canLandPlayer(this, new_x, new_y)) {
+			this->setXY(new_x, new_y);
+		}
+	}
+}
+
+void Player::changeScreen(class Screen * newScreen, int x, int y) {
+	if(this->screen) {
+		this->screen->exitPlayer(this);
+		this->x = x;
+		this->y = y;
+		this->screen = newScreen;
+		this->screen->enterPlayer(this);
+	}
+}
 
 // getObject();
 // addObject();
@@ -167,6 +228,7 @@ void Player::setXY(unsigned int x, unsigned int y) {
 // addTag();
 // delTag();
 
+/* XXX //
 unsigned int Player::getMovePoints() {
 	return(this->movepoints);
 }
@@ -214,52 +276,13 @@ void Player::setMovable() {
 void Player::setNotMovable() {
 	this->movable = false;
 }
+// XXX */
 
-void Player::parse() {
-	std::string msg;
-	std::string cmd;
-	std::string arg;
-	std::size_t separator;
+/* Send messages to client */
 
-	msg = this->receive();
-	separator = msg.find_first_of(' ');
-	if(separator == std::string::npos) {
-		cmd = msg;
-		arg = "";
-	} else {
-		cmd = msg.substr(0, separator);
-		arg = msg.substr(separator+1); // from separator+1 to the end.
-	}
-
-	// verbose_info("Player command '"+cmd+"' with args '"+arg+"'."); // XXX
-
-	if(!cmd.compare("move")) {
-		signed int xShift = 0;
-		signed int yShift = 0;
-		if(!arg.compare("north")) {
-			yShift--;
-		} else if(!arg.compare("south")) {
-			yShift++;
-		} else if(!arg.compare("west")) {
-			xShift--;
-		} else if(!arg.compare("east")) {
-			xShift++;
-		}
-		this->screen->mutex.lock();
-		this->screen->move(this, xShift, yShift);
-		this->screen->mutex.unlock();
-	} else if(!cmd.compare("say")) {
-		this->screen->mutex.lock();
-		this->screen->event(this->name+" say "+arg);
-		this->screen->mutex.unlock();
-	} else if(!cmd.compare("quit")) {
-		this->screen->mutex.lock();
-		this->screen->mutex.unlock();
-		this->stop = true;
-	}
+void Player::message(std::string message) {
+	this->send("msg " + message);
 }
-
-
 
 void Player::updatePlayer(class Player * player) {
 	// move <plrID> <X> <Y>
@@ -287,19 +310,6 @@ void Player::updateFloor() {
 			+ " "
 			+ this->screen->getName()
 		  );
-
-	/* XXX //
-	// Send TileStream.
-	const std::vector<Aspect> * tileStream;
-	std::string toSend = "";
-	tileStream = this->screen->getTileStream();
-	for(Aspect i : *tileStream) {
-		toSend += std::to_string(i);
-		toSend += ",";
-	}
-	toSend.pop_back();
-	this->send(toSend);
-	// XXX */
 
 	// Send tiles.
 	std::string toSend = "";
@@ -345,9 +355,5 @@ void Player::updateNoObject(unsigned int x, unsigned int y) {
 			+ " "
 			+ std::to_string(y)
 		  );
-}
-
-void Player::message(std::string message) {
-	this->send("msg " + message);
 }
 

@@ -3,6 +3,7 @@
 #include "screen.h"
 #include "aspect.h"
 #include "tile.h"
+#include "luawrapper.h"
 #include "error.h"
 
 #include <thread>
@@ -19,13 +20,50 @@
 #elif defined _WIN32
 #endif
 
+/* Static */
+
 class Tile Server::defaultTile = Tile("nowhere", "Nowhere", "Nowhere...", (Aspect) 0);
+
+/* Private */
+
+void Server::acceptLoop() {
+	class Player * player;
+	struct sockaddr_in remote_addr;
+	socklen_t addr_len = sizeof(struct sockaddr_in);
+	int fd;
+
+	while(!this->stop) {
+		fd = accept(connexion_fd, (struct sockaddr*) &remote_addr, &addr_len);
+		if(fd == -1) {
+			nonfatal(
+					"Accept new connexion failed: "
+					+ std::string(strerror(errno))
+					);
+		} else {
+			verbose_info(
+					"Got connexion from "
+					+ std::string(inet_ntoa(remote_addr.sin_addr))
+					+ " port "
+					+ std::to_string(ntohs(remote_addr.sin_port))
+					+ " on socket #"
+					+ std::to_string(fd)
+					);
+		}
+
+		// player = new Player(fd, "noname", "nodescription", (Aspect) '@', this->spawnScreen); // XXX
+		player = new Player(fd, "noname", "nodescription", (Aspect) '@');
+		// TODO : Server::acceptLoop() : call spawn script.
+	}
+}
+
+/* Public */
 
 Server::Server() :
 	connexion_fd(0), // 0 is a valid file descriptor, but not a valid socket file descriptor.
 	port(0),
 	spawnScreen(NULL),
 	acceptThread(NULL),
+	luawrapper(new Luawrapper(this)),
 	stop(false)
 {
 // ToDO : Start main loop thread. Nope: done at _open().
@@ -125,29 +163,26 @@ unsigned short Server::getPort() {
 	}
 }
 
-void Server::addScreen(class Screen * screen) {
-	this->screens[screen->getId()] = screen;
-	if(this->spawnScreen == NULL) {
-		this->spawnScreen = screen;
-	}
+void Server::addScreen(std::string id, class Screen * screen) {
+	this->screens[id] = screen;
 }
 
 class Screen * Server::getScreen(std::string id) {
 	return(this->screens[id]);
 }
 
-void Server::setSpawnScreen(std::string id) {
-	class Screen * screen = this->getScreen(id);
-	if(screen != NULL) {
-		this->spawnScreen = screen;
+void Server::delScreen(std::string id) {
+	if(this->screens[id] != NULL) {
+		delete(this->screens[id]);
+		this->screens.erase(id);
 	}
 }
 
-bool Server::hasSpawnScreen() {
-	return(this->spawnScreen != NULL);
-}
-
 void Server::addTile(class Tile * tile) {
+	if(this->tiles[tile->getId()] != NULL) {
+		delete(this->tiles[tile->getId()]);
+		this->tiles.erase(tile->getId());
+	}
 	this->tiles[tile->getId()] = tile;
 }
 
@@ -157,49 +192,6 @@ class Tile * Server::getTile(std::string id) {
 		return(&Server::defaultTile);
 	} else {
 		return(tile);
-	}
-}
-
-// Private
-
-void Server::acceptLoop() {
-	class Player * player;
-	struct sockaddr_in remote_addr;
-	socklen_t addr_len = sizeof(struct sockaddr_in);
-	int fd;
-
-	while(!this->stop) {
-		fd = accept(connexion_fd, (struct sockaddr*) &remote_addr, &addr_len);
-		if(fd == -1) {
-			nonfatal(
-					"Accept new connexion failed: "
-					+ std::string(strerror(errno))
-					);
-		} else {
-			verbose_info(
-					"Got connexion from "
-					+ std::string(inet_ntoa(remote_addr.sin_addr))
-					+ " port "
-					+ std::to_string(ntohs(remote_addr.sin_port))
-					+ " on socket #"
-					+ std::to_string(fd)
-					);
-		}
-
-		// player = new Player(fd, "noname", "nodescription", (Aspect) '@', this->spawnScreen); // XXX
-		player = new Player(fd, "noname", "nodescription", (Aspect) '@');
-		if(this->hasSpawnScreen()) {
-			player->spawn(this->spawnScreen, 0, 0);
-			/* XXX //
-			this->spawnScreen->mutex.lock();
-			this->spawnScreen->enterPlayer(player);
-			this->spawnScreen->mutex.unlock();
-			// XXX */
-		} else {
-			player->message("No spawn screen");
-			delete(player);
-			nonfatal("Player rejected because no spawn screen.");
-		}
 	}
 }
 
