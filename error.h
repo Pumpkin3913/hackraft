@@ -10,6 +10,7 @@ void setVerbose();
 void setNoVerbose();
 bool isVerbose();
 
+void warning(std::string msg);
 void nonfatal(std::string msg);
 void fatal(std::string msg);
 void not_enough_memory();

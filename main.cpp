@@ -1,3 +1,5 @@
+#include <iostream>
+
 #include "server.h"
 /*
 #include "screen.h"
@@ -9,25 +11,16 @@
 #include "luawrapper.h"
 #include "error.h"
 
-// #include <iostream>
-
 int main (int argc, char** argv) {
-	setVerbose();
 	class Server * server = new Server();
-	class Luawrapper * lua = new Luawrapper(server);
-	lua->exeLua("init.lua");
-	/*
-	server->addTile(new Tile("floor", "Floor", "An old paved floor.", (Aspect) '.'));
-	server->addTile(new Tile("portal", "Portal", "A magic portal leading elsewere.", (Aspect) '^'));
-	server->addScreen(new Screen("entrance", "Entrance", 11, 11, server->getTile("floor")));
-	server->getScreen("entrance")->getPlace(5,5)->setTile(server->getTile("portal"));
-	server->getScreen("entrance")->setSpawnPoint(5,5);
-	server->_open(31337);
-	*/
-	// server->loopThread->join(); // TODO
-	std::cout << "Press ENTER to exit." << std::endl;
-	std::cin.get();
-	delete(lua);
+	std::string input;
+	while(getline(std::cin, input)) {
+		if(!input.compare("quit")) {
+			break;
+		}
+		server->exeLua(input);
+	}
+
 	delete(server);
 }
 

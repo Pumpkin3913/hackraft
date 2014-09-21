@@ -20,6 +20,9 @@ bool isVerbose() {
 	return(verbose);
 }
 
+void warning(std::string msg) {
+	std::cout << "[WARNING] " << msg << std::endl;
+}
 
 void nonfatal(std::string msg) {
 #ifdef __linux__

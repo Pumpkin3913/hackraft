@@ -6,9 +6,54 @@
 #include "player.h"
 #include "error.h"
 
-// TODO : verbosity control and server messages.
+/* Output */
 
-/* Server wrappers */
+int l_setverbose(lua_State * lua) {
+	setVerbose();
+	return(0);
+}
+
+int l_setnoverbose(lua_State * lua) {
+	setNoVerbose();
+	return(0);
+}
+
+int l_isverbose(lua_State * lua) {
+	lua_pushboolean(lua, isVerbose());
+	return(0);
+}
+
+int l_warning(lua_State * lua) {
+	std::string message = lua_tostring(lua, 1);
+	warning(message);
+	return(0);
+}
+
+int l_nonfatal(lua_State * lua) {
+	std::string message = lua_tostring(lua, 1);
+	nonfatal(message);
+	return(0);
+}
+
+int l_fatal(lua_State * lua) {
+	std::string message = lua_tostring(lua, 1);
+	fatal(message);
+	return(0);
+}
+
+int l_info(lua_State * lua) {
+	std::string message = lua_tostring(lua, 1);
+	info(message);
+	return(0);
+}
+
+int l_verboseinfo(lua_State * lua) {
+	std::string message = lua_tostring(lua, 1);
+	verbose_info(message);
+	return(0);
+}
+
+/* Server */
 
 int l_server_open(lua_State * lua) {
 	class Server * server = (class Server *) lua_touserdata(lua, 1);
@@ -79,8 +124,13 @@ int l_new_tile(lua_State * lua) {
 	std::string name = lua_tostring(lua, 2);
 	std::string description = lua_tostring(lua, 3);
 	Aspect aspect = lua_tointeger(lua, 4);
-	bool canland = lua_toboolean(lua, 5);
-	class Tile * tile = new Tile(id, name, description, aspect, canland);
+	class Tile * tile;
+	if(lua_isboolean(lua, 5)) {
+		bool canland = lua_toboolean(lua, 5);
+		tile = new Tile(id, name, description, aspect, canland);
+	} else {
+		tile = new Tile(id, name, description, aspect);
+	}
 	lua_pushlightuserdata(lua, tile);
 	return(1);
 }
@@ -420,13 +470,17 @@ Luawrapper::Luawrapper(class Server * server) :
 {
 	luaL_openlibs(this->lua_state);
 
-/* XXX //
-	lua_pushlightuserdata(this->lua_state, this);
-	lua_setglobal(this->lua_state, "Wrapper");
-// XXX */
-
 	lua_pushlightuserdata(this->lua_state, this->server);
 	lua_setglobal(this->lua_state, "Server");
+
+	lua_register(this->lua_state, "setverbose", l_setverbose);
+	lua_register(this->lua_state, "setnoverbose", l_setnoverbose);
+	lua_register(this->lua_state, "isverbose", l_isverbose);
+	lua_register(this->lua_state, "warning", l_warning);
+	lua_register(this->lua_state, "nonfatal", l_nonfatal);
+	lua_register(this->lua_state, "fatal", l_fatal);
+	lua_register(this->lua_state, "info", l_info);
+	lua_register(this->lua_state, "verboseinfo", l_verboseinfo);
 
 	lua_register(this->lua_state, "server_open", l_server_open);
 	lua_register(this->lua_state, "server_close", l_server_close);
@@ -490,6 +544,8 @@ Luawrapper::Luawrapper(class Server * server) :
 	lua_register(this->lua_state, "player_move", l_player_move);
 	lua_register(this->lua_state, "player_changescreen", l_player_changescreen);
 	lua_register(this->lua_state, "player_message", l_player_message);
+
+	this->exeLua(LUA_INIT_SCRIPT);
 }
 
 Luawrapper::~Luawrapper() {
@@ -497,9 +553,12 @@ Luawrapper::~Luawrapper() {
 }
 
 void Luawrapper::exeLua(std::string filename) {
-	// TODO : log, verbose_info, ...
-	verbose_info("Reading lua script '"+filename+"'.");
 	luaL_dofile(this->lua_state, filename.c_str());
-	verbose_info("End of lua script '"+filename+"'.");
+}
+
+void Luawrapper::spawnScript(class Player * player) {
+	lua_pushlightuserdata(this->lua_state, player);
+	lua_setglobal(this->lua_state, "Player");
+	this->exeLua(LUA_SPAWN_SCRIPT);
 }
 

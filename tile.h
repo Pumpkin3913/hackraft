@@ -17,8 +17,7 @@ class Tile {
 		Aspect aspect;
 		bool _canLand;
 	public:
-		Tile(std::string id, std::string name, std::string description, Aspect aspect);
-		Tile(std::string id, std::string name, std::string description, Aspect aspect, bool canLand);
+		Tile(std::string id, std::string name, std::string description, Aspect aspect, bool canLand = true);
 		~Tile();
 		std::string getId();
 		std::string getName();

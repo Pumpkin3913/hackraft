@@ -1,14 +1,5 @@
 #include "tile.h"
 
-Tile::Tile(std::string id, std::string name, std::string description, Aspect aspect) :
-	id(id),
-	name(name),
-	description(description),
-	aspect(aspect),
-	_canLand(true)
-{
-}
-
 Tile::Tile(std::string id, std::string name, std::string description, Aspect aspect, bool canLand) :
 	id(id),
 	name(name),

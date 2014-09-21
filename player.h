@@ -15,22 +15,24 @@ class Screen;
 class Player {
 	private:
 		int fd;
+		int id;
 		std::string name;
 		std::string description;
 		Aspect aspect;
 		class Screen* screen;
 		int x;
 		int y;
-		// std::list<class Object *> objects;
-		// std::map<std::string, class Gauge *> gauges;
-		// std::map<std::string, std::string> tags;
-		// script onDeath;
-		/* XXX //
+/* ToDO : latter :
+		std::list<class Object *> objects;
+		std::map<std::string, class Gauge *> gauges;
+		std::map<std::string, std::string> tags;
+		script onDeath;
+
 		unsigned int movepoints;
 		bool visible;
 		bool solid;
 		bool movable;
-		// XXX */
+*/
 		std::thread * loopThread;
 		bool stop;
 
@@ -44,7 +46,7 @@ class Player {
 		Player(int fd, std::string name, std::string description, Aspect aspect);
 		~Player();
 		void spawn(class Screen * screen, int x, int y); // Add itself to the screen and start the parsing loop. Do nothing if already running.
-		int getId(); // return FD.
+		int getId();
 		std::string getName();
 		void setName(std::string name);
 		std::string getDescription();
@@ -58,16 +60,16 @@ class Player {
 		void move(int xShift, int yShift); // check if canLand() and setXY() if yes.
 		void changeScreen(class Screen * newScreen, int x, int y); // exit this screen, enter the new one.
 
-		// getObject();
-		// addObject();
-		// remObject();
-		// getGauge();
-		// addGauge();
-		// delGauge();
-		// getTag();
-		// addTag();
-		// delTag();
-		/* XXX //
+/* ToDO : latter :
+		getObject();
+		addObject();
+		remObject();
+		getGauge();
+		addGauge();
+		delGauge();
+		getTag();
+		addTag();
+		delTag();
 		unsigned int getMovePoints();
 		void setMovePoints(unsigned int points);
 		void resetMovePoints();
@@ -80,7 +82,7 @@ class Player {
 		bool isMovable();
 		void setMovable();
 		void setNotMovable();
-		// XXX */
+*/
 
 		/* Send messages to client */
 		void message(std::string message);

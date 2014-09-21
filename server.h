@@ -22,7 +22,6 @@ class Server {
 		std::map<std::string, class Screen *> screens;
 		std::thread * acceptThread;
 		class Luawrapper * luawrapper;
-		bool stop;
 
 		static class Tile defaultTile;
 
@@ -41,6 +40,7 @@ class Server {
 		void addTile(class Tile * tile);
 		class Tile * getTile(std::string id);
 		// A Tile must never be remove before the destruction of the server.
+		void exeLua(std::string filename);
 };
 
 #endif

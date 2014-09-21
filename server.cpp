@@ -7,7 +7,6 @@
 #include "error.h"
 
 #include <thread>
-#include <cstring> // strerror()
 
 #ifdef __linux__
 #include <unistd.h> // close()
@@ -22,23 +21,20 @@
 
 /* Static */
 
-class Tile Server::defaultTile = Tile("nowhere", "Nowhere", "Nowhere...", (Aspect) 0);
+class Tile Server::defaultTile =
+Tile("nowhere", "Nowhere", "Nowhere...", (Aspect) 0);
 
 /* Private */
 
 void Server::acceptLoop() {
-	class Player * player;
 	struct sockaddr_in remote_addr;
 	socklen_t addr_len = sizeof(struct sockaddr_in);
 	int fd;
 
-	while(!this->stop) {
+	while(this->isOpen()) {
 		fd = accept(connexion_fd, (struct sockaddr*) &remote_addr, &addr_len);
 		if(fd == -1) {
-			nonfatal(
-					"Accept new connexion failed: "
-					+ std::string(strerror(errno))
-					);
+			nonfatal("Accept new connexion failed");
 		} else {
 			verbose_info(
 					"Got connexion from "
@@ -48,38 +44,41 @@ void Server::acceptLoop() {
 					+ " on socket #"
 					+ std::to_string(fd)
 					);
+			this->luawrapper->spawnScript(
+					new Player(fd, "noname", "nodescription", (Aspect) '@'));
 		}
 
-		// player = new Player(fd, "noname", "nodescription", (Aspect) '@', this->spawnScreen); // XXX
-		player = new Player(fd, "noname", "nodescription", (Aspect) '@');
-		// TODO : Server::acceptLoop() : call spawn script.
 	}
+
+	this->acceptThread = NULL;
 }
 
 /* Public */
 
 Server::Server() :
-	connexion_fd(0), // 0 is a valid file descriptor, but not a valid socket file descriptor.
+	// 0 is a valid file descriptor, but not a valid socket file descriptor.
+	connexion_fd(0),
 	port(0),
-	spawnScreen(NULL),
 	acceptThread(NULL),
-	luawrapper(new Luawrapper(this)),
-	stop(false)
+	luawrapper(new Luawrapper(this))
 {
-// ToDO : Start main loop thread. Nope: done at _open().
+	// Main loop thread starting is done at _open(), not at constructor.
 }
 
 Server::~Server() {
+	// Main loop thread stopping is done at _close(), not at destructor.
 	if(this->isOpen()) {
 		this->_close();
 	}
 
-	for(std::pair<const std::basic_string<char>, Screen*> it : this->screens) {
+	for(std::pair<std::string, Screen*> it : this->screens) {
 		delete(it.second);
 	}
 
-// TODO : Destroy tiles here. Never before.
-// ToDO : Stop main loop thread. Nope: done at _close().
+	// A Tile must never be remove before the destruction of the server.
+	for(std::pair<std::string, Tile*> it : this->tiles) {
+		delete(it.second);
+	}
 
 	info("Exiting...");
 }
@@ -120,19 +119,20 @@ void Server::_open(unsigned short port) {
 
 	this->connexion_fd = sockfd;
 
-	// fcntl(servsock, F_SETFL, fcntl(servsock, F_GETFL) | O_ASYNC); // Make asynchronous. // XXX
-	// fcntl(servsock, F_SETOWN, getpid()); // Ask the kernel to send us SIGIO on new connexion. // XXX
+	// Make asynchronous.
+	// fcntl(servsock, F_SETFL, fcntl(servsock, F_GETFL) | O_ASYNC);
+
+	// Ask the kernel to send us SIGIO on new connexion.
+	// fcntl(servsock, F_SETOWN, getpid());
+
+#elif defined _WIN32
+#endif
 
 	verbose_info("Connexions set on.");
-// ToDO : latter : IPv4/IPv6 connexions.
-#elif defined _WIN32
-#endif
+	// ToDO : latter : IPv4/IPv6 connexions.
 
 	// Start connexion accepting thread.
-#ifdef __linux__
 	this->acceptThread = new std::thread(&Server::acceptLoop, this);
-#elif defined _WIN32
-#endif
 }
 
 void Server::_close() {
@@ -140,19 +140,19 @@ void Server::_close() {
 	close(this->connexion_fd);
 #elif defined _WIN32
 #endif
-	if(this->acceptThread != NULL) {
-		// Interrupt thread
-		// delete(this->acceptThread); // XXX
-		this->stop = true;
-		this->acceptThread->join();
-		this->acceptThread = NULL;
-	}
 	this->connexion_fd = 0;
 	this->port = 0;
+
+	if(this->acceptThread != NULL) {
+		this->acceptThread->detach();
+		delete(this->acceptThread);
+		// this->acceptThread->join();
+		this->acceptThread = NULL;
+	}
 }
 
 bool Server::isOpen() {
-	return(this->connexion_fd == 0);
+	return(this->connexion_fd != 0);
 }
 
 unsigned short Server::getPort() {
@@ -193,5 +193,9 @@ class Tile * Server::getTile(std::string id) {
 	} else {
 		return(tile);
 	}
+}
+
+void Server::exeLua(std::string filename) {
+	this->luawrapper->exeLua(filename);
 }
 

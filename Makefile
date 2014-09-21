@@ -13,10 +13,11 @@ $(RM) = rm -f
 
 SRCS = main.cpp place.cpp player.cpp screen.cpp server.cpp tile.cpp error.cpp luawrapper.cpp
 OBJS = $(SRCS:.cpp=.o)
+EXE = server
 
-all : server
+all : $(EXE)
 
-server : $(OBJS)
+$(EXE) : $(OBJS)
 
 # server : $(OBJS)
 #	$(CXX) $(LDFLAGS) -o $@ $^ $(LDLIBS)

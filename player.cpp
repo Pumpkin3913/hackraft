@@ -10,12 +10,14 @@
 // PRIVATE
 
 void Player::send(std::string message) {
-	std::string toSend = message + "\n";
+	if(this->fd) {
+		std::string toSend = message + "\n";
 #ifdef __linux__
-	write(this->fd, toSend.c_str(), toSend.length());
-	// this->socket << message << std::endl;
+		write(this->fd, toSend.c_str(), toSend.length());
+		// this->socket << message << std::endl;
 #elif defined _WIN32
 #endif
+	}
 }
 
 std::string Player::receive() {
@@ -29,25 +31,28 @@ std::string Player::receive() {
 		flag = read(this->fd, &c, 1);
 	}
 	if(!flag) {
+#ifdef __linux__
+		close(this->fd);
+#elif defined _WIN32
+#endif
+		this->fd = 0;
 		this->stop = true;
 	}
-	/* XXX //
-	for(read(this->fd, &c, 1); c != '\n'; read(this->fd, &c, 1)) {
-		msg.push_back(c);
-	}
-	// XXX */
 #elif defined _WIN32
 #endif
 	return(msg);
 }
 
 void Player::_close() {
-	this->send("EOF");
-	this->stop = true;
+	if(this->fd) {
+		this->send("EOF");
 #ifdef __linux__
-	close(this->fd);
+		close(this->fd);
 #elif defined _WIN32
 #endif
+		this->fd = 0;
+		this->stop = true;
+	}
 }
 
 void Player::loopFunction() {
@@ -65,36 +70,41 @@ void Player::parse() {
 	std::size_t separator;
 
 	msg = this->receive();
-	separator = msg.find_first_of(' ');
-	if(separator == std::string::npos) {
-		cmd = msg;
-		arg = "";
-	} else {
-		cmd = msg.substr(0, separator);
-		arg = msg.substr(separator+1); // from separator+1 to the end.
-	}
-
-	verbose_info("Player command '"+cmd+"' with args '"+arg+"'."); // XXX
-
-	if(!cmd.compare("move")) {
-		signed int xShift = 0;
-		signed int yShift = 0;
-		if(!arg.compare("north")) {
-			yShift--;
-		} else if(!arg.compare("south")) {
-			yShift++;
-		} else if(!arg.compare("west")) {
-			xShift--;
-		} else if(!arg.compare("east")) {
-			xShift++;
+	if(!this->stop) {
+		separator = msg.find_first_of(' ');
+		if(separator == std::string::npos) {
+			cmd = msg;
+			arg = "";
+		} else {
+			cmd = msg.substr(0, separator);
+			arg = msg.substr(separator+1); // from separator+1 to the end.
 		}
-		this->move(xShift, yShift);
-	} else if(!cmd.compare("say")) {
-		this->screen->mutex.lock();
-		this->screen->event(this->name+" say "+arg);
-		this->screen->mutex.unlock();
-	} else if(!cmd.compare("quit")) {
-		this->stop = true;
+
+		if(!cmd.compare("move")) {
+			signed int xShift = 0;
+			signed int yShift = 0;
+			bool valid = true;
+			if(!arg.compare("north")) {
+				yShift--;
+			} else if(!arg.compare("south")) {
+				yShift++;
+			} else if(!arg.compare("west")) {
+				xShift--;
+			} else if(!arg.compare("east")) {
+				xShift++;
+			} else {
+				valid = false;
+			}
+			if(valid) {
+				this->move(xShift, yShift);
+			}
+		} else if(!cmd.compare("say")) {
+			this->screen->mutex.lock();
+			this->screen->event(this->name+" say "+arg);
+			this->screen->mutex.unlock();
+		} else if(!cmd.compare("quit")) {
+			this->stop = true;
+		}
 	}
 }
 
@@ -102,18 +112,19 @@ void Player::parse() {
 
 Player::Player(int fd, std::string name, std::string description, Aspect aspect) :
 	fd(fd),
+	id(fd),
 	name(name),
 	description(description),
 	aspect(aspect),
 	screen(NULL),
 	x(0),
 	y(0),
-	/* XXX //
+/* ToDO : latter
 	movepoints(0),
 	visible(true),
 	solid(true),
 	movable(true),
-	// XXX */
+*/
 	loopThread(NULL),
 	stop(false)
 { }
@@ -124,9 +135,7 @@ Player::~Player() {
 	if(this->screen) {
 		this->screen->exitPlayer(this);
 	}
-	if(this->fd) {
-		this->_close();
-	}
+	this->_close();
 	if(this->loopThread) {
 		// Only when deleted by something else than its self loopThread.
 		this->loopThread->detach();
@@ -143,18 +152,19 @@ void Player::spawn(class Screen * screen, int x, int y) {
 		this->screen->enterPlayer(this);
 		this->screen->mutex.unlock();
 		this->loopThread = new std::thread(&Player::loopFunction, this);
+		verbose_info("Player spawn successfully.");
 	}
 }
 
 int Player::getId() {
-	return(this->fd);
+	return(this->id);
 }
 
 std::string Player::getName() {
 	return(this->name);
 }
 
-// TODO : Player::setName() : broadcast new name.
+// TODO : Player::setName() : auto broadcast new name.
 void Player::setName(std::string name) {
 	this->name = name;
 }
@@ -218,17 +228,18 @@ void Player::changeScreen(class Screen * newScreen, int x, int y) {
 	}
 }
 
-// getObject();
-// addObject();
-// remObject();
-// getGauge();
-// addGauge();
-// delGauge();
-// getTag();
-// addTag();
-// delTag();
+/* ToDO : latter :
 
-/* XXX //
+getObject();
+addObject();
+remObject();
+getGauge();
+addGauge();
+delGauge();
+getTag();
+addTag();
+delTag();
+
 unsigned int Player::getMovePoints() {
 	return(this->movepoints);
 }
@@ -276,7 +287,7 @@ void Player::setMovable() {
 void Player::setNotMovable() {
 	this->movable = false;
 }
-// XXX */
+*/
 
 /* Send messages to client */
 

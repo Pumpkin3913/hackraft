@@ -2,6 +2,7 @@
 #define LUAWRAPPER_H
 
 class Server;
+class Player;
 
 extern "C" {
 #include <lua.h>
@@ -11,6 +12,9 @@ extern "C" {
 
 #include <string>
 
+#define LUA_INIT_SCRIPT "init.lua"
+#define LUA_SPAWN_SCRIPT "spawn.lua"
+
 class Luawrapper {
 	private:
 		lua_State * lua_state;
@@ -19,6 +23,7 @@ class Luawrapper {
 		Luawrapper(class Server * server);
 		~Luawrapper();
 		void exeLua(std::string filename);
+		void spawnScript(class Player * player);
 };
 
 #endif
