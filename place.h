@@ -1,14 +1,11 @@
 #ifndef PLACE_H
-
-class Place;
 #define PLACE_H
 
 #include <string>
-// #include <unordered_set>
-// #include <unordered_map>
 
-#include "tile.h"
-// #include "object.h"
+class Tile;
+
+#include "aspect.h"
 
 class Place {
 	private:
@@ -54,4 +51,3 @@ class Place {
 };
 
 #endif
-

@@ -1,5 +1,6 @@
 #include "server.h"
 
+#include "player.h"
 #include "screen.h"
 #include "aspect.h"
 #include "tile.h"

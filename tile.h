@@ -1,6 +1,4 @@
 #ifndef TILE_H
-
-class Tile;
 #define TILE_H
 
 #include <string>
@@ -32,4 +30,3 @@ class Tile {
 };
 
 #endif
-

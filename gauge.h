@@ -1,6 +1,4 @@
 #ifndef GAUGE_H
-
-class Gauge;
 #define GAUGE_H
 
 #include <string>
@@ -36,4 +34,3 @@ class Gauge {
 };
 
 #endif
-

@@ -1,5 +1,7 @@
 #include "place.h"
 
+#include "tile.h"
+
 Place::Place(class Tile * tile) :
 	tile(tile)
 {

@@ -1,6 +1,4 @@
 #ifndef PLAYER_H
-
-class Player;
 #define PLAYER_H
 
 // ToDO : latter : special object slot : map<id,slot>.
@@ -95,4 +93,3 @@ class Player {
 };
 
 #endif
-

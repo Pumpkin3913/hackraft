@@ -1,6 +1,7 @@
 #include "player.h"
 
 #include "screen.h"
+#include "place.h"
 
 #ifdef __linux__
 #include <unistd.h>

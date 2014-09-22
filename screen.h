@@ -1,12 +1,11 @@
 #ifndef SCREEN_H
-
-class Screen;
 #define SCREEN_H
 
 // ToDO : latter : default spawn position.
 
-#include "place.h"
-#include "player.h"
+class Place;
+class Player;
+
 #include "error.h"
 
 #include <string>
@@ -43,4 +42,3 @@ class Screen {
 };
 
 #endif
-

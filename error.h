@@ -18,4 +18,3 @@ void info(std::string msg);
 void verbose_info(std::string msg);
 
 #endif
-

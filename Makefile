@@ -19,12 +19,7 @@ all : $(EXE)
 
 $(EXE) : $(OBJS)
 
-# server : $(OBJS)
-#	$(CXX) $(LDFLAGS) -o $@ $^ $(LDLIBS)
-
-%.o : %.cpp
-	$(CXX) -c $(CPPFLAGS) $(CXXFLAGS) $< -o $@
-# And how to use $(LIBS) ?
+%.o : %.cpp %.h
 
 .PHONY : clean clear
 
@@ -32,5 +27,5 @@ clean :
 	$(RM) *.o
 
 clear : clean
-	$(RM) server
+	$(RM) $(EXE)
 

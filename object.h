@@ -1,6 +1,4 @@
 #ifndef OBJECT_H
-
-class Object;
 #define OBJECT_H
 
 #include <string>
@@ -34,4 +32,3 @@ class Object {
 };
 
 #endif
-

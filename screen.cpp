@@ -1,5 +1,8 @@
 #include "screen.h"
 
+#include "place.h"
+#include "player.h"
+
 Screen::Screen(std::string name, unsigned int width, unsigned int height, class Tile* defaultTile) :
 	name(name),
 	width(width),

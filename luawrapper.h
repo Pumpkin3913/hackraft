@@ -27,4 +27,3 @@ class Luawrapper {
 };
 
 #endif
-
