@@ -18,6 +18,7 @@ class Place {
 		// std::unordered_set<class Object *> objects;
 		// std::unordered_map<std::string, class Script *> usages;
 		// class Script * landon;
+		std::string landon;
 	public:
 		Place(class Tile * tile);
 		~Place();
@@ -36,6 +37,9 @@ class Place {
 		void setCanLand();
 		void setCantLand();
 		void resetCanLand();
+		std::string getLandon();
+		void setLandon(std::string script);
+		void resetLandon();
 		// getObject();
 		// addObject();
 		// remObject();

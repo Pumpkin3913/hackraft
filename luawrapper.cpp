@@ -6,6 +6,8 @@
 #include "player.h"
 #include "error.h"
 
+// TODO : check type and validity (NULL arg -> segfault).
+
 /* Output */
 
 int l_setverbose(lua_State * lua) {
@@ -204,8 +206,10 @@ int l_new_screen(lua_State * lua) {
 	std::string name = lua_tostring(lua, 1);
 	unsigned int width = lua_tointeger(lua, 2);
 	unsigned int height = lua_tointeger(lua, 3);
-	class Tile * default_tile = (class Tile *) lua_touserdata(lua, 4);
-	class Screen * screen = new Screen(name, width, height, default_tile);
+	class Tile * tile = (class Tile *) lua_touserdata(lua, 4);
+	lua_getglobal(lua, "Server");
+	class Server * server = (class Server *) lua_touserdata(lua, -1);
+	class Screen * screen = new Screen(server, name, width, height, tile);
 	lua_pushlightuserdata(lua, screen);
 	return(1);
 }
@@ -347,6 +351,25 @@ int l_place_setcantland(lua_State * lua) {
 int l_place_resetcanland(lua_State * lua) {
 	class Place * place = (class Place *) lua_touserdata(lua, 1);
 	place->resetCanLand();
+	return(0);
+}
+
+int l_place_getlandon(lua_State * lua) {
+	class Place * place = (class Place *) lua_touserdata(lua, 1);
+	lua_pushstring(lua, place->getLandon().c_str());
+	return(1);
+}
+
+int l_place_setlandon(lua_State * lua) {
+	class Place * place = (class Place *) lua_touserdata(lua, 1);
+	std::string script = lua_tostring(lua, 2);
+	place->setLandon(script);
+	return(0);
+}
+
+int l_place_resetlandon(lua_State * lua) {
+	class Place * place = (class Place *) lua_touserdata(lua, 1);
+	place->resetLandon();
 	return(0);
 }
 
@@ -527,6 +550,9 @@ Luawrapper::Luawrapper(class Server * server) :
 	lua_register(this->lua_state, "place_setcanland", l_place_setcanland);
 	lua_register(this->lua_state, "place_setcantland", l_place_setcantland);
 	lua_register(this->lua_state, "place_resetcanland", l_place_resetcanland);
+	lua_register(this->lua_state, "place_getlandon", l_place_getlandon);
+	lua_register(this->lua_state, "place_setlandon", l_place_setlandon);
+	lua_register(this->lua_state, "place_resetlandon", l_place_resetlandon);
 
 	lua_register(this->lua_state, "delete_player", l_delete_player);
 	lua_register(this->lua_state, "player_spawn", l_player_spawn);
@@ -552,13 +578,18 @@ Luawrapper::~Luawrapper() {
 	lua_close(this->lua_state);
 }
 
-void Luawrapper::exeLua(std::string filename) {
+void Luawrapper::exeLua(std::string filename, class Player * player) {
+	if(player) {
+		lua_pushlightuserdata(this->lua_state, player);
+		lua_setglobal(this->lua_state, "Player");
+	} else {
+		lua_pushnil(this->lua_state);
+		lua_setglobal(this->lua_state, "Player");
+	}
 	luaL_dofile(this->lua_state, filename.c_str());
 }
 
 void Luawrapper::spawnScript(class Player * player) {
-	lua_pushlightuserdata(this->lua_state, player);
-	lua_setglobal(this->lua_state, "Player");
-	this->exeLua(LUA_SPAWN_SCRIPT);
+	this->exeLua(LUA_SPAWN_SCRIPT, player);
 }
 

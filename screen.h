@@ -5,6 +5,7 @@
 
 class Place;
 class Player;
+class Server;
 
 #include "error.h"
 
@@ -15,6 +16,7 @@ class Player;
 
 class Screen {
 	private:
+		class Server * server;
 		std::string name;
 		unsigned int width;
 		unsigned int height;
@@ -24,8 +26,15 @@ class Screen {
 	public:
 		std::mutex mutex;
 
-		Screen(std::string name, unsigned int width, unsigned int height, class Tile* default_tile);
+		Screen(
+			class Server * server,
+			std::string name,
+			unsigned int width,
+			unsigned int height,
+			class Tile* default_tile
+		);
 		~Screen();
+		class Server * getServer();
 		std::string getName();
 		void setName(std::string name);
 		unsigned int getWidth();
@@ -35,10 +44,18 @@ class Screen {
 		void event(std::string message); // Broadcast a message to all players.
 
 		/* Called by Player only */
+
 		bool canLandPlayer(class Player * player, int x, int y);
-		void enterPlayer(class Player * player); // Add the player to the screen, send him the floor and broadcast its position.
-		void exitPlayer(class Player * player); // Remove the player from the screen and broadcast it.
-		void updatePlayerPosition(class Player * player); // Broadcast the new position of the player.
+
+		// Add the player to the screen,
+		// send him the floor and broadcast its position.
+		void enterPlayer(class Player * player);
+
+		// Remove the player from the screen and broadcast it.
+		void exitPlayer(class Player * player);
+
+		// Broadcast the new position of the player.
+		void updatePlayerPosition(class Player * player);
 };
 
 #endif

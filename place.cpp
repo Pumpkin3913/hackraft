@@ -93,6 +93,18 @@ void Place::resetCanLand() {
 	this->useLocalCanLand = false;
 }
 
+std::string Place::getLandon() {
+	return(this->landon);
+}
+
+void Place::setLandon(std::string script) {
+	this->landon = script;
+}
+
+void Place::resetLandon() {
+	this->landon = "";
+}
+
 // getObject();
 // addObject();
 // remObject();

@@ -22,7 +22,7 @@ class Luawrapper {
 	public:
 		Luawrapper(class Server * server);
 		~Luawrapper();
-		void exeLua(std::string filename);
+		void exeLua(std::string filename, class Player * player = NULL);
 		void spawnScript(class Player * player);
 };
 

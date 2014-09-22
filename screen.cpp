@@ -2,13 +2,21 @@
 
 #include "place.h"
 #include "player.h"
+#include "server.h"
 
-Screen::Screen(std::string name, unsigned int width, unsigned int height, class Tile* defaultTile) :
+Screen::Screen(
+	class Server * server,
+	std::string name,
+	unsigned int width,
+	unsigned int height,
+	class Tile* default_tile
+) :
+	server(server),
 	name(name),
 	width(width),
 	height(height)
 {
-	class Place defaultPlace(defaultTile);
+	class Place defaultPlace(default_tile);
 	this->places = std::vector<class Place>(width * height, defaultPlace);
 }
 
@@ -17,6 +25,10 @@ Screen::~Screen() {
 	for(std::pair<int, Player*> it : this->players) {
 		delete(it.second);
 	}
+}
+
+class Server * Screen::getServer() {
+	return(this->server);
 }
 
 std::string Screen::getName() {

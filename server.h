@@ -4,6 +4,7 @@
 class Screen;
 class Tile;
 class Luawrapper;
+class Player;
 
 #include "error.h"
 
@@ -40,7 +41,7 @@ class Server {
 		void addTile(class Tile * tile);
 		class Tile * getTile(std::string id);
 		// A Tile must never be remove before the destruction of the server.
-		void exeLua(std::string filename);
+		void exeLua(std::string filename, class Player * player = NULL);
 };
 
 #endif

@@ -196,7 +196,7 @@ class Tile * Server::getTile(std::string id) {
 	}
 }
 
-void Server::exeLua(std::string filename) {
-	this->luawrapper->exeLua(filename);
+void Server::exeLua(std::string filename, class Player * player) {
+	this->luawrapper->exeLua(filename, player);
 }
 
