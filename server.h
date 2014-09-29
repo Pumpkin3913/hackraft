@@ -21,6 +21,7 @@ class Server {
 		unsigned short port;
 		std::map<std::string, class Tile *> tiles;
 		std::map<std::string, class Screen *> screens;
+		std::map<std::string, std::string *> scripts;
 		std::thread * acceptThread;
 		class Luawrapper * luawrapper;
 
@@ -41,7 +42,11 @@ class Server {
 		void addTile(class Tile * tile);
 		class Tile * getTile(std::string id);
 		// A Tile must never be remove before the destruction of the server.
+		void addScript(std::string id, std::string * filename);
+		std::string * getScript(std::string id);
+		void delScript(std::string id);
 		void exeLua(std::string filename, class Player * player = NULL);
+		void exeScript(std::string id, class Player * player = NULL);
 };
 
 #endif

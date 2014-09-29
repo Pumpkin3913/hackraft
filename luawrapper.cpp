@@ -119,6 +119,28 @@ int l_server_gettile(lua_State * lua) {
 	return(1);
 }
 
+int l_server_addscript(lua_State * lua) {
+	class Server * server = (class Server *) lua_touserdata(lua, 1);
+	std::string id = lua_tostring(lua, 2);
+	std::string filename = lua_tostring(lua, 3);
+	server->addScript(id, new std::string(filename));
+	return(0);
+}
+
+int l_server_getscript(lua_State * lua) {
+	class Server * server = (class Server *) lua_touserdata(lua, 1);
+	std::string id = lua_tostring(lua, 2);
+	lua_pushlightuserdata(lua, server->getScript(id));
+	return(1);
+}
+
+int l_server_delscript(lua_State * lua) {
+	class Server * server = (class Server *) lua_touserdata(lua, 1);
+	std::string id = lua_tostring(lua, 2);
+	server->delScript(id);
+	return(0);
+}
+
 /* Tile */
 
 int l_new_tile(lua_State * lua) {
@@ -514,6 +536,9 @@ Luawrapper::Luawrapper(class Server * server) :
 	lua_register(this->lua_state, "server_delscreen", l_server_delscreen);
 	lua_register(this->lua_state, "server_addtile", l_server_addtile);
 	lua_register(this->lua_state, "server_gettile", l_server_gettile);
+	lua_register(this->lua_state, "server_addscript", l_server_addscript);
+	lua_register(this->lua_state, "server_getscript", l_server_getscript);
+	lua_register(this->lua_state, "server_delscript", l_server_delscript);
 
 	lua_register(this->lua_state, "new_tile", l_new_tile);
 	lua_register(this->lua_state, "tile_getid", l_tile_getid);

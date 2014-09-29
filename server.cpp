@@ -165,6 +165,7 @@ unsigned short Server::getPort() {
 }
 
 void Server::addScreen(std::string id, class Screen * screen) {
+	this->delScreen(id);
 	this->screens[id] = screen;
 }
 
@@ -196,7 +197,30 @@ class Tile * Server::getTile(std::string id) {
 	}
 }
 
+void Server::addScript(std::string id, std::string * filename) {
+	this->delScript(id);
+	this->scripts[id] = filename;
+}
+
+std::string * Server::getScript(std::string id) {
+		return(this->scripts[id]);
+}
+
+void Server::delScript(std::string id) {
+	if(this->scripts[id] != NULL) {
+		delete(this->scripts[id]);
+		this->scripts.erase(id);
+	}
+}
+
 void Server::exeLua(std::string filename, class Player * player) {
 	this->luawrapper->exeLua(filename, player);
+}
+
+void Server::exeScript(std::string id, class Player * player) {
+	std::string * script = this->getScript(id);
+	if(script != NULL) {
+		this->exeLua(*script, player);
+	}
 }
 

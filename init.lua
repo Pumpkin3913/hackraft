@@ -19,6 +19,9 @@ server_addscreen(Server, "testroom", screen_testroom)
 place_settile(screen_getplace(screen_testroom, 3, 3), tile_portal)
 place_setlandon(screen_getplace(screen_testroom, 3,3), "plop.lua")
 
+-- /dance script
+server_addscript(Server, "dance", "dance.lua");
+
 server_open(Server, 31337)
 verboseinfo("Lua Init OK")
 

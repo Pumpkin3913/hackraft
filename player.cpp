@@ -73,6 +73,11 @@ void Player::parse() {
 
 	msg = this->receive();
 	if(!this->stop) {
+		if(msg[0] == '/') {
+			if(this->screen != NULL) {
+				this->screen->getServer()->exeScript(msg.substr(1), this);
+			}
+		} else {
 		separator = msg.find_first_of(' ');
 		if(separator == std::string::npos) {
 			cmd = msg;
@@ -106,6 +111,7 @@ void Player::parse() {
 			this->screen->mutex.unlock();
 		} else if(!cmd.compare("quit")) {
 			this->stop = true;
+		}
 		}
 	}
 }
