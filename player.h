@@ -90,6 +90,7 @@ class Player {
 		void updateTile(unsigned int x, unsigned int y, Aspect aspect);
 		void updateObject(unsigned int x, unsigned int y, Aspect aspect);
 		void updateNoObject(unsigned int x, unsigned int y);
+		void follow(class Player * player);
 };
 
 #endif

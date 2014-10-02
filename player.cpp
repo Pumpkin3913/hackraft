@@ -160,6 +160,7 @@ void Player::spawn(class Screen * screen, int x, int y) {
 		this->screen->enterPlayer(this);
 		this->screen->mutex.unlock();
 		this->loopThread = new std::thread(&Player::loopFunction, this);
+		this->follow(this);
 		verbose_info("Player spawn successfully.");
 	}
 }
@@ -189,9 +190,11 @@ Aspect Player::getAspect() {
 	return(this->aspect);
 }
 
-// TODO : Player::setAspect() : auto broadcast new aspect.
 void Player::setAspect(Aspect aspect) {
 	this->aspect = aspect;
+	if(this->screen) {
+		this->screen->updatePlayer(this);
+	}
 }
 
 class Screen * Player::getScreen() {
@@ -211,7 +214,7 @@ void Player::setXY(int x, int y) {
 	this->y = y;
 	if(this->screen) {
 		this->screen->mutex.lock();
-		this->screen->updatePlayerPosition(this);
+		this->screen->updatePlayer(this);
 		this->screen->mutex.unlock();
 	}
 }
@@ -314,6 +317,8 @@ void Player::updatePlayer(class Player * player) {
 			"move "
 			+ std::to_string(player->getId())
 			+ " "
+			+ std::to_string(player->getAspect())
+			+ " "
 			+ std::to_string(player->getX())
 			+ " "
 			+ std::to_string(player->getY())
@@ -379,5 +384,9 @@ void Player::updateNoObject(unsigned int x, unsigned int y) {
 			+ " "
 			+ std::to_string(y)
 		  );
+}
+
+void Player::follow(class Player * player) {
+	this->send("follow " + std::to_string(player->getId()));
 }
 

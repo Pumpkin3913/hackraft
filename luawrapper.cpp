@@ -507,6 +507,13 @@ int l_player_message(lua_State * lua) {
 	return(0);
 }
 
+int l_player_follow(lua_State * lua) {
+	class Player * player = (class Player *) lua_touserdata(lua, 1);
+	class Player * target = (class Player *) lua_touserdata(lua, 2);
+	player->follow(target);
+	return(0);
+}
+
 /* Wraper class */
 
 Luawrapper::Luawrapper(class Server * server) :
@@ -595,6 +602,7 @@ Luawrapper::Luawrapper(class Server * server) :
 	lua_register(this->lua_state, "player_move", l_player_move);
 	lua_register(this->lua_state, "player_changescreen", l_player_changescreen);
 	lua_register(this->lua_state, "player_message", l_player_message);
+	lua_register(this->lua_state, "player_follow", l_player_follow);
 
 	this->exeLua(LUA_INIT_SCRIPT);
 }

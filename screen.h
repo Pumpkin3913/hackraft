@@ -54,8 +54,8 @@ class Screen {
 		// Remove the player from the screen and broadcast it.
 		void exitPlayer(class Player * player);
 
-		// Broadcast the new position of the player.
-		void updatePlayerPosition(class Player * player);
+		// Broadcast the new position and aspect of the player.
+		void updatePlayer(class Player * player);
 };
 
 #endif

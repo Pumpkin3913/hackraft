@@ -80,7 +80,7 @@ bool Screen::canLandPlayer(class Player * player, int x, int y) {
 void Screen::enterPlayer(class Player * player) {
 	this->players[player->getId()] = player;
 	player->updateFloor();
-	this->updatePlayerPosition(player);
+	this->updatePlayer(player);
 	for(std::pair<int, Player*> it : this->players) {
 		if(it.second != player) {
 			player->updatePlayer(it.second);
@@ -95,7 +95,7 @@ void Screen::exitPlayer(class Player * player) {
 	}
 }
 
-void Screen::updatePlayerPosition(class Player * player) {
+void Screen::updatePlayer(class Player * player) {
 	for(std::pair<int, Player*> it : this->players) {
 		it.second->updatePlayer(player);
 	}
