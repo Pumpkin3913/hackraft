@@ -73,11 +73,6 @@ void Player::parse() {
 
 	msg = this->receive();
 	if(!this->stop) {
-		if(msg[0] == '/') {
-			if(this->screen != NULL) {
-				this->screen->getServer()->exeScript(msg.substr(1), this);
-			}
-		} else {
 		separator = msg.find_first_of(' ');
 		if(separator == std::string::npos) {
 			cmd = msg;
@@ -87,7 +82,11 @@ void Player::parse() {
 			arg = msg.substr(separator+1); // from separator+1 to the end.
 		}
 
-		if(!cmd.compare("move")) {
+		if(cmd[0] == '/') {
+			if(this->screen) {
+				this->screen->getServer()->exeScript(cmd.substr(1), this, arg);
+			}
+		} else if(!cmd.compare("move")) {
 			signed int xShift = 0;
 			signed int yShift = 0;
 			bool valid = true;
@@ -106,19 +105,25 @@ void Player::parse() {
 				this->move(xShift, yShift);
 			}
 		} else if(!cmd.compare("say")) {
-			this->screen->mutex.lock();
-			this->screen->event(this->name+" say "+arg);
-			this->screen->mutex.unlock();
+			if(this->screen) {
+				this->screen->mutex.lock();
+				this->screen->event(this->name+" say "+arg);
+				this->screen->mutex.unlock();
+			}
 		} else if(!cmd.compare("quit")) {
 			this->stop = true;
-		}
 		}
 	}
 }
 
 // PUBLIC
 
-Player::Player(int fd, std::string name, std::string description, Aspect aspect) :
+Player::Player(
+	int fd,
+	std::string name,
+	std::string description,
+	Aspect aspect
+) :
 	fd(fd),
 	id(fd),
 	name(name),

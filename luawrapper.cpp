@@ -611,15 +611,22 @@ Luawrapper::~Luawrapper() {
 	lua_close(this->lua_state);
 }
 
-void Luawrapper::exeLua(std::string filename, class Player * player) {
+void Luawrapper::exeLua(std::string filename, class Player * player, std::string arg) {
 	if(player) {
 		lua_pushlightuserdata(this->lua_state, player);
-		lua_setglobal(this->lua_state, "Player");
 	} else {
 		lua_pushnil(this->lua_state);
-		lua_setglobal(this->lua_state, "Player");
 	}
-	luaL_dofile(this->lua_state, filename.c_str());
+	lua_setglobal(this->lua_state, "Player");
+
+	if(arg == "") {
+		lua_pushnil(this->lua_state);
+	} else {
+		lua_pushstring(this->lua_state, arg.c_str());
+	}
+	lua_setglobal(this->lua_state, "Arg");
+
+	luaL_dofile(this->lua_state, filename.c_str()) && luaL_dostring(this->lua_state, filename.c_str());
 }
 
 void Luawrapper::spawnScript(class Player * player) {

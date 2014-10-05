@@ -41,12 +41,12 @@ class Server {
 		void delScreen(std::string id);
 		void addTile(class Tile * tile);
 		class Tile * getTile(std::string id);
-		// A Tile must never be remove before the destruction of the server.
+		// A Tile must never be removed before the destruction of the server.
 		void addScript(std::string id, std::string * filename);
 		std::string * getScript(std::string id);
 		void delScript(std::string id);
-		void exeLua(std::string filename, class Player * player = NULL);
-		void exeScript(std::string id, class Player * player = NULL);
+		void exeLua(std::string filename, class Player * player = NULL, std::string arg = "");
+		void exeScript(std::string id, class Player * player = NULL, std::string arg = "");
 };
 
 #endif

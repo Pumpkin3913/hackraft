@@ -213,14 +213,14 @@ void Server::delScript(std::string id) {
 	}
 }
 
-void Server::exeLua(std::string filename, class Player * player) {
-	this->luawrapper->exeLua(filename, player);
+void Server::exeLua(std::string filename, class Player * player, std::string arg) {
+	this->luawrapper->exeLua(filename, player, arg);
 }
 
-void Server::exeScript(std::string id, class Player * player) {
+void Server::exeScript(std::string id, class Player * player, std::string arg) {
 	std::string * script = this->getScript(id);
 	if(script != NULL) {
-		this->exeLua(*script, player);
+		this->exeLua(*script, player, arg);
 	}
 }
 
