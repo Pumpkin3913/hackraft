@@ -13,8 +13,16 @@ x = player_getx(Player)
 y = player_gety(Player)
 screen = player_getscreen(Player)
 
-closedoor(screen, x+1, y);
-closedoor(screen, x-1, y);
-closedoor(screen, x, y+1);
-closedoor(screen, x, y-1);
+if Arg == "north" then
+	closedoor(screen, x, y-1);
+else if Arg == "south" then
+	closedoor(screen, x, y+1);
+else if Arg == "east" then
+	closedoor(screen, x+1, y);
+else if Arg == "west" then
+	closedoor(screen, x-1, y);
+else
+	player_message(Player, "/close [north|south|east|west]")
+end end end end
+
 

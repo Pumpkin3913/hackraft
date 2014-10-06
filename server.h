@@ -42,6 +42,7 @@ class Server {
 		void addTile(class Tile * tile);
 		class Tile * getTile(std::string id);
 		// A Tile must never be removed before the destruction of the server.
+		class Player * getPlayer(int id); // May return NULL.
 		void addScript(std::string id, std::string * filename);
 		std::string * getScript(std::string id);
 		void delScript(std::string id);

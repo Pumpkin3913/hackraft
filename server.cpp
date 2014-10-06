@@ -197,6 +197,17 @@ class Tile * Server::getTile(std::string id) {
 	}
 }
 
+class Player * Server::getPlayer(int id) {
+	class Player * player;
+	for(std::pair<std::string, class Screen *> entry : this->screens) {
+		player = entry.second->getPlayer(id);
+		if(player) {
+			return(player);
+		}
+	}
+	return(NULL);
+}
+
 void Server::addScript(std::string id, std::string * filename) {
 	this->delScript(id);
 	this->scripts[id] = filename;

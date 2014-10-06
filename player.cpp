@@ -133,6 +133,7 @@ Player::Player(
 	screen(NULL),
 	x(0),
 	y(0),
+	onDeath(""),
 /* ToDO : latter
 	movepoints(0),
 	visible(true),
@@ -147,6 +148,11 @@ Player::~Player() {
 // ToDO : latter : ~Player() : delete objects, gauges and tags.
 // ToDO : latter : trigger this->onDeath here ?
 	if(this->screen) {
+		if(this->onDeath != "") {
+			std::string script = this->onDeath;
+			this->onDeath = "";
+			this->screen->getServer()->getLua()->executeFile(script, this);
+		}
 		this->screen->exitPlayer(this);
 	}
 	this->_close();
@@ -248,6 +254,14 @@ void Player::changeScreen(class Screen * newScreen, int x, int y) {
 		this->screen = newScreen;
 		this->screen->enterPlayer(this);
 	}
+}
+
+std::string Player::getOnDeath() {
+	return(this->onDeath);
+}
+
+void Player::setOnDeath(std::string script) {
+	this->onDeath = script;
 }
 
 /* ToDO : latter :

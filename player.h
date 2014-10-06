@@ -20,6 +20,7 @@ class Player {
 		class Screen* screen;
 		int x;
 		int y;
+		std::string onDeath;
 /* ToDO : latter :
 		std::list<class Object *> objects;
 		std::map<std::string, class Gauge *> gauges;
@@ -57,6 +58,8 @@ class Player {
 		void setXY(int x, int y); // dont check if canLand(); auto bcast new position.
 		void move(int xShift, int yShift); // check if canLand() and setXY() if yes.
 		void changeScreen(class Screen * newScreen, int x, int y); // exit this screen, enter the new one.
+		std::string getOnDeath();
+		void setOnDeath(std::string script);
 
 /* ToDO : latter :
 		getObject();

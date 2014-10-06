@@ -119,6 +119,13 @@ int l_server_gettile(lua_State * lua) {
 	return(1);
 }
 
+int l_server_getplayer(lua_State * lua) {
+	class Server * server = (class Server *) lua_touserdata(lua, 1);
+	int id = lua_tointeger(lua, 2);
+	lua_pushlightuserdata(lua, server->getPlayer(id));
+	return(1);
+}
+
 int l_server_addscript(lua_State * lua) {
 	class Server * server = (class Server *) lua_touserdata(lua, 1);
 	std::string id = lua_tostring(lua, 2);
@@ -247,6 +254,18 @@ int l_screen_setname(lua_State * lua) {
 	std::string name = lua_tostring(lua, 2);
 	screen->setName(name);
 	return(0);
+}
+
+int l_screen_getwidth(lua_State * lua) {
+	class Screen * screen = (class Screen *) lua_touserdata(lua, 1);
+	lua_pushinteger(lua, screen->getWidth());
+	return(1);
+}
+
+int l_screen_getheight(lua_State * lua) {
+	class Screen * screen = (class Screen *) lua_touserdata(lua, 1);
+	lua_pushinteger(lua, screen->getHeight());
+	return(1);
 }
 
 int l_screen_getplace(lua_State * lua) {
@@ -508,6 +527,19 @@ int l_player_changescreen(lua_State * lua) {
 	return(0);
 }
 
+int l_player_getondeath(lua_State * lua) {
+	class Player * player = (class Player *) lua_touserdata(lua, 1);
+	lua_pushstring(lua, player->getOnDeath().c_str());
+	return(1);
+}
+
+int l_player_setondeath(lua_State * lua) {
+	class Player * player = (class Player *) lua_touserdata(lua, 1);
+	std::string script = lua_tostring(lua, 2);
+	player->setOnDeath(script);
+	return(0);
+}
+
 int l_player_message(lua_State * lua) {
 	class Player * player = (class Player *) lua_touserdata(lua, 1);
 	std::string message = lua_tostring(lua, 2);
@@ -551,6 +583,7 @@ Luawrapper::Luawrapper(class Server * server) :
 	lua_register(this->lua_state, "server_delscreen", l_server_delscreen);
 	lua_register(this->lua_state, "server_addtile", l_server_addtile);
 	lua_register(this->lua_state, "server_gettile", l_server_gettile);
+	lua_register(this->lua_state, "server_getplayer", l_server_getplayer);
 	lua_register(this->lua_state, "server_addscript", l_server_addscript);
 	lua_register(this->lua_state, "server_getscript", l_server_getscript);
 	lua_register(this->lua_state, "server_delscript", l_server_delscript);
@@ -570,6 +603,8 @@ Luawrapper::Luawrapper(class Server * server) :
 	lua_register(this->lua_state, "new_screen", l_new_screen);
 	lua_register(this->lua_state, "screen_getname", l_screen_getname);
 	lua_register(this->lua_state, "screen_setname", l_screen_setname);
+	lua_register(this->lua_state, "screen_getwidth", l_screen_getwidth);
+	lua_register(this->lua_state, "screen_getheight", l_screen_getheight);
 	lua_register(this->lua_state, "screen_getplace", l_screen_getplace);
 	lua_register(this->lua_state, "screen_getplayer", l_screen_getplayer);
 	lua_register(this->lua_state, "screen_event", l_screen_event);
@@ -610,6 +645,8 @@ Luawrapper::Luawrapper(class Server * server) :
 	lua_register(this->lua_state, "player_setxy", l_player_setxy);
 	lua_register(this->lua_state, "player_move", l_player_move);
 	lua_register(this->lua_state, "player_changescreen", l_player_changescreen);
+	lua_register(this->lua_state, "player_getondeath", l_player_getondeath);
+	lua_register(this->lua_state, "player_setondeath", l_player_setondeath);
 	lua_register(this->lua_state, "player_message", l_player_message);
 	lua_register(this->lua_state, "player_follow", l_player_follow);
 
