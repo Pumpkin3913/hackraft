@@ -273,6 +273,14 @@ int l_screen_event(lua_State * lua) {
 	return(0);
 }
 
+int l_screen_updatetile(lua_State * lua) {
+	class Screen * screen = (class Screen *) lua_touserdata(lua, 1);
+	int x = lua_tointeger(lua, 2);
+	int y = lua_tointeger(lua, 3);
+	screen->updateTile(x, y);
+	return(0);
+}
+
 /* Place */
 
 int l_new_place(lua_State * lua) {
@@ -565,6 +573,7 @@ Luawrapper::Luawrapper(class Server * server) :
 	lua_register(this->lua_state, "screen_getplace", l_screen_getplace);
 	lua_register(this->lua_state, "screen_getplayer", l_screen_getplayer);
 	lua_register(this->lua_state, "screen_event", l_screen_event);
+	lua_register(this->lua_state, "screen_updatetile", l_screen_updatetile);
 
 	lua_register(this->lua_state, "new_place", l_new_place);
 	lua_register(this->lua_state, "place_gettile", l_place_gettile);

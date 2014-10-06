@@ -42,6 +42,7 @@ class Screen {
 		class Place * getPlace(int x, int y); // May return NULL.
 		class Player * getPlayer(int id_fd); // May return NULL.
 		void event(std::string message); // Broadcast a message to all players.
+		void updateTile(int x, int y);
 
 		/* Called by Player only */
 

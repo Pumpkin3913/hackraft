@@ -66,6 +66,15 @@ void Screen::event(std::string message) {
 	}
 }
 
+void Screen::updateTile(int x, int y) {
+	class Place * place = this->getPlace(x, y);
+	if(place) {
+		for(std::pair<int, Player*> it : this->players) {
+			it.second->updateTile(x, y, place->getAspect());
+		}
+	}
+}
+
 /* Called by Player only */
 
 bool Screen::canLandPlayer(class Player * player, int x, int y) {

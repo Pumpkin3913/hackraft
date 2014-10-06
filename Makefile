@@ -6,8 +6,8 @@ CXX = clang
 #CC = g++
 #CC = gcc
 #CXX = g++
-CFLAGS   = -Wall -pedantic -g
-CXXFLAGS = -Wall -pedantic -g -std=c++11
+CFLAGS   = -DDEBUG -g -Wall -pedantic -g
+CXXFLAGS = -DDEBUG -g -Wall -pedantic -g -std=c++11
 LDLIBS = -lstdc++ -lpthread -llua
 $(RM) = rm -f
 
