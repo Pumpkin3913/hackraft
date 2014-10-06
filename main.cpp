@@ -17,8 +17,9 @@ int main (int argc, char** argv) {
 	while(getline(std::cin, input)) {
 		if(!input.compare("quit")) {
 			break;
+		} else {
+			server->getLua()->executeCode(input);
 		}
-		server->exeLua(input);
 	}
 
 	delete(server);

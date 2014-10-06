@@ -29,6 +29,7 @@ server_addscript(Server, "dance", "scripts/dance.lua")
 server_addscript(Server, "morph", "scripts/morph.lua")
 server_addscript(Server, "name", "scripts/name.lua")
 server_addscript(Server, "open", "scripts/open.lua")
+server_addscript(Server, "close", "scripts/close.lua")
 
 server_open(Server, 31337)
 verboseinfo("Lua Init OK")

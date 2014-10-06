@@ -3,6 +3,7 @@
 #include "screen.h"
 #include "place.h"
 #include "server.h"
+#include "luawrapper.h"
 
 #ifdef __linux__
 #include <unistd.h>
@@ -233,7 +234,7 @@ void Player::move(int xShift, int yShift) {
 			std::string script =
 				this->screen->getPlace(new_x, new_y)->getLandon();
 			if(script != "") {
-				this->screen->getServer()->exeLua(script, this);
+				this->screen->getServer()->getLua()->executeFile(script, this);
 			}
 		}
 	}

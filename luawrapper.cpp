@@ -613,14 +613,14 @@ Luawrapper::Luawrapper(class Server * server) :
 	lua_register(this->lua_state, "player_message", l_player_message);
 	lua_register(this->lua_state, "player_follow", l_player_follow);
 
-	this->exeLua(LUA_INIT_SCRIPT);
+	this->executeFile(LUA_INIT_SCRIPT);
 }
 
 Luawrapper::~Luawrapper() {
 	lua_close(this->lua_state);
 }
 
-void Luawrapper::exeLua(std::string filename, class Player * player, std::string arg) {
+void Luawrapper::executeFile(std::string filename, class Player * player, std::string arg) {
 	if(player) {
 		lua_pushlightuserdata(this->lua_state, player);
 	} else {
@@ -635,10 +635,14 @@ void Luawrapper::exeLua(std::string filename, class Player * player, std::string
 	}
 	lua_setglobal(this->lua_state, "Arg");
 
-	luaL_dofile(this->lua_state, filename.c_str()) && luaL_dostring(this->lua_state, filename.c_str());
+	luaL_dofile(this->lua_state, filename.c_str());
+}
+
+void Luawrapper::executeCode(std::string code) {
+	luaL_dostring(this->lua_state, code.c_str());
 }
 
 void Luawrapper::spawnScript(class Player * player) {
-	this->exeLua(LUA_SPAWN_SCRIPT, player);
+	this->executeFile(LUA_SPAWN_SCRIPT, player);
 }
 

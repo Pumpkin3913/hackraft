@@ -22,7 +22,8 @@ class Luawrapper {
 	public:
 		Luawrapper(class Server * server);
 		~Luawrapper();
-		void exeLua(std::string filename, class Player * player = NULL, std::string arg = "");
+		void executeFile(std::string filename, class Player * player = NULL, std::string arg = "");
+		void executeCode(std::string code);
 		void spawnScript(class Player * player);
 };
 
