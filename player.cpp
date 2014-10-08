@@ -3,6 +3,7 @@
 #include "screen.h"
 #include "place.h"
 #include "server.h"
+#include "gauge.h"
 #include "luawrapper.h"
 
 #ifdef __linux__
@@ -264,14 +265,37 @@ void Player::setOnDeath(std::string script) {
 	this->onDeath = script;
 }
 
+class Gauge * Player::getGauge(std::string name) {
+	try {
+		return(this->gauges.at(name));
+	} catch(...) {
+		return(NULL);
+	}
+}
+
+void Player::addGauge(class Gauge * gauge) {
+	class Gauge * old = this->getGauge(gauge->getName());
+	if(old) {
+		delete(old);
+		// this->gauges.erase(gauge->getName());
+	}
+	this->gauges[gauge->getName()] = gauge; // XXX
+	// this->gauges.insert(std::pair<std::string, class Gauge *>(gauge->getName(), gauge));
+}
+
+void Player::delGauge(std::string name) {
+	class Gauge * old = this->getGauge(name);
+	if(old) {
+		delete(old);
+	}
+	this->gauges.erase(name);
+}
+
 /* ToDO : latter :
 
 getObject();
 addObject();
 remObject();
-getGauge();
-addGauge();
-delGauge();
 getTag();
 addTag();
 delTag();
@@ -403,7 +427,26 @@ void Player::updateNoObject(unsigned int x, unsigned int y) {
 			+ std::to_string(x)
 			+ " "
 			+ std::to_string(y)
-		  );
+	);
+}
+
+void Player::updateGauge(std::string name, unsigned int val, unsigned int max) {
+	// gauge <name> <val> <max>
+	this->send(
+			"gauge "
+			+ name
+			+ " "
+			+ std::to_string(val)
+			+ " "
+			+ std::to_string(max)
+	);
+}
+
+void Player::updateNoGauge(std::string name) {
+	this->send(
+			"nogauge "
+			+ name
+	);
 }
 
 void Player::follow(class Player * player) {

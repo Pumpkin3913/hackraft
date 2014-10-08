@@ -3,22 +3,22 @@
 
 #include <string>
 
-// #include "script.h"
+class Player;
 
 class Gauge {
 	private:
-		std::string id;
+		class Player * player;
 		std::string name;
 		unsigned int val;
 		unsigned int max;
-		bool visible;
+		// bool visible; // TODO : latter.
 		// script * onFull;
 		// script * onEmpty;
+		// TODO : Aspect full; Aspect empty;
+		void update();
 	public:
-		Gauge(unsigned int initVal, unsigned int max);
-		Gauge(unsigned int initVal, unsigned int max, visible);
+		Gauge(Player * player, std::string name, unsigned int initVal, unsigned int max);
 		~Gauge();
-		std::string getId();
 		std::string getName();
 		void setName(std::string name);
 		unsigned int getVal();
@@ -27,9 +27,11 @@ class Gauge {
 		void decrease(unsigned int val);
 		unsigned int getMax();
 		void setMax(unsigned int max);
+		/* TODO : latter.
 		bool isVisible();
 		void setVisible();
 		void setNotVisible();
+		*/
 		// set/get onfull/onempty();
 };
 

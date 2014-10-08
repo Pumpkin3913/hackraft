@@ -4,6 +4,7 @@
 #include "screen.h"
 #include "place.h"
 #include "player.h"
+#include "gauge.h"
 #include "error.h"
 
 // TODO : check type and validity (NULL arg -> segfault).
@@ -540,6 +541,30 @@ int l_player_setondeath(lua_State * lua) {
 	return(0);
 }
 
+int l_player_getgauge(lua_State * lua) {
+	class Player * player = (class Player *) lua_touserdata(lua, 1);
+	std::string name = lua_tostring(lua, 2);
+	lua_pushlightuserdata(lua, player->getGauge(name));
+	return(1);
+}
+
+/* XXX //
+// Only a new gauge can add itself to a player.
+int l_player_addgauge(lua_State * lua) {
+	class Player * player = (class Player *) lua_touserdata(lua, 1);
+	class Gauge * gauge = (class Gauge *) lua_touserdata(lua, 2);
+	player->addGauge(gauge);
+	return(0);
+}
+// XXX */
+
+int l_player_delgauge(lua_State * lua) {
+	class Player * player = (class Player *) lua_touserdata(lua, 1);
+	std::string name = lua_tostring(lua, 2);
+	player->delGauge(name);
+	return(0);
+}
+
 int l_player_message(lua_State * lua) {
 	class Player * player = (class Player *) lua_touserdata(lua, 1);
 	std::string message = lua_tostring(lua, 2);
@@ -551,6 +576,71 @@ int l_player_follow(lua_State * lua) {
 	class Player * player = (class Player *) lua_touserdata(lua, 1);
 	class Player * target = (class Player *) lua_touserdata(lua, 2);
 	player->follow(target);
+	return(0);
+}
+
+/* Gauge */
+
+int l_new_gauge(lua_State * lua) {
+	class Player * player = (class Player *) lua_touserdata(lua, 1);
+	std::string name = lua_tostring(lua, 2);
+	unsigned int val = lua_tointeger(lua, 3);
+	unsigned int max = lua_tointeger(lua, 4);
+	class Gauge * gauge = new Gauge(player, name, val, max);
+	lua_pushlightuserdata(lua, gauge);
+	return(1);
+}
+
+int l_gauge_getname(lua_State * lua) {
+	class Gauge * gauge = (class Gauge *) lua_touserdata(lua, 1);
+	lua_pushstring(lua, gauge->getName().c_str());
+	return(1);
+}
+
+int l_gauge_setname(lua_State * lua) {
+	class Gauge * gauge = (class Gauge *) lua_touserdata(lua, 1);
+	std::string name = lua_tostring(lua, 2);
+	gauge->setName(name);
+	return(0);
+}
+
+int l_gauge_getval(lua_State * lua) {
+	class Gauge * gauge = (class Gauge *) lua_touserdata(lua, 1);
+	lua_pushinteger(lua, gauge->getVal());
+	return(1);
+}
+
+int l_gauge_setval(lua_State * lua) {
+	class Gauge * gauge = (class Gauge *) lua_touserdata(lua, 1);
+	unsigned int val = lua_tointeger(lua, 2);
+	gauge->setVal(val);
+	return(0);
+}
+
+int l_gauge_increase(lua_State * lua) {
+	class Gauge * gauge = (class Gauge *) lua_touserdata(lua, 1);
+	unsigned int val = lua_tointeger(lua, 2);
+	gauge->increase(val);
+	return(0);
+}
+
+int l_gauge_decrease(lua_State * lua) {
+	class Gauge * gauge = (class Gauge *) lua_touserdata(lua, 1);
+	unsigned int val = lua_tointeger(lua, 2);
+	gauge->decrease(val);
+	return(0);
+}
+
+int l_gauge_getmax(lua_State * lua) {
+	class Gauge * gauge = (class Gauge *) lua_touserdata(lua, 1);
+	lua_pushinteger(lua, gauge->getMax());
+	return(1);
+}
+
+int l_gauge_setmax(lua_State * lua) {
+	class Gauge * gauge = (class Gauge *) lua_touserdata(lua, 1);
+	unsigned int max = lua_tointeger(lua, 2);
+	gauge->setMax(max);
 	return(0);
 }
 
@@ -647,8 +737,21 @@ Luawrapper::Luawrapper(class Server * server) :
 	lua_register(this->lua_state, "player_changescreen", l_player_changescreen);
 	lua_register(this->lua_state, "player_getondeath", l_player_getondeath);
 	lua_register(this->lua_state, "player_setondeath", l_player_setondeath);
+	lua_register(this->lua_state, "player_getgauge", l_player_getgauge);
+	// lua_register(this->lua_state, "player_addgauge", l_player_addgauge); // XXX
+	lua_register(this->lua_state, "player_delgauge", l_player_delgauge);
 	lua_register(this->lua_state, "player_message", l_player_message);
 	lua_register(this->lua_state, "player_follow", l_player_follow);
+
+	lua_register(this->lua_state, "new_gauge", l_new_gauge);
+	lua_register(this->lua_state, "gauge_getname", l_gauge_getname);
+	lua_register(this->lua_state, "gauge_setname", l_gauge_setname);
+	lua_register(this->lua_state, "gauge_getval", l_gauge_getval);
+	lua_register(this->lua_state, "gauge_setval", l_gauge_setval);
+	lua_register(this->lua_state, "gauge_increase", l_gauge_increase);
+	lua_register(this->lua_state, "gauge_decrease", l_gauge_decrease);
+	lua_register(this->lua_state, "gauge_getmax", l_gauge_getmax);
+	lua_register(this->lua_state, "gauge_setmax", l_gauge_setmax);
 
 	this->executeFile(LUA_INIT_SCRIPT);
 }
