@@ -1,5 +1,4 @@
 #!/usr/bin/lua
-info("/name invoked")
-if Arg then
+if Arg and player_getname(Player) == "noname" then
 	player_setname(Player, Arg)
 end

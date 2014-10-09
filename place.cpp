@@ -5,7 +5,6 @@
 Place::Place(class Tile * tile) :
 	tile(tile)
 {
-	this->local_name = "";
 	this->local_description = "";
 	this->local_aspect = noAspect;
 	this->useLocalCanLand = false;
@@ -21,22 +20,6 @@ class Tile * Place::getTile() {
 
 void Place::setTile(class Tile * tile) {
 	this->tile = tile;
-}
-
-std::string Place::getName() {
-	if(this->local_name == "") {
-		return(this->tile->getName());
-	} else {
-		return(this->local_name);
-	}
-}
-
-void Place::setName(std::string name) {
-	this->local_name = name;
-}
-
-void Place::resetName() {
-	this->local_name = "";
 }
 
 std::string Place::getDescription() {

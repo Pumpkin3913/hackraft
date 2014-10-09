@@ -6,7 +6,18 @@
 #include "player.h"
 #include "error.h"
 
+#include <cstdlib> // srand(), rand()
+#include <ctime> // time()
+
 // TODO : check type and validity (NULL arg -> segfault).
+
+int l_c_rand(lua_State * lua) {
+	srand(time(NULL));
+	int max = lua_tointeger(lua, 1);
+	int x = rand()%max+1;
+	lua_pushinteger(lua, x);
+	return(1);
+}
 
 /* Output */
 
@@ -152,15 +163,14 @@ int l_server_delscript(lua_State * lua) {
 
 int l_new_tile(lua_State * lua) {
 	std::string id = lua_tostring(lua, 1);
-	std::string name = lua_tostring(lua, 2);
-	std::string description = lua_tostring(lua, 3);
-	Aspect aspect = lua_tointeger(lua, 4);
+	std::string description = lua_tostring(lua, 2);
+	Aspect aspect = lua_tointeger(lua, 3);
 	class Tile * tile;
-	if(lua_isboolean(lua, 5)) {
-		bool canland = lua_toboolean(lua, 5);
-		tile = new Tile(id, name, description, aspect, canland);
+	if(lua_isboolean(lua, 4)) {
+		bool canland = lua_toboolean(lua, 4);
+		tile = new Tile(id, description, aspect, canland);
 	} else {
-		tile = new Tile(id, name, description, aspect);
+		tile = new Tile(id, description, aspect);
 	}
 	lua_pushlightuserdata(lua, tile);
 	return(1);
@@ -170,19 +180,6 @@ int l_tile_getid(lua_State * lua) {
 	class Tile * tile = (class Tile *) lua_touserdata(lua, 1);
 	lua_pushstring(lua, tile->getId().c_str());
 	return(1);
-}
-
-int l_tile_getname(lua_State * lua) {
-	class Tile * tile = (class Tile *) lua_touserdata(lua, 1);
-	lua_pushstring(lua, tile->getName().c_str());
-	return(1);
-}
-
-int l_tile_setname(lua_State * lua) {
-	class Tile * tile = (class Tile *) lua_touserdata(lua, 1);
-	std::string name = lua_tostring(lua, 2);
-	tile->setName(name);
-	return(0);
 }
 
 int l_tile_getdescription(lua_State * lua) {
@@ -319,25 +316,6 @@ int l_place_settile(lua_State * lua) {
 	class Place * place = (class Place *) lua_touserdata(lua, 1);
 	class Tile * tile = (class Tile *) lua_touserdata(lua, 2);
 	place->setTile(tile);
-	return(0);
-}
-
-int l_place_getname(lua_State * lua) {
-	class Place * place = (class Place *) lua_touserdata(lua, 1);
-	lua_pushstring(lua, place->getName().c_str());
-	return(1);
-}
-
-int l_place_setname(lua_State * lua) {
-	class Place * place = (class Place *) lua_touserdata(lua, 1);
-	std::string name = lua_tostring(lua, 2);
-	place->setName(name);
-	return(0);
-}
-
-int l_place_resetname(lua_State * lua) {
-	class Place * place = (class Place *) lua_touserdata(lua, 1);
-	place->resetName();
 	return(0);
 }
 
@@ -565,6 +543,8 @@ Luawrapper::Luawrapper(class Server * server) :
 	lua_pushlightuserdata(this->lua_state, this->server);
 	lua_setglobal(this->lua_state, "Server");
 
+	lua_register(this->lua_state, "c_rand", l_c_rand);
+
 	lua_register(this->lua_state, "setverbose", l_setverbose);
 	lua_register(this->lua_state, "setnoverbose", l_setnoverbose);
 	lua_register(this->lua_state, "isverbose", l_isverbose);
@@ -590,8 +570,6 @@ Luawrapper::Luawrapper(class Server * server) :
 
 	lua_register(this->lua_state, "new_tile", l_new_tile);
 	lua_register(this->lua_state, "tile_getid", l_tile_getid);
-	lua_register(this->lua_state, "tile_getname", l_tile_getname);
-	lua_register(this->lua_state, "tile_setname", l_tile_setname);
 	lua_register(this->lua_state, "tile_getdescription", l_tile_getdescription);
 	lua_register(this->lua_state, "tile_setdescription", l_tile_setdescription);
 	lua_register(this->lua_state, "tile_getaspect", l_tile_getaspect);
@@ -613,9 +591,6 @@ Luawrapper::Luawrapper(class Server * server) :
 	lua_register(this->lua_state, "new_place", l_new_place);
 	lua_register(this->lua_state, "place_gettile", l_place_gettile);
 	lua_register(this->lua_state, "place_settile", l_place_settile);
-	lua_register(this->lua_state, "place_getname", l_place_getname);
-	lua_register(this->lua_state, "place_setname", l_place_setname);
-	lua_register(this->lua_state, "place_resetname", l_place_resetname);
 	lua_register(this->lua_state, "place_getdescription", l_place_getdescription);
 	lua_register(this->lua_state, "place_setdescription", l_place_setdescription);
 	lua_register(this->lua_state, "place_resetdescription", l_place_resetdescription);

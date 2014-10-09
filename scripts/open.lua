@@ -9,19 +9,19 @@ function opendoor(screen, x, y)
 	end
 end
 
-x = player_getx(Player)
-y = player_gety(Player)
-screen = player_getscreen(Player)
+local x = player_getx(Player)
+local y = player_gety(Player)
+local screen = player_getscreen(Player)
 
 if Arg == "north" then
 	opendoor(screen, x, y-1);
-else if Arg == "south" then
+elseif Arg == "south" then
 	opendoor(screen, x, y+1);
-else if Arg == "east" then
+elseif Arg == "east" then
 	opendoor(screen, x+1, y);
-else if Arg == "west" then
+elseif Arg == "west" then
 	opendoor(screen, x-1, y);
 else
 	player_message(Player, "/open [north|south|east|west]")
-end end end end
+end
 

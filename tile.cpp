@@ -1,8 +1,7 @@
 #include "tile.h"
 
-Tile::Tile(std::string id, std::string name, std::string description, Aspect aspect, bool canLand) :
+Tile::Tile(std::string id, std::string description, Aspect aspect, bool canLand) :
 	id(id),
-	name(name),
 	description(description),
 	aspect(aspect),
 	_canLand(canLand)
@@ -14,14 +13,6 @@ Tile::~Tile() {
 
 std::string Tile::getId() {
 	return(this->id);
-}
-
-std::string Tile::getName() {
-	return(this->name);
-}
-
-void Tile::setName(std::string name) {
-	this->name = name;
 }
 
 std::string Tile::getDescription() {

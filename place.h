@@ -10,7 +10,6 @@ class Tile;
 class Place {
 	private:
 		class Tile * tile;
-		std::string local_name;        // use tile's one if "".
 		std::string local_description; // use tile's one if "".
 		Aspect local_aspect;           // use tile's one if 0.
 		bool useLocalCanLand;
@@ -24,9 +23,6 @@ class Place {
 		~Place();
 		class Tile * getTile();
 		void setTile(class Tile * tile);
-		std::string getName();
-		void setName(std::string name);
-		void resetName();
 		std::string getDescription();
 		void setDescription(std::string description);
 		void resetDescription();

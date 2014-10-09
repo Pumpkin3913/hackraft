@@ -23,7 +23,7 @@
 /* Static */
 
 class Tile Server::defaultTile =
-Tile("nowhere", "Nowhere", "Nowhere...", (Aspect) 0);
+Tile("nowhere", "Nowhere...", (Aspect) 0);
 
 /* Private */
 
