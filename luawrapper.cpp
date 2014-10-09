@@ -8,7 +8,9 @@
 #include "error.h"
 
 // TODO : check type and validity (NULL arg -> segfault).
-
+void lua_arg_error(std::string msg) {
+	warning("Lua must call '"+msg+"'.");
+}
 /* Output */
 
 int l_setverbose(lua_State * lua) {
@@ -23,36 +25,56 @@ int l_setnoverbose(lua_State * lua) {
 
 int l_isverbose(lua_State * lua) {
 	lua_pushboolean(lua, isVerbose());
-	return(0);
+	return(1);
 }
 
 int l_warning(lua_State * lua) {
-	std::string message = lua_tostring(lua, 1);
-	warning(message);
+	if(not lua_isstring(lua, 1)) {
+		lua_arg_error("warning(message)");
+	} else {
+		std::string message = lua_tostring(lua, 1);
+		warning(message);
+	}
 	return(0);
 }
 
 int l_nonfatal(lua_State * lua) {
-	std::string message = lua_tostring(lua, 1);
-	nonfatal(message);
+	if(not lua_isstring(lua, 1)) {
+		lua_arg_error("nonfatal(message)");
+	} else {
+		std::string message = lua_tostring(lua, 1);
+		nonfatal(message);
+	}
 	return(0);
 }
 
 int l_fatal(lua_State * lua) {
-	std::string message = lua_tostring(lua, 1);
-	fatal(message);
+	if(not lua_isstring(lua, 1)) {
+		lua_arg_error("fatal(message)");
+	} else {
+		std::string message = lua_tostring(lua, 1);
+		fatal(message);
+	}
 	return(0);
 }
 
 int l_info(lua_State * lua) {
-	std::string message = lua_tostring(lua, 1);
-	info(message);
+	if(not lua_isstring(lua, 1)) {
+		lua_arg_error("info(message)");
+	} else {
+		std::string message = lua_tostring(lua, 1);
+		info(message);
+	}
 	return(0);
 }
 
 int l_verboseinfo(lua_State * lua) {
-	std::string message = lua_tostring(lua, 1);
-	verbose_info(message);
+	if(not lua_isstring(lua, 1)) {
+		lua_arg_error("verboseinfo(message)");
+	} else {
+		std::string message = lua_tostring(lua, 1);
+		verbose_info(message);
+	}
 	return(0);
 }
 
@@ -60,347 +82,529 @@ int l_verboseinfo(lua_State * lua) {
 
 int l_server_open(lua_State * lua) {
 	class Server * server = (class Server *) lua_touserdata(lua, 1);
-	unsigned short int port = lua_tointeger(lua, 2);
-	server->_open(port);
+	if(server == NULL or not lua_isnumber(lua, 2)) {
+		lua_arg_error("server_open(server, port)");
+	} else {
+		unsigned short int port = lua_tointeger(lua, 2);
+		server->_open(port);
+	}
 	return(0);
 }
 
 int l_server_close(lua_State * lua) {
 	class Server * server = (class Server *) lua_touserdata(lua, 1);
-	server->_close();
+	if(server == NULL) {
+		lua_arg_error("server_close(server)");
+	} else {
+		server->_close();
+	}
 	return(0);
 }
 
 int l_server_isopen(lua_State * lua) {
 	class Server * server = (class Server *) lua_touserdata(lua, 1);
-	lua_pushboolean(lua, server->isOpen());
-	return(1);
+	if(server == NULL) {
+		lua_arg_error("server_isopen(server)");
+		return(0);
+	} else {
+		lua_pushboolean(lua, server->isOpen());
+		return(1);
+	}
 }
 
 int l_server_getport(lua_State * lua) {
 	class Server * server = (class Server *) lua_touserdata(lua, 1);
-	lua_pushinteger(lua, server->getPort());
-	return(1);
+	if(server == NULL) {
+		lua_arg_error("server_getport(server)");
+		return(0);
+	} else {
+		lua_pushinteger(lua, server->getPort());
+		return(1);
+	}
 }
 
 int l_server_addscreen(lua_State * lua) {
 	class Server * server = (class Server *) lua_touserdata(lua, 1);
-	std::string id = lua_tostring(lua, 2);
 	class Screen * screen = (class Screen *) lua_touserdata(lua, 3);
-	server->addScreen(id, screen);
+	if(server == NULL or not lua_isstring(lua, 2) or screen == NULL) {
+		lua_arg_error("server_addscreen(server, id, screen)");
+	} else {
+		std::string id = lua_tostring(lua, 2);
+		server->addScreen(id, screen);
+	}
 	return(0);
 }
 
 int l_server_getscreen(lua_State * lua) {
 	class Server * server = (class Server *) lua_touserdata(lua, 1);
-	std::string id = lua_tostring(lua, 2);
-	class Screen * screen = server->getScreen(id);
-	lua_pushlightuserdata(lua, screen);
-	return(1);
+	if(server == NULL or not lua_isstring(lua, 2)) {
+		lua_arg_error("server_getscreen(server, id)");
+	} else {
+		std::string id = lua_tostring(lua, 2);
+		class Screen * screen = server->getScreen(id);
+		lua_pushlightuserdata(lua, screen);
+		return(1);
+	}
+	return(0);
 }
 
 int l_server_delscreen(lua_State * lua) {
 	class Server * server = (class Server *) lua_touserdata(lua, 1);
-	std::string id = lua_tostring(lua, 2);
-	server->delScreen(id);
+	if(server == NULL or not lua_isstring(lua, 2)) {
+		lua_arg_error("server_delscreen(server, id)");
+	} else {
+		std::string id = lua_tostring(lua, 2);
+		server->delScreen(id);
+	}
 	return(0);
 }
 
 int l_server_addtile(lua_State * lua) {
 	class Server * server = (class Server *) lua_touserdata(lua, 1);
 	class Tile * tile = (class Tile *) lua_touserdata(lua, 2);
-	server->addTile(tile);
+	if(server == NULL or tile == NULL) {
+		lua_arg_error("server_addtile(server, tile)");
+	} else {
+		server->addTile(tile);
+	}
 	return(0);
 }
 
 int l_server_gettile(lua_State * lua) {
 	class Server * server = (class Server *) lua_touserdata(lua, 1);
-	std::string id = lua_tostring(lua, 2);
-	lua_pushlightuserdata(lua, server->getTile(id));
-	return(1);
+	if(server == NULL or not lua_isstring(lua, 2)) {
+		lua_arg_error("server_gettile(server, id)");
+	} else {
+		std::string id = lua_tostring(lua, 2);
+		lua_pushlightuserdata(lua, server->getTile(id));
+		return(1);
+	}
+	return(0);
 }
 
 int l_server_getplayer(lua_State * lua) {
 	class Server * server = (class Server *) lua_touserdata(lua, 1);
-	int id = lua_tointeger(lua, 2);
-	lua_pushlightuserdata(lua, server->getPlayer(id));
-	return(1);
+	if(server == NULL or not lua_isnumber(lua, 2)) {
+		lua_arg_error("server_getplayer(server, id)");
+	} else {
+		int id = lua_tointeger(lua, 2);
+		lua_pushlightuserdata(lua, server->getPlayer(id));
+		return(1);
+	}
+	return(0);
 }
 
 int l_server_addscript(lua_State * lua) {
 	class Server * server = (class Server *) lua_touserdata(lua, 1);
-	std::string id = lua_tostring(lua, 2);
-	std::string filename = lua_tostring(lua, 3);
-	server->addScript(id, new std::string(filename));
+	if(server == NULL or not lua_isstring(lua, 2) or not lua_isstring(lua, 3)) {
+		lua_arg_error("server_addscript(server, id, filename)");
+	} else {
+		std::string id = lua_tostring(lua, 2);
+		std::string filename = lua_tostring(lua, 3);
+		server->addScript(id, new std::string(filename));
+	}
 	return(0);
 }
 
 int l_server_getscript(lua_State * lua) {
 	class Server * server = (class Server *) lua_touserdata(lua, 1);
-	std::string id = lua_tostring(lua, 2);
-	lua_pushlightuserdata(lua, server->getScript(id));
-	return(1);
+	if(server == NULL or not lua_isstring(lua, 2)) {
+		lua_arg_error("server_getscript(server, id)");
+	} else {
+		std::string id = lua_tostring(lua, 2);
+		lua_pushlightuserdata(lua, server->getScript(id));
+		return(1);
+	}
+	return(0);
 }
 
 int l_server_delscript(lua_State * lua) {
 	class Server * server = (class Server *) lua_touserdata(lua, 1);
-	std::string id = lua_tostring(lua, 2);
-	server->delScript(id);
+	if(server == NULL or not lua_isstring(lua, 2)) {
+		lua_arg_error("server_delscript(server, id)");
+	} else {
+		std::string id = lua_tostring(lua, 2);
+		server->delScript(id);
+	}
 	return(0);
 }
 
 /* Tile */
 
 int l_new_tile(lua_State * lua) {
-	std::string id = lua_tostring(lua, 1);
-	std::string name = lua_tostring(lua, 2);
-	std::string description = lua_tostring(lua, 3);
-	Aspect aspect = lua_tointeger(lua, 4);
-	class Tile * tile;
-	if(lua_isboolean(lua, 5)) {
-		bool canland = lua_toboolean(lua, 5);
-		tile = new Tile(id, name, description, aspect, canland);
+	if(not lua_isstring(lua, 1)
+			or not lua_isstring(lua, 2)
+			or not lua_isstring(lua, 3)
+			or not lua_isnumber(lua, 4)) {
+		lua_arg_error("new_tile(id, name, description, aspect [, passable])");
 	} else {
-		tile = new Tile(id, name, description, aspect);
+		std::string id = lua_tostring(lua, 1);
+		std::string name = lua_tostring(lua, 2);
+		std::string description = lua_tostring(lua, 3);
+		Aspect aspect = lua_tointeger(lua, 4);
+		class Tile * tile;
+		if(lua_isboolean(lua, 5)) {
+			bool canland = lua_toboolean(lua, 5);
+			tile = new Tile(id, name, description, aspect, canland);
+		} else {
+			tile = new Tile(id, name, description, aspect);
+		}
+		lua_pushlightuserdata(lua, tile);
+		return(1);
 	}
-	lua_pushlightuserdata(lua, tile);
-	return(1);
+	return(0);
 }
 
 int l_tile_getid(lua_State * lua) {
 	class Tile * tile = (class Tile *) lua_touserdata(lua, 1);
-	lua_pushstring(lua, tile->getId().c_str());
-	return(1);
+	if(tile == NULL) {
+		lua_arg_error("tile_getid(tile)");
+	} else {
+		lua_pushstring(lua, tile->getId().c_str());
+		return(1);
+	}
+	return(0);
 }
 
 int l_tile_getname(lua_State * lua) {
 	class Tile * tile = (class Tile *) lua_touserdata(lua, 1);
-	lua_pushstring(lua, tile->getName().c_str());
-	return(1);
+	if(tile == NULL) {
+		lua_arg_error("tile_getname(tile)");
+	} else {
+		lua_pushstring(lua, tile->getName().c_str());
+		return(1);
+	}
+	return(0);
 }
 
 int l_tile_setname(lua_State * lua) {
 	class Tile * tile = (class Tile *) lua_touserdata(lua, 1);
-	std::string name = lua_tostring(lua, 2);
-	tile->setName(name);
+	if(tile == NULL or not lua_isstring(lua, 2)) {
+		lua_arg_error("tile_setname");
+	} else {
+		std::string name = lua_tostring(lua, 2);
+		tile->setName(name);
+	}
 	return(0);
 }
 
 int l_tile_getdescription(lua_State * lua) {
 	class Tile * tile = (class Tile *) lua_touserdata(lua, 1);
-	lua_pushstring(lua, tile->getDescription().c_str());
-	return(1);
+	if(tile == NULL) {
+		lua_arg_error("tile_getdescription(tile)");
+	} else {
+		lua_pushstring(lua, tile->getDescription().c_str());
+		return(1);
+	}
+	return(0);
 }
 
 int l_tile_setdescription(lua_State * lua) {
 	class Tile * tile = (class Tile *) lua_touserdata(lua, 1);
-	std::string description = lua_tostring(lua, 2);
-	tile->setDescription(description);
+	if(tile == NULL or not lua_isstring(lua, 2)) {
+		lua_arg_error("tile_setdescription(tile, description)");
+	} else {
+		std::string description = lua_tostring(lua, 2);
+		tile->setDescription(description);
+	}
 	return(0);
 }
 
 int l_tile_getaspect(lua_State * lua) {
 	class Tile * tile = (class Tile *) lua_touserdata(lua, 1);
-	lua_pushinteger(lua, tile->getAspect());
-	return(1);
+	if(tile == NULL) {
+		lua_arg_error("tile_getaspect(tile");
+	} else {
+		lua_pushinteger(lua, tile->getAspect());
+		return(1);
+	}
+	return(0);
 }
 
 int l_tile_setaspect(lua_State * lua) {
 	class Tile * tile = (class Tile *) lua_touserdata(lua, 1);
-	Aspect aspect = lua_tointeger(lua, 2);
-	tile->setAspect(aspect);
+	if(tile == NULL or not lua_isnumber(lua, 2)) {
+		lua_arg_error("tile_setaspect(tile, aspect)");
+	} else {
+		Aspect aspect = lua_tointeger(lua, 2);
+		tile->setAspect(aspect);
+	}
 	return(0);
 }
 
 int l_tile_canland(lua_State * lua) {
 	class Tile * tile = (class Tile *) lua_touserdata(lua, 1);
-	lua_pushboolean(lua, tile->canLand());
-	return(1);
+	if(tile == NULL) {
+		lua_arg_error("tile_canland(tile)");
+	} else {
+		lua_pushboolean(lua, tile->canLand());
+		return(1);
+	}
+	return(0);
 }
 
 int l_tile_setcanland(lua_State * lua) {
 	class Tile * tile = (class Tile *) lua_touserdata(lua, 1);
-	tile->setCanLand();
+	if(tile == NULL) {
+		lua_arg_error("tile_setcanland");
+	} else {
+		tile->setCanLand();
+	}
 	return(0);
 }
 
 int l_tile_setcantland(lua_State * lua) {
 	class Tile * tile = (class Tile *) lua_touserdata(lua, 1);
-	tile->setCantLand();
+	if(tile == NULL) {
+		lua_arg_error("tile_setcantland");
+	} else {
+		tile->setCantLand();
+	}
 	return(0);
 }
 
 /* Screen */
 
 int l_new_screen(lua_State * lua) {
-	std::string name = lua_tostring(lua, 1);
-	unsigned int width = lua_tointeger(lua, 2);
-	unsigned int height = lua_tointeger(lua, 3);
 	class Tile * tile = (class Tile *) lua_touserdata(lua, 4);
-	lua_getglobal(lua, "Server");
-	class Server * server = (class Server *) lua_touserdata(lua, -1);
-	class Screen * screen = new Screen(server, name, width, height, tile);
-	lua_pushlightuserdata(lua, screen);
-	return(1);
+	if(not lua_isstring(lua, 1)
+			or not lua_isnumber(lua, 2)
+			or not lua_isnumber(lua, 3)
+			or tile == NULL) {
+		lua_arg_error("new_screen(server, name, width, height, tile)");
+	} else {
+		std::string name = lua_tostring(lua, 1);
+		unsigned int width = lua_tointeger(lua, 2);
+		unsigned int height = lua_tointeger(lua, 3);
+		lua_getglobal(lua, "Server");
+		class Server * server = (class Server *) lua_touserdata(lua, -1);
+		class Screen * screen = new Screen(server, name, width, height, tile);
+		lua_pushlightuserdata(lua, screen);
+		return(1);
+	}
+	return(0);
 }
 
 int l_screen_getname(lua_State * lua) {
 	class Screen * screen = (class Screen *) lua_touserdata(lua, 1);
-	lua_pushstring(lua, screen->getName().c_str());
-	return(1);
+	if(screen == NULL) {
+		lua_arg_error("screen_getname(screen)");
+	} else {
+		lua_pushstring(lua, screen->getName().c_str());
+		return(1);
+	}
+	return(0);
 }
 
 int l_screen_setname(lua_State * lua) {
 	class Screen * screen = (class Screen *) lua_touserdata(lua, 1);
-	std::string name = lua_tostring(lua, 2);
-	screen->setName(name);
+	if(screen == NULL or not lua_isstring(lua, 2)) {
+		lua_arg_error("screen_setname(screen, name)");
+	} else {
+		std::string name = lua_tostring(lua, 2);
+		screen->setName(name);
+	}
 	return(0);
 }
 
 int l_screen_getwidth(lua_State * lua) {
 	class Screen * screen = (class Screen *) lua_touserdata(lua, 1);
-	lua_pushinteger(lua, screen->getWidth());
-	return(1);
+	if(screen == NULL) {
+		lua_arg_error("screen_getwidth(screen)");
+	} else {
+		lua_pushinteger(lua, screen->getWidth());
+		return(1);
+	}
+	return(0);
 }
 
 int l_screen_getheight(lua_State * lua) {
 	class Screen * screen = (class Screen *) lua_touserdata(lua, 1);
-	lua_pushinteger(lua, screen->getHeight());
-	return(1);
+	if(screen == NULL) {
+		lua_arg_error("screen_getheight(screen)");
+	} else {
+		lua_pushinteger(lua, screen->getHeight());
+		return(1);
+	}
+	return(0);
 }
 
 int l_screen_getplace(lua_State * lua) {
 	class Screen * screen = (class Screen *) lua_touserdata(lua, 1);
-	unsigned int x = lua_tointeger(lua, 2);
-	unsigned int y = lua_tointeger(lua, 3);
-	class Place * place = screen->getPlace(x, y);
-	lua_pushlightuserdata(lua, place);
-	return(1);
+	if(screen == NULL or not lua_isnumber(lua, 2) or not lua_isnumber(lua, 3)) {
+		lua_arg_error("screen_getplace(screen, x, y)");
+	} else {
+		unsigned int x = lua_tointeger(lua, 2);
+		unsigned int y = lua_tointeger(lua, 3);
+		class Place * place = screen->getPlace(x, y);
+		lua_pushlightuserdata(lua, place);
+		return(1);
+	}
+	return(0);
 }
 
 int l_screen_getplayer(lua_State * lua) {
 	class Screen * screen = (class Screen *) lua_touserdata(lua, 1);
-	int id = lua_tointeger(lua, 2);
-	class Player * player = screen->getPlayer(id);
-	lua_pushlightuserdata(lua, player);
-	return(1);
+	if(screen == NULL or not lua_isnumber(lua, 2)) {
+		lua_arg_error("screen_getplayer(screen, id)");
+	} else {
+		int id = lua_tointeger(lua, 2);
+		class Player * player = screen->getPlayer(id);
+		lua_pushlightuserdata(lua, player);
+		return(1);
+	}
+	return(0);
 }
 
 int l_screen_event(lua_State * lua) {
 	class Screen * screen = (class Screen *) lua_touserdata(lua, 1);
-	std::string message = lua_tostring(lua, 2);
-	screen->event(message);
+	if(screen == NULL or not lua_isstring(lua, 2)) {
+		lua_arg_error("screen_event(screen, message)");
+	} else {
+		std::string message = lua_tostring(lua, 2);
+		screen->event(message);
+	}
 	return(0);
 }
 
 int l_screen_updatetile(lua_State * lua) {
 	class Screen * screen = (class Screen *) lua_touserdata(lua, 1);
-	int x = lua_tointeger(lua, 2);
-	int y = lua_tointeger(lua, 3);
-	screen->updateTile(x, y);
+	if(screen == NULL or not lua_isnumber(lua, 2) or not lua_isnumber(lua, 3)) {
+		lua_arg_error("screen_updatetile(screen, x, y)");
+	} else {
+		int x = lua_tointeger(lua, 2);
+		int y = lua_tointeger(lua, 3);
+		screen->updateTile(x, y);
+	}
 	return(0);
 }
 
 /* Place */
 
-int l_new_place(lua_State * lua) {
-	class Tile * tile = (class Tile *) lua_touserdata(lua, 1);
-	class Place * place = new Place(tile);
-	lua_pushlightuserdata(lua, place);
-	return(1);
-}
-
 int l_place_gettile(lua_State * lua) {
 	class Place * place = (class Place *) lua_touserdata(lua, 1);
-	lua_pushlightuserdata(lua, place->getTile());
-	return(1);
+	if(place == NULL) {
+		lua_arg_error("place_gettile(place)");
+	} else {
+		lua_pushlightuserdata(lua, place->getTile());
+		return(1);
+	}
+	return(0);
 }
 
 int l_place_settile(lua_State * lua) {
 	class Place * place = (class Place *) lua_touserdata(lua, 1);
 	class Tile * tile = (class Tile *) lua_touserdata(lua, 2);
-	place->setTile(tile);
-	return(0);
-}
-
-int l_place_getname(lua_State * lua) {
-	class Place * place = (class Place *) lua_touserdata(lua, 1);
-	lua_pushstring(lua, place->getName().c_str());
-	return(1);
-}
-
-int l_place_setname(lua_State * lua) {
-	class Place * place = (class Place *) lua_touserdata(lua, 1);
-	std::string name = lua_tostring(lua, 2);
-	place->setName(name);
-	return(0);
-}
-
-int l_place_resetname(lua_State * lua) {
-	class Place * place = (class Place *) lua_touserdata(lua, 1);
-	place->resetName();
+	if(place == NULL or tile == NULL) {
+		lua_arg_error("place_settile(place, tile)");
+	} else {
+		place->setTile(tile);
+	}
 	return(0);
 }
 
 int l_place_getdescription(lua_State * lua) {
 	class Place * place = (class Place *) lua_touserdata(lua, 1);
-	lua_pushstring(lua, place->getDescription().c_str());
-	return(1);
+	if(place == NULL) {
+		lua_arg_error("place_getdescription(place)");
+	} else {
+		lua_pushstring(lua, place->getDescription().c_str());
+		return(1);
+	}
+	return(0);
 }
 
 int l_place_setdescription(lua_State * lua) {
 	class Place * place = (class Place *) lua_touserdata(lua, 1);
-	std::string descr = lua_tostring(lua, 2);
-	place->setDescription(descr);
+	if(place == NULL or not lua_isstring(lua, 2)) {
+		lua_arg_error("place_setdescription(place, description)");
+	} else {
+		std::string descr = lua_tostring(lua, 2);
+		place->setDescription(descr);
+	}
 	return(0);
 }
 
 int l_place_resetdescription(lua_State * lua) {
 	class Place * place = (class Place *) lua_touserdata(lua, 1);
-	place->resetDescription();
+	if(place == NULL) {
+		lua_arg_error("place_resetdescription(place)");
+	} else {
+		place->resetDescription();
+	}
 	return(0);
 }
 
 int l_place_getaspect(lua_State * lua) {
 	class Place * place = (class Place *) lua_touserdata(lua, 1);
-	lua_pushinteger(lua, place->getAspect());
-	return(1);
+	if(place == NULL) {
+		lua_arg_error("place_getaspect(place)");
+	} else {
+		lua_pushinteger(lua, place->getAspect());
+		return(1);
+	}
+	return(0);
 }
 
 int l_place_setaspect(lua_State * lua) {
 	class Place * place = (class Place *) lua_touserdata(lua, 1);
-	Aspect aspect = lua_tointeger(lua, 2);
-	place->setAspect(aspect);
+	if(place == NULL or not lua_isnumber(lua, 2)) {
+		lua_arg_error("place_setaspect(place, aspect)");
+	} else {
+		Aspect aspect = lua_tointeger(lua, 2);
+		place->setAspect(aspect);
+	}
 	return(0);
 }
 
 int l_place_resetaspect(lua_State * lua) {
 	class Place * place = (class Place *) lua_touserdata(lua, 1);
-	place->resetAspect();
+	if(place == NULL) {
+		lua_arg_error("place_resetaspect(place)");
+	} else {
+		place->resetAspect();
+	}
 	return(0);
 }
 
 int l_place_canland(lua_State * lua) {
 	class Place * place = (class Place *) lua_touserdata(lua, 1);
-	lua_pushboolean(lua, place->canLand());
-	return(1);
+	if(place == NULL) {
+		lua_arg_error("place_canland(place)");
+	} else {
+		lua_pushboolean(lua, place->canLand());
+		return(1);
+	}
+	return(0);
 }
 
 int l_place_setcanland(lua_State * lua) {
 	class Place * place = (class Place *) lua_touserdata(lua, 1);
-	place->setCanLand();
+	if(place == NULL) {
+		lua_arg_error("place_setcanland(place)");
+	} else {
+		place->setCanLand();
+	}
 	return(0);
 }
 
 int l_place_setcantland(lua_State * lua) {
 	class Place * place = (class Place *) lua_touserdata(lua, 1);
-	place->setCantLand();
+	if(place == NULL) {
+		lua_arg_error("place_setcantland(place)");
+	} else {
+		place->setCantLand();
+	}
 	return(0);
 }
 
 int l_place_resetcanland(lua_State * lua) {
 	class Place * place = (class Place *) lua_touserdata(lua, 1);
-	place->resetCanLand();
+	if(place == NULL) {
+		lua_arg_error("place_resetcanland(place)");
+	} else {
+		place->resetCanLand();
+	}
 	return(0);
 }
 
@@ -412,14 +616,22 @@ int l_place_getlandon(lua_State * lua) {
 
 int l_place_setlandon(lua_State * lua) {
 	class Place * place = (class Place *) lua_touserdata(lua, 1);
-	std::string script = lua_tostring(lua, 2);
-	place->setLandon(script);
+	if(place == NULL) {
+		lua_arg_error("place_setlandon(place, script)");
+	} else {
+		std::string script = lua_tostring(lua, 2);
+		place->setLandon(script);
+	}
 	return(0);
 }
 
 int l_place_resetlandon(lua_State * lua) {
 	class Place * place = (class Place *) lua_touserdata(lua, 1);
-	place->resetLandon();
+	if(place == NULL) {
+		lua_arg_error("place_resetlandon(place)");
+	} else {
+		place->resetLandon();
+	}
 	return(0);
 }
 
@@ -427,155 +639,240 @@ int l_place_resetlandon(lua_State * lua) {
 
 int l_delete_player(lua_State * lua) {
 	class Player * player = (class Player *) lua_touserdata(lua, 1);
-	delete(player);
+	if(player == NULL) {
+		lua_arg_error("delete_player(player)");
+	} else {
+		delete(player);
+	}
 	return(0);
 }
 
 int l_player_spawn(lua_State * lua) {
 	class Player * player = (class Player *) lua_touserdata(lua, 1);
 	class Screen * screen = (class Screen *) lua_touserdata(lua, 2);
-	int x = lua_tointeger(lua, 3);
-	int y = lua_tointeger(lua, 4);
-	player->spawn(screen, x, y);
+	if(player == NULL or screen == NULL
+			or not lua_isnumber(lua, 3)
+			or not lua_isnumber(lua, 4)) {
+		lua_arg_error("player_spawn(player)");
+	} else {
+		int x = lua_tointeger(lua, 3);
+		int y = lua_tointeger(lua, 4);
+		player->spawn(screen, x, y);
+	}
 	return(0);
 }
 
 int l_player_getid(lua_State * lua) {
 	class Player * player = (class Player *) lua_touserdata(lua, 1);
-	lua_pushinteger(lua, player->getId());
-	return(1);
+	if(player == NULL) {
+		lua_arg_error("player_getid(player)");
+	} else {
+		lua_pushinteger(lua, player->getId());
+		return(1);
+	}
+	return(0);
 }
 
 int l_player_getname(lua_State * lua) {
 	class Player * player = (class Player *) lua_touserdata(lua, 1);
-	lua_pushstring(lua, player->getName().c_str());
-	return(1);
+	if(player == NULL) {
+		lua_arg_error("player_getname(player)");
+	} else {
+		lua_pushstring(lua, player->getName().c_str());
+		return(1);
+	}
+	return(0);
 }
 
 int l_player_setname(lua_State * lua) {
 	class Player * player = (class Player *) lua_touserdata(lua, 1);
-	std::string name = lua_tostring(lua, 2);
-	player->setName(name);
+	if(player == NULL or not lua_isstring(lua, 2)) {
+		lua_arg_error("player_setname(player, name)");
+	} else {
+		std::string name = lua_tostring(lua, 2);
+		player->setName(name);
+	}
 	return(0);
 }
 
 int l_player_getdescription(lua_State * lua) {
 	class Player * player = (class Player *) lua_touserdata(lua, 1);
-	lua_pushstring(lua, player->getDescription().c_str());
-	return(1);
+	if(player == NULL) {
+		lua_arg_error("player_getdescription(player)");
+	} else {
+		lua_pushstring(lua, player->getDescription().c_str());
+		return(1);
+	}
+	return(0);
 }
 
 int l_player_setdescription(lua_State * lua) {
 	class Player * player = (class Player *) lua_touserdata(lua, 1);
-	std::string descr = lua_tostring(lua, 2);
-	player->setDescription(descr);
+	if(player == NULL or not lua_isstring(lua, 2)) {
+		lua_arg_error("player_setdescription(player, description)");
+	} else {
+		std::string descr = lua_tostring(lua, 2);
+		player->setDescription(descr);
+	}
 	return(0);
 }
 
 int l_player_getaspect(lua_State * lua) {
 	class Player * player = (class Player *) lua_touserdata(lua, 1);
-	lua_pushinteger(lua, player->getAspect());
+	if(player == NULL) {
+		lua_arg_error("player_getaspect(player)");
+	} else {
+		lua_pushinteger(lua, player->getAspect());
+	}
 	return(1);
 }
 
 int l_player_setaspect(lua_State * lua) {
 	class Player * player = (class Player *) lua_touserdata(lua, 1);
-	Aspect aspect = lua_tointeger(lua, 2);
-	player->setAspect(aspect);
+	if(player == NULL or not lua_isnumber(lua, 2)) {
+		lua_arg_error("player_setaspect(player, aspect)");
+	} else {
+		Aspect aspect = lua_tointeger(lua, 2);
+		player->setAspect(aspect);
+	}
 	return(0);
 }
 
 int l_player_getscreen(lua_State * lua) {
 	class Player * player = (class Player *) lua_touserdata(lua, 1);
-	lua_pushlightuserdata(lua, player->getScreen());
-	return(1);
+	if(player == NULL) {
+		lua_arg_error("player_getscreen(player)");
+	} else {
+		lua_pushlightuserdata(lua, player->getScreen());
+		return(1);
+	}
+	return(0);
 }
 
 int l_player_getx(lua_State * lua) {
 	class Player * player = (class Player *) lua_touserdata(lua, 1);
-	lua_pushinteger(lua, player->getX());
-	return(1);
+	if(player == NULL) {
+		lua_arg_error("player_getx(player)");
+	} else {
+		lua_pushinteger(lua, player->getX());
+		return(1);
+	}
+	return(0);
 }
 
 int l_player_gety(lua_State * lua) {
 	class Player * player = (class Player *) lua_touserdata(lua, 1);
-	lua_pushinteger(lua, player->getY());
-	return(1);
+	if(player == NULL) {
+		lua_arg_error("player_gety(player)");
+	} else {
+		lua_pushinteger(lua, player->getY());
+		return(1);
+	}
+	return(0);
 }
 
 int l_player_setxy(lua_State * lua) {
 	class Player * player = (class Player *) lua_touserdata(lua, 1);
-	int x = lua_tointeger(lua, 2);
-	int y = lua_tointeger(lua, 3);
-	player->setXY(x, y);
+	if(player == NULL or not lua_isnumber(lua, 2) or not lua_isnumber(lua, 3)) {
+		lua_arg_error("player_setxy(player, x, y)");
+	} else {
+		int x = lua_tointeger(lua, 2);
+		int y = lua_tointeger(lua, 3);
+		player->setXY(x, y);
+	}
 	return(0);
 }
 
 int l_player_move(lua_State * lua) {
 	class Player * player = (class Player *) lua_touserdata(lua, 1);
-	int x = lua_tointeger(lua, 2);
-	int y = lua_tointeger(lua, 3);
-	player->move(x, y);
+	if(player == NULL or not lua_isnumber(lua, 2) or not lua_isnumber(lua, 3)) {
+		lua_arg_error("player_move(player, x_shift, y_shift)");
+	} else {
+		int x = lua_tointeger(lua, 2);
+		int y = lua_tointeger(lua, 3);
+		player->move(x, y);
+	}
 	return(0);
 }
 
 int l_player_changescreen(lua_State * lua) {
 	class Player * player = (class Player *) lua_touserdata(lua, 1);
 	class Screen * screen = (class Screen *) lua_touserdata(lua, 2);
-	int x = lua_tointeger(lua, 3);
-	int y = lua_tointeger(lua, 4);
-	player->changeScreen(screen, x, y);
+	if(player == NULL or screen == NULL
+			or not lua_isnumber(lua, 3) or not lua_isnumber(lua, 4)) {
+		lua_arg_error("player_changescreen(player, screen, x, y)");
+	} else {
+		int x = lua_tointeger(lua, 3);
+		int y = lua_tointeger(lua, 4);
+		player->changeScreen(screen, x, y);
+	}
 	return(0);
 }
 
 int l_player_getondeath(lua_State * lua) {
 	class Player * player = (class Player *) lua_touserdata(lua, 1);
-	lua_pushstring(lua, player->getOnDeath().c_str());
-	return(1);
+	if(player == NULL) {
+		lua_arg_error("player_getondeath(player)");
+	} else {
+		lua_pushstring(lua, player->getOnDeath().c_str());
+		return(1);
+	}
+	return(0);
 }
 
 int l_player_setondeath(lua_State * lua) {
 	class Player * player = (class Player *) lua_touserdata(lua, 1);
-	std::string script = lua_tostring(lua, 2);
-	player->setOnDeath(script);
+	if(player == NULL or not lua_isstring(lua, 2)) {
+		lua_arg_error("player_setondeath(player, script)");
+	} else {
+		std::string script = lua_tostring(lua, 2);
+		player->setOnDeath(script);
+	}
 	return(0);
 }
 
 int l_player_getgauge(lua_State * lua) {
 	class Player * player = (class Player *) lua_touserdata(lua, 1);
-	std::string name = lua_tostring(lua, 2);
-	lua_pushlightuserdata(lua, player->getGauge(name));
-	return(1);
-}
-
-/* XXX //
-// Only a new gauge can add itself to a player.
-int l_player_addgauge(lua_State * lua) {
-	class Player * player = (class Player *) lua_touserdata(lua, 1);
-	class Gauge * gauge = (class Gauge *) lua_touserdata(lua, 2);
-	player->addGauge(gauge);
+	if(player == NULL or not lua_isstring(lua, 2)) {
+		lua_arg_error("player_getgauge(player, name)");
+	} else {
+		std::string name = lua_tostring(lua, 2);
+		lua_pushlightuserdata(lua, player->getGauge(name));
+		return(1);
+	}
 	return(0);
 }
-// XXX */
 
 int l_player_delgauge(lua_State * lua) {
 	class Player * player = (class Player *) lua_touserdata(lua, 1);
-	std::string name = lua_tostring(lua, 2);
-	player->delGauge(name);
+	if(player == NULL or not lua_isstring(lua, 2)) {
+		lua_arg_error("player_delgauge(player, name)");
+	} else {
+		std::string name = lua_tostring(lua, 2);
+		player->delGauge(name);
+	}
 	return(0);
 }
 
 int l_player_message(lua_State * lua) {
 	class Player * player = (class Player *) lua_touserdata(lua, 1);
-	std::string message = lua_tostring(lua, 2);
-	player->message(message);
+	if(player == NULL or not lua_isstring(lua, 2)) {
+		lua_arg_error("player_message(player, message)");
+	} else {
+		std::string message = lua_tostring(lua, 2);
+		player->message(message);
+	}
 	return(0);
 }
 
 int l_player_follow(lua_State * lua) {
 	class Player * player = (class Player *) lua_touserdata(lua, 1);
 	class Player * target = (class Player *) lua_touserdata(lua, 2);
-	player->follow(target);
+	if(player == NULL or target == NULL) {
+		lua_arg_error("player_follow(player, target)");
+	} else {
+		player->follow(target);
+	}
 	return(0);
 }
 
@@ -583,64 +880,107 @@ int l_player_follow(lua_State * lua) {
 
 int l_new_gauge(lua_State * lua) {
 	class Player * player = (class Player *) lua_touserdata(lua, 1);
-	std::string name = lua_tostring(lua, 2);
-	unsigned int val = lua_tointeger(lua, 3);
-	unsigned int max = lua_tointeger(lua, 4);
-	class Gauge * gauge = new Gauge(player, name, val, max);
-	lua_pushlightuserdata(lua, gauge);
-	return(1);
+	if(player == NULL
+			or not lua_isstring(lua, 2)
+			or not lua_isnumber(lua, 3)
+			or not lua_isnumber(lua, 4)) {
+		lua_arg_error("new_gauge(player, name, val, max)");
+	} else {
+		std::string name = lua_tostring(lua, 2);
+		unsigned int val = lua_tointeger(lua, 3);
+		unsigned int max = lua_tointeger(lua, 4);
+		class Gauge * gauge = new Gauge(player, name, val, max);
+		lua_pushlightuserdata(lua, gauge);
+		return(1);
+	}
+	return(0);
 }
 
 int l_gauge_getname(lua_State * lua) {
 	class Gauge * gauge = (class Gauge *) lua_touserdata(lua, 1);
-	lua_pushstring(lua, gauge->getName().c_str());
-	return(1);
+	if(gauge == NULL) {
+		lua_arg_error("gauge_getname(gauge)");
+	} else {
+		lua_pushstring(lua, gauge->getName().c_str());
+		return(1);
+	}
+	return(0);
 }
 
 int l_gauge_setname(lua_State * lua) {
 	class Gauge * gauge = (class Gauge *) lua_touserdata(lua, 1);
-	std::string name = lua_tostring(lua, 2);
-	gauge->setName(name);
+	if(gauge == NULL or not lua_isstring(lua, 2)) {
+		lua_arg_error("gauge_setname(lua, name)");
+	} else {
+		std::string name = lua_tostring(lua, 2);
+		gauge->setName(name);
+	}
 	return(0);
 }
 
 int l_gauge_getval(lua_State * lua) {
 	class Gauge * gauge = (class Gauge *) lua_touserdata(lua, 1);
-	lua_pushinteger(lua, gauge->getVal());
-	return(1);
+	if(gauge == NULL) {
+		lua_arg_error("gauge_getval(gauge)");
+	} else {
+		lua_pushinteger(lua, gauge->getVal());
+		return(1);
+	}
+	return(0);
 }
 
 int l_gauge_setval(lua_State * lua) {
 	class Gauge * gauge = (class Gauge *) lua_touserdata(lua, 1);
-	unsigned int val = lua_tointeger(lua, 2);
-	gauge->setVal(val);
+	if(gauge == NULL or not lua_isnumber(lua, 2)) {
+		lua_arg_error("gauge_setval(lua, val)");
+	} else {
+		unsigned int val = lua_tointeger(lua, 2);
+		gauge->setVal(val);
+	}
 	return(0);
 }
 
 int l_gauge_increase(lua_State * lua) {
 	class Gauge * gauge = (class Gauge *) lua_touserdata(lua, 1);
-	unsigned int val = lua_tointeger(lua, 2);
-	gauge->increase(val);
+	if(gauge == NULL or not lua_isnumber(lua, 2)) {
+		lua_arg_error("gauge_increase(lua, val)");
+	} else {
+		unsigned int val = lua_tointeger(lua, 2);
+		gauge->increase(val);
+	}
 	return(0);
 }
 
 int l_gauge_decrease(lua_State * lua) {
 	class Gauge * gauge = (class Gauge *) lua_touserdata(lua, 1);
-	unsigned int val = lua_tointeger(lua, 2);
-	gauge->decrease(val);
+	if(gauge == NULL or not lua_isnumber(lua, 2)) {
+		lua_arg_error("gauge_decrease(lua, val)");
+	} else {
+		unsigned int val = lua_tointeger(lua, 2);
+		gauge->decrease(val);
+	}
 	return(0);
 }
 
 int l_gauge_getmax(lua_State * lua) {
 	class Gauge * gauge = (class Gauge *) lua_touserdata(lua, 1);
-	lua_pushinteger(lua, gauge->getMax());
-	return(1);
+	if(gauge == NULL) {
+		lua_arg_error("gauge_getmax(gauge)");
+	} else {
+		lua_pushinteger(lua, gauge->getMax());
+		return(1);
+	}
+	return(0);
 }
 
 int l_gauge_setmax(lua_State * lua) {
 	class Gauge * gauge = (class Gauge *) lua_touserdata(lua, 1);
-	unsigned int max = lua_tointeger(lua, 2);
-	gauge->setMax(max);
+	if(gauge == NULL or not lua_isnumber(lua, 2)) {
+		lua_arg_error("gauge_setmax(gauge, max)");
+	} else {
+		unsigned int max = lua_tointeger(lua, 2);
+		gauge->setMax(max);
+	}
 	return(0);
 }
 
@@ -700,12 +1040,14 @@ Luawrapper::Luawrapper(class Server * server) :
 	lua_register(this->lua_state, "screen_event", l_screen_event);
 	lua_register(this->lua_state, "screen_updatetile", l_screen_updatetile);
 
-	lua_register(this->lua_state, "new_place", l_new_place);
+	// lua_register(this->lua_state, "new_place", l_new_place); // XXX
 	lua_register(this->lua_state, "place_gettile", l_place_gettile);
 	lua_register(this->lua_state, "place_settile", l_place_settile);
+	/* XXX //
 	lua_register(this->lua_state, "place_getname", l_place_getname);
 	lua_register(this->lua_state, "place_setname", l_place_setname);
 	lua_register(this->lua_state, "place_resetname", l_place_resetname);
+	// XXX */
 	lua_register(this->lua_state, "place_getdescription", l_place_getdescription);
 	lua_register(this->lua_state, "place_setdescription", l_place_setdescription);
 	lua_register(this->lua_state, "place_resetdescription", l_place_resetdescription);
