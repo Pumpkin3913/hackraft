@@ -280,7 +280,7 @@ int l_tile_getname(lua_State * lua) {
 int l_tile_setname(lua_State * lua) {
 	class Tile * tile = (class Tile *) lua_touserdata(lua, 1);
 	if(tile == NULL or not lua_isstring(lua, 2)) {
-		lua_arg_error("tile_setname");
+		lua_arg_error("tile_setname(tile, name)");
 	} else {
 		std::string name = lua_tostring(lua, 2);
 		tile->setName(name);
@@ -313,7 +313,7 @@ int l_tile_setdescription(lua_State * lua) {
 int l_tile_getaspect(lua_State * lua) {
 	class Tile * tile = (class Tile *) lua_touserdata(lua, 1);
 	if(tile == NULL) {
-		lua_arg_error("tile_getaspect(tile");
+		lua_arg_error("tile_getaspect(tile)");
 	} else {
 		lua_pushinteger(lua, tile->getAspect());
 		return(1);
@@ -346,7 +346,7 @@ int l_tile_canland(lua_State * lua) {
 int l_tile_setcanland(lua_State * lua) {
 	class Tile * tile = (class Tile *) lua_touserdata(lua, 1);
 	if(tile == NULL) {
-		lua_arg_error("tile_setcanland");
+		lua_arg_error("tile_setcanland(tile)");
 	} else {
 		tile->setCanLand();
 	}
@@ -356,7 +356,7 @@ int l_tile_setcanland(lua_State * lua) {
 int l_tile_setcantland(lua_State * lua) {
 	class Tile * tile = (class Tile *) lua_touserdata(lua, 1);
 	if(tile == NULL) {
-		lua_arg_error("tile_setcantland");
+		lua_arg_error("tile_setcantland(tile)");
 	} else {
 		tile->setCantLand();
 	}
