@@ -157,7 +157,7 @@ Player::~Player() {
 		this->screen->exitPlayer(this);
 	}
 	this->_close();
-	if(this->loopThread) {
+	if(this->loopThread->get_id() != std::this_thread::get_id()) {
 		// Only when deleted by something else than its self loopThread.
 		this->loopThread->detach();
 		delete(this->loopThread);

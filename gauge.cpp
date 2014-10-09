@@ -1,5 +1,8 @@
 #include "gauge.h"
 #include "player.h"
+#include "screen.h"
+#include "server.h"
+#include "luawrapper.h"
 
 Gauge::Gauge(
 	class Player * player,
@@ -34,10 +37,14 @@ unsigned int Gauge::getVal() {
 }
 
 void Gauge::setVal(unsigned int val) {
-	if(val > this->max) {
+	if(val >= this->max) {
 		this->val = this->max;
+		this->exeFull();
 	} else {
 		this->val = val;
+		if(val == 0) {
+			this->exeEmpty();
+		}
 	}
 	this->update();
 }
@@ -50,9 +57,9 @@ void Gauge::increase(unsigned int val) {
 
 void Gauge::decrease(unsigned int val) {
 	if(val > this->val) {
-		this->val = 0;
+		this->setVal(0);
 	} else {
-		this->val -= val;
+		this->setVal(this->val - val);
 	}
 	this->update();
 }
@@ -63,15 +70,62 @@ unsigned int Gauge::getMax() {
 
 void Gauge::setMax(unsigned int max) {
 	this->max = max;
-	if(this->val > max) {
+	if(this->val >= max) {
 		this->val = max;
+		if(max == 0) {
+			this->exeEmpty();
+		} else {
+			this->exeFull();
+		}
 	}
 	this->update();
+}
+
+std::string Gauge::getOnFull() {
+	return(this->onFull);
+}
+
+void Gauge::setOnFull(std::string script) {
+	this->onFull = script;
+}
+
+void Gauge::resetOnFull() {
+	this->onFull = "";
+}
+
+std::string Gauge::getOnEmpty() {
+	return(this->onEmpty);
+}
+
+void Gauge::setOnEmpty(std::string script) {
+	this->onEmpty = script;
+}
+
+void Gauge::resetOnEmpty() {
+	this->onEmpty = "";
 }
 
 // Private.
 
 void Gauge::update() {
 	this->player->updateGauge(this->name, this->val, this->max);
+}
+
+void Gauge::exeFull() {
+	if(this->onFull != "") {
+		class Screen * screen = this->player->getScreen();
+		if(screen != NULL) {
+			screen->getServer()->getLua()->executeFile(this->onFull, this->player);
+		}
+	}
+}
+
+void Gauge::exeEmpty() {
+	if(this->onEmpty != "") {
+		class Screen * screen = this->player->getScreen();
+		if(screen != NULL) {
+			screen->getServer()->getLua()->executeFile(this->onEmpty, this->player);
+		}
+	}
 }
 

@@ -984,6 +984,70 @@ int l_gauge_setmax(lua_State * lua) {
 	return(0);
 }
 
+int l_gauge_getonfull(lua_State * lua) {
+	class Gauge * gauge = (class Gauge *) lua_touserdata(lua, 1);
+	if(gauge == NULL) {
+		lua_arg_error("gauge_getonfull(gauge)");
+	} else {
+		lua_pushstring(lua, gauge->getOnFull().c_str());
+		return(1);
+	}
+	return(0);
+}
+
+int l_gauge_setonfull(lua_State * lua) {
+	class Gauge * gauge = (class Gauge *) lua_touserdata(lua, 1);
+	if(gauge == NULL or not lua_isstring(lua, 2)) {
+		lua_arg_error("gauge_setonfull(gauge, script)");
+	} else {
+		std::string script = lua_tostring(lua, 2);
+		gauge->setOnFull(script);
+	}
+	return(0);
+}
+
+int l_gauge_resetonfull(lua_State * lua) {
+	class Gauge * gauge = (class Gauge *) lua_touserdata(lua, 1);
+	if(gauge == NULL) {
+		lua_arg_error("gauge_resetonfull(gauge)");
+	} else {
+		gauge->resetOnFull();
+	}
+	return(0);
+}
+
+int l_gauge_getonempty(lua_State * lua) {
+	class Gauge * gauge = (class Gauge *) lua_touserdata(lua, 1);
+	if(gauge == NULL) {
+		lua_arg_error("gauge_getonempty(gauge)");
+	} else {
+		lua_pushstring(lua, gauge->getOnEmpty().c_str());
+		return(1);
+	}
+	return(0);
+}
+
+int l_gauge_setonempty(lua_State * lua) {
+	class Gauge * gauge = (class Gauge *) lua_touserdata(lua, 1);
+	if(gauge == NULL or not lua_isstring(lua, 2)) {
+		lua_arg_error("gauge_setonempty(gauge, script)");
+	} else {
+		std::string script = lua_tostring(lua, 2);
+		gauge->setOnEmpty(script);
+	}
+	return(0);
+}
+
+int l_gauge_resetonempty(lua_State * lua) {
+	class Gauge * gauge = (class Gauge *) lua_touserdata(lua, 1);
+	if(gauge == NULL) {
+		lua_arg_error("gauge_resetonempty(gauge)");
+	} else {
+		gauge->resetOnEmpty();
+	}
+	return(0);
+}
+
 /* Wraper class */
 
 Luawrapper::Luawrapper(class Server * server) :
@@ -1094,6 +1158,12 @@ Luawrapper::Luawrapper(class Server * server) :
 	lua_register(this->lua_state, "gauge_decrease", l_gauge_decrease);
 	lua_register(this->lua_state, "gauge_getmax", l_gauge_getmax);
 	lua_register(this->lua_state, "gauge_setmax", l_gauge_setmax);
+	lua_register(this->lua_state, "gauge_getonfull", l_gauge_getonfull);
+	lua_register(this->lua_state, "gauge_setonfull", l_gauge_setonfull);
+	lua_register(this->lua_state, "gauge_resetonfull", l_gauge_resetonfull);
+	lua_register(this->lua_state, "gauge_getonempty", l_gauge_getonempty);
+	lua_register(this->lua_state, "gauge_setonempty", l_gauge_setonempty);
+	lua_register(this->lua_state, "gauge_resetonempty", l_gauge_resetonempty);
 
 	this->executeFile(LUA_INIT_SCRIPT);
 }
