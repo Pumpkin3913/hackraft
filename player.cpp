@@ -3,6 +3,7 @@
 #include "screen.h"
 #include "place.h"
 #include "server.h"
+#include "gauge.h"
 #include "luawrapper.h"
 
 #ifdef __linux__
@@ -156,7 +157,8 @@ Player::~Player() {
 		this->screen->exitPlayer(this);
 	}
 	this->_close();
-	if(this->loopThread) {
+	if(this->loopThread != NULL &&
+			this->loopThread->get_id() != std::this_thread::get_id()) {
 		// Only when deleted by something else than its self loopThread.
 		this->loopThread->detach();
 		delete(this->loopThread);
@@ -264,14 +266,35 @@ void Player::setOnDeath(std::string script) {
 	this->onDeath = script;
 }
 
+class Gauge * Player::getGauge(std::string name) {
+	try {
+		return(this->gauges.at(name));
+	} catch(...) {
+		return(NULL);
+	}
+}
+
+void Player::addGauge(class Gauge * gauge) {
+	class Gauge * old = this->getGauge(gauge->getName());
+	if(old) {
+		delete(old);
+	}
+	this->gauges[gauge->getName()] = gauge; // XXX
+}
+
+void Player::delGauge(std::string name) {
+	class Gauge * old = this->getGauge(name);
+	if(old) {
+		delete(old);
+	}
+	this->gauges.erase(name);
+}
+
 /* ToDO : latter :
 
 getObject();
 addObject();
 remObject();
-getGauge();
-addGauge();
-delGauge();
 getTag();
 addTag();
 delTag();
@@ -403,7 +426,36 @@ void Player::updateNoObject(unsigned int x, unsigned int y) {
 			+ std::to_string(x)
 			+ " "
 			+ std::to_string(y)
-		  );
+	);
+}
+
+void Player::updateGauge(
+	std::string name,
+	unsigned int val,
+	unsigned int max,
+	Aspect full,
+	Aspect empty
+) {
+	// gauge <name> <val> <max> <full> <empty>
+	this->send(
+			"gauge "
+			+ name
+			+ " "
+			+ std::to_string(val)
+			+ " "
+			+ std::to_string(max)
+			+ " "
+			+ std::to_string(full)
+			+ " "
+			+ std::to_string(empty)
+	);
+}
+
+void Player::updateNoGauge(std::string name) {
+	this->send(
+			"nogauge "
+			+ name
+	);
 }
 
 void Player::follow(class Player * player) {

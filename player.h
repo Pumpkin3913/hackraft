@@ -1,14 +1,16 @@
 #ifndef PLAYER_H
 #define PLAYER_H
 
-// ToDO : latter : special object slot : map<id,slot>.
-
 #include <string>
 #include <thread>
+#include <map>
 
 #include "aspect.h"
+
 class Screen;
+class Gauge;
 // class Object;
+// ToDO : latter : special object slot : map<id,slot>.
 
 class Player {
 	private:
@@ -21,9 +23,9 @@ class Player {
 		int x;
 		int y;
 		std::string onDeath;
+		std::map<std::string, class Gauge *> gauges;
 /* ToDO : latter :
 		std::list<class Object *> objects;
-		std::map<std::string, class Gauge *> gauges;
 		std::map<std::string, std::string> tags;
 		script onDeath;
 
@@ -60,14 +62,14 @@ class Player {
 		void changeScreen(class Screen * newScreen, int x, int y); // exit this screen, enter the new one.
 		std::string getOnDeath();
 		void setOnDeath(std::string script);
+		class Gauge * getGauge(std::string name); // May return NULL.
+		void addGauge(class Gauge * gauge); // Only a new gauge can call it.
+		void delGauge(std::string name);
 
 /* ToDO : latter :
 		getObject();
 		addObject();
 		remObject();
-		getGauge();
-		addGauge();
-		delGauge();
 		getTag();
 		addTag();
 		delTag();
@@ -93,6 +95,13 @@ class Player {
 		void updateTile(unsigned int x, unsigned int y, Aspect aspect);
 		void updateObject(unsigned int x, unsigned int y, Aspect aspect);
 		void updateNoObject(unsigned int x, unsigned int y);
+		void updateGauge(
+			std::string name,
+			unsigned int val,
+			unsigned int max,
+			Aspect full,
+			Aspect empty);
+		void updateNoGauge(std::string name);
 		void follow(class Player * player);
 };
 

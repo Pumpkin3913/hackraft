@@ -3,22 +3,36 @@
 
 #include <string>
 
-// #include "script.h"
+#include "aspect.h"
+
+class Player;
 
 class Gauge {
 	private:
-		std::string id;
+		class Player * player;
 		std::string name;
 		unsigned int val;
 		unsigned int max;
+		std::string onFull;
+		std::string onEmpty;
+		Aspect aFull;
+		Aspect aEmpty;
 		bool visible;
-		// script * onFull;
-		// script * onEmpty;
+
+		void update();
+		void disapear();
+		void exeFull();
+		void exeEmpty();
 	public:
-		Gauge(unsigned int initVal, unsigned int max);
-		Gauge(unsigned int initVal, unsigned int max, visible);
+		Gauge(
+			Player * player,
+			std::string name,
+			unsigned int initVal,
+			unsigned int max,
+			Aspect aFull,
+			Aspect aEmpty,
+			bool visible = true);
 		~Gauge();
-		std::string getId();
 		std::string getName();
 		void setName(std::string name);
 		unsigned int getVal();
@@ -27,10 +41,15 @@ class Gauge {
 		void decrease(unsigned int val);
 		unsigned int getMax();
 		void setMax(unsigned int max);
+		std::string getOnFull();
+		void setOnFull(std::string script);
+		void resetOnFull();
+		std::string getOnEmpty();
+		void setOnEmpty(std::string script);
+		void resetOnEmpty();
 		bool isVisible();
 		void setVisible();
 		void setNotVisible();
-		// set/get onfull/onempty();
 };
 
 #endif
