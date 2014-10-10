@@ -8,19 +8,25 @@ Gauge::Gauge(
 	class Player * player,
 	std::string name,
 	unsigned int initVal,
-	unsigned int max
+	unsigned int max,
+	bool visible
 ) :
 	player(player),
 	name(name),
 	val(initVal),
-	max(max)
+	max(max),
+	onFull(""),
+	onEmpty(""),
+	visible(visible)
 {
 	player->addGauge(this);
 	this->update();
 }
 
 Gauge::~Gauge() {
-	this->player->updateNoGauge(this->name);
+	if(this->visible) {
+		this->disapear();
+	}
 }
 
 std::string Gauge::getName() {
@@ -105,10 +111,34 @@ void Gauge::resetOnEmpty() {
 	this->onEmpty = "";
 }
 
+bool Gauge::isVisible() {
+	return(this->visible);
+}
+
+void Gauge::setVisible() {
+	if(not this->visible) {
+		this->visible = true;
+		this->update();
+	}
+}
+
+void Gauge::setNotVisible() {
+	if(this->visible) {
+		this->visible = false;
+		this->disapear();
+	}
+}
+
 // Private.
 
 void Gauge::update() {
-	this->player->updateGauge(this->name, this->val, this->max);
+	if(this->visible) {
+		this->player->updateGauge(this->name, this->val, this->max);
+	}
+}
+
+void Gauge::disapear() {
+	this->player->updateNoGauge(this->name);
 }
 
 void Gauge::exeFull() {

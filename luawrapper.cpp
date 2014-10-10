@@ -884,12 +884,18 @@ int l_new_gauge(lua_State * lua) {
 			or not lua_isstring(lua, 2)
 			or not lua_isnumber(lua, 3)
 			or not lua_isnumber(lua, 4)) {
-		lua_arg_error("new_gauge(player, name, val, max)");
+		lua_arg_error("new_gauge(player, name, val, max [, visible])");
 	} else {
 		std::string name = lua_tostring(lua, 2);
 		unsigned int val = lua_tointeger(lua, 3);
 		unsigned int max = lua_tointeger(lua, 4);
-		class Gauge * gauge = new Gauge(player, name, val, max);
+		class Gauge * gauge;
+		if(lua_isboolean(lua, 5)) {
+			bool visible = lua_toboolean(lua, 5);
+			gauge = new Gauge(player, name, val, max, visible);
+		} else {
+			gauge = new Gauge(player, name, val, max);
+		}
 		lua_pushlightuserdata(lua, gauge);
 		return(1);
 	}
@@ -1048,6 +1054,37 @@ int l_gauge_resetonempty(lua_State * lua) {
 	return(0);
 }
 
+int l_gauge_isvisible(lua_State * lua) {
+	class Gauge * gauge = (class Gauge *) lua_touserdata(lua, 1);
+	if(gauge == NULL) {
+		lua_arg_error("gauge_isvisible(gauge)");
+	} else {
+		lua_pushboolean(lua, gauge->isVisible());
+		return(1);
+	}
+	return(0);
+}
+
+int l_gauge_setvisible(lua_State * lua) {
+	class Gauge * gauge = (class Gauge *) lua_touserdata(lua, 1);
+	if(gauge == NULL) {
+		lua_arg_error("gauge_setvisible(gauge)");
+	} else {
+		gauge->setVisible();
+	}
+	return(0);
+}
+
+int l_gauge_setnotvisible(lua_State * lua) {
+	class Gauge * gauge = (class Gauge *) lua_touserdata(lua, 1);
+	if(gauge == NULL) {
+		lua_arg_error("gauge_setnotvisible(gauge)");
+	} else {
+		gauge->setNotVisible();
+	}
+	return(0);
+}
+
 /* Wraper class */
 
 Luawrapper::Luawrapper(class Server * server) :
@@ -1164,6 +1201,9 @@ Luawrapper::Luawrapper(class Server * server) :
 	lua_register(this->lua_state, "gauge_getonempty", l_gauge_getonempty);
 	lua_register(this->lua_state, "gauge_setonempty", l_gauge_setonempty);
 	lua_register(this->lua_state, "gauge_resetonempty", l_gauge_resetonempty);
+	lua_register(this->lua_state, "gauge_isvisible", l_gauge_isvisible);
+	lua_register(this->lua_state, "gauge_setvisible", l_gauge_setvisible);
+	lua_register(this->lua_state, "gauge_setnotvisible", l_gauge_setnotvisible);
 
 	this->executeFile(LUA_INIT_SCRIPT);
 }
