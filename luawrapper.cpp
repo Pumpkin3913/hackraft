@@ -883,18 +883,23 @@ int l_new_gauge(lua_State * lua) {
 	if(player == NULL
 			or not lua_isstring(lua, 2)
 			or not lua_isnumber(lua, 3)
-			or not lua_isnumber(lua, 4)) {
-		lua_arg_error("new_gauge(player, name, val, max [, visible])");
+			or not lua_isnumber(lua, 4)
+			or not lua_isnumber(lua, 5)
+			or not lua_isnumber(lua, 6)
+			) {
+		lua_arg_error("new_gauge(player, name, val, max, aspectFull, aspectEmpty, [, visible])");
 	} else {
 		std::string name = lua_tostring(lua, 2);
 		unsigned int val = lua_tointeger(lua, 3);
 		unsigned int max = lua_tointeger(lua, 4);
+		Aspect aspectFull = lua_tointeger(lua, 5);
+		Aspect aspectEmpty = lua_tointeger(lua, 6);
 		class Gauge * gauge;
-		if(lua_isboolean(lua, 5)) {
-			bool visible = lua_toboolean(lua, 5);
-			gauge = new Gauge(player, name, val, max, visible);
+		if(lua_isboolean(lua, 7)) {
+			gauge = new Gauge(player, name, val, max, aspectFull, aspectEmpty,
+			lua_toboolean(lua, 7));
 		} else {
-			gauge = new Gauge(player, name, val, max);
+			gauge = new Gauge(player, name, val, max, aspectFull, aspectEmpty);
 		}
 		lua_pushlightuserdata(lua, gauge);
 		return(1);

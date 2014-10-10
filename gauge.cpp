@@ -9,6 +9,8 @@ Gauge::Gauge(
 	std::string name,
 	unsigned int initVal,
 	unsigned int max,
+	Aspect aFull,
+	Aspect aEmpty,
 	bool visible
 ) :
 	player(player),
@@ -17,6 +19,8 @@ Gauge::Gauge(
 	max(max),
 	onFull(""),
 	onEmpty(""),
+	aFull(aFull),
+	aEmpty(aEmpty),
 	visible(visible)
 {
 	player->addGauge(this);
@@ -133,7 +137,12 @@ void Gauge::setNotVisible() {
 
 void Gauge::update() {
 	if(this->visible) {
-		this->player->updateGauge(this->name, this->val, this->max);
+		this->player->updateGauge(
+			this->name,
+			this->val,
+			this->max,
+			this->aFull,
+			this->aEmpty);
 	}
 }
 

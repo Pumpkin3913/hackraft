@@ -3,6 +3,8 @@
 
 #include <string>
 
+#include "aspect.h"
+
 class Player;
 
 class Gauge {
@@ -13,8 +15,10 @@ class Gauge {
 		unsigned int max;
 		std::string onFull;
 		std::string onEmpty;
+		Aspect aFull;
+		Aspect aEmpty;
 		bool visible;
-		// TODO : Aspect full; Aspect empty;
+
 		void update();
 		void disapear();
 		void exeFull();
@@ -25,6 +29,8 @@ class Gauge {
 			std::string name,
 			unsigned int initVal,
 			unsigned int max,
+			Aspect aFull,
+			Aspect aEmpty,
 			bool visible = true);
 		~Gauge();
 		std::string getName();

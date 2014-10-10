@@ -431,8 +431,14 @@ void Player::updateNoObject(unsigned int x, unsigned int y) {
 	);
 }
 
-void Player::updateGauge(std::string name, unsigned int val, unsigned int max) {
-	// gauge <name> <val> <max>
+void Player::updateGauge(
+	std::string name,
+	unsigned int val,
+	unsigned int max,
+	Aspect full,
+	Aspect empty
+) {
+	// gauge <name> <val> <max> <full> <empty>
 	this->send(
 			"gauge "
 			+ name
@@ -440,6 +446,10 @@ void Player::updateGauge(std::string name, unsigned int val, unsigned int max) {
 			+ std::to_string(val)
 			+ " "
 			+ std::to_string(max)
+			+ " "
+			+ std::to_string(full)
+			+ " "
+			+ std::to_string(empty)
 	);
 }
 

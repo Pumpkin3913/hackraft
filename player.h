@@ -95,7 +95,12 @@ class Player {
 		void updateTile(unsigned int x, unsigned int y, Aspect aspect);
 		void updateObject(unsigned int x, unsigned int y, Aspect aspect);
 		void updateNoObject(unsigned int x, unsigned int y);
-		void updateGauge(std::string name, unsigned int val, unsigned int max);
+		void updateGauge(
+			std::string name,
+			unsigned int val,
+			unsigned int max,
+			Aspect full,
+			Aspect empty);
 		void updateNoGauge(std::string name);
 		void follow(class Player * player);
 };
