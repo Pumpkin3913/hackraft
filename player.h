@@ -24,10 +24,9 @@ class Player {
 		int y;
 		std::string onDeath;
 		std::map<std::string, class Gauge *> gauges;
+		std::map<std::string, std::string> tags;
 /* ToDO : latter :
 		std::list<class Object *> objects;
-		std::map<std::string, std::string> tags;
-		script onDeath;
 
 		unsigned int movepoints;
 		bool visible;
@@ -65,14 +64,14 @@ class Player {
 		class Gauge * getGauge(std::string name); // May return NULL.
 		void addGauge(class Gauge * gauge); // Only a new gauge can call it.
 		void delGauge(std::string name);
+		std::string getTag(std::string name);
+		void setTag(std::string name, std::string value);
+		void delTag(std::string name);
 
 /* ToDO : latter :
 		getObject();
 		addObject();
 		remObject();
-		getTag();
-		addTag();
-		delTag();
 		unsigned int getMovePoints();
 		void setMovePoints(unsigned int points);
 		void resetMovePoints();

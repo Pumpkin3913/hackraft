@@ -841,6 +841,41 @@ int l_player_delgauge(lua_State * lua) {
 	return(0);
 }
 
+int l_player_gettag(lua_State * lua) {
+	class Player * player = (class Player *) lua_touserdata(lua, 1);
+	if(player == NULL or not lua_isstring(lua, 2)) {
+		lua_arg_error("player_gettag(player, name)");
+	} else {
+		std::string name = lua_tostring(lua, 2);
+		lua_pushstring(lua, player->getTag(name).c_str());
+		return(1);
+	}
+	return(0);
+}
+
+int l_player_settag(lua_State * lua) {
+	class Player * player = (class Player *) lua_touserdata(lua, 1);
+	if(player == NULL or not lua_isstring(lua, 2) or not lua_isstring(lua, 3)) {
+		lua_arg_error("player_settag(player, name, value)");
+	} else {
+		std::string name = lua_tostring(lua, 2);
+		std::string value = lua_tostring(lua, 3);
+		player->setTag(name, value);
+	}
+	return(0);
+}
+
+int l_player_deltag(lua_State * lua) {
+	class Player * player = (class Player *) lua_touserdata(lua, 1);
+	if(player == NULL or not lua_isstring(lua, 2)) {
+		lua_arg_error("player_deltag(player, name)");
+	} else {
+		std::string name = lua_tostring(lua, 2);
+		player->delTag(name);
+	}
+	return(0);
+}
+
 int l_player_message(lua_State * lua) {
 	class Player * player = (class Player *) lua_touserdata(lua, 1);
 	if(player == NULL or not lua_isstring(lua, 2)) {
@@ -1168,6 +1203,9 @@ Luawrapper::Luawrapper(class Server * server) :
 	lua_register(this->lua_state, "player_setondeath", l_player_setondeath);
 	lua_register(this->lua_state, "player_getgauge", l_player_getgauge);
 	lua_register(this->lua_state, "player_delgauge", l_player_delgauge);
+	lua_register(this->lua_state, "player_gettag", l_player_gettag);
+	lua_register(this->lua_state, "player_settag", l_player_settag);
+	lua_register(this->lua_state, "player_deltag", l_player_deltag);
 	lua_register(this->lua_state, "player_message", l_player_message);
 	lua_register(this->lua_state, "player_follow", l_player_follow);
 

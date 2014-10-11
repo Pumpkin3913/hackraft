@@ -290,14 +290,27 @@ void Player::delGauge(std::string name) {
 	this->gauges.erase(name);
 }
 
+std::string Player::getTag(std::string name) {
+	try {
+		return(this->tags.at(name));
+	} catch(...) {
+		return("");
+	}
+}
+
+void Player::setTag(std::string name, std::string value) {
+	this->tags[name] = value;
+}
+
+void Player::delTag(std::string name) {
+	this->tags.erase(name);
+}
+
 /* ToDO : latter :
 
 getObject();
 addObject();
 remObject();
-getTag();
-addTag();
-delTag();
 
 unsigned int Player::getMovePoints() {
 	return(this->movepoints);
