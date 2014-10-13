@@ -1,8 +1,11 @@
 #include "tile.h"
 
-Tile::Tile(std::string id, std::string description, Aspect aspect, bool canLand) :
+class Tile Tile::defaultTile =
+		Tile("nowhere", "Nowhere...", (Aspect) 0);
+
+Tile::Tile(std::string id, std::string name, Aspect aspect, bool canLand) :
 	id(id),
-	description(description),
+	name(name),
 	aspect(aspect),
 	_canLand(canLand)
 {
@@ -15,12 +18,12 @@ std::string Tile::getId() {
 	return(this->id);
 }
 
-std::string Tile::getDescription() {
-	return(this->description);
+std::string Tile::getName() {
+	return(this->name);
 }
 
-void Tile::setDescription(std::string description) {
-	this->description = description;
+void Tile::setName(std::string name) {
+	this->name = name;
 }
 
 Aspect Tile::getAspect() {

@@ -3,13 +3,12 @@
 #include "tile.h"
 
 Place::Place(class Tile * tile) :
-	tile(tile)
-{
-	this->local_description = "";
-	this->local_aspect = noAspect;
-	this->useLocalCanLand = false;
-	this->local_canLand = true; // useless.
-}
+	tile(tile),
+	local_name(""),
+	local_aspect(noAspect),
+	useLocalCanLand(false),
+	local_canLand(true) // useless.
+{ }
 
 Place::~Place() {
 }
@@ -22,20 +21,20 @@ void Place::setTile(class Tile * tile) {
 	this->tile = tile;
 }
 
-std::string Place::getDescription() {
-	if(this->local_description == "") {
-		return(this->tile->getDescription());
+std::string Place::getName() {
+	if(this->local_name == "") {
+		return(this->tile->getName());
 	} else {
-		return(this->local_description);
+		return(this->local_name);
 	}
 }
 
-void Place::setDescription(std::string description) {
-	this->local_description = description;
+void Place::setName(std::string name) {
+	this->local_name = name;
 }
 
-void Place::resetDescription() {
-	this->local_description = "";
+void Place::resetName() {
+	this->local_name = "";
 }
 
 Aspect Place::getAspect() {
@@ -76,24 +75,19 @@ void Place::resetCanLand() {
 	this->useLocalCanLand = false;
 }
 
-std::string Place::getLandon() {
+std::list<class Object *> * Place::getObjects() {
+	return(&(this->objects));
+}
+
+std::string Place::getLandOn() {
 	return(this->landon);
 }
 
-void Place::setLandon(std::string script) {
+void Place::setLandOn(std::string script) {
 	this->landon = script;
 }
 
-void Place::resetLandon() {
+void Place::resetLandOn() {
 	this->landon = "";
 }
-
-// getObject();
-// addObject();
-// remObject();
-// getUsage();
-// addUsage();
-// remUsage();
-// setLandon();
-// resetLandon();
 

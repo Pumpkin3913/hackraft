@@ -3,43 +3,38 @@
 setverbose()
 verboseinfo("Lua Init...")
 
-tile_floor = new_tile("floor", "old paved floor", string.byte('.'))
-tile_portal = new_tile("portal", "magic portal", string.byte('^'))
-tile_door = new_tile("door", "wooden door", string.byte('|'), false)
-tile_grave_a = new_tile("grave_a", "stone cross grave", string.byte('+'), false)
-tile_grave_b = new_tile("grave_b", "stone slab grave", string.byte('n'), false)
-tile_wall = new_tile("wall", "stone brick wall", string.byte('#'), false)
-tile_spikes = new_tile("spikes", "iron spikes", string.byte('"'))
-server_addtile(Server, tile_floor)
-server_addtile(Server, tile_portal)
-server_addtile(Server, tile_door)
-server_addtile(Server, tile_grave_a)
-server_addtile(Server, tile_grave_b)
-server_addtile(Server, tile_wall)
-server_addtile(Server, tile_spikes)
+server_addtile(Server, new_tile("floor", "old paved floor", string.byte('.')))
+server_addtile(Server, new_tile("portal", "magic portal", string.byte('^')))
+server_addtile(Server, new_tile("door", "wooden door, closed", string.byte('|'), false))
+server_addtile(Server, new_tile("door_open", "wooden door, opened", string.byte('_')))
+server_addtile(Server, new_tile("grave_a", "stone cross grave", string.byte('+'), false))
+server_addtile(Server, new_tile("grave_b", "stone slab grave", string.byte('n'), false))
+server_addtile(Server, new_tile("wall", "stone brick wall", string.byte('#'), false))
+server_addtile(Server, new_tile("spikes", "iron spikes", string.byte('"')))
 
 -- Entrance
-screen_entrance = new_screen("Entrance", 11, 11, tile_floor)
+screen_entrance = new_screen("Entrance", 11, 11, server_gettile(Server, "floor"))
 server_addscreen(Server, "entrance", screen_entrance)
-place_settile(screen_getplace(screen_entrance, 5, 3), tile_portal)
-place_settile(screen_getplace(screen_entrance, 5, 7), tile_portal)
-place_setlandon(screen_getplace(screen_entrance, 5,7), "scripts/plop.lua")
+screen_settile(screen_entrance, 5, 3, server_gettile(Server, "portal"))
+screen_settile(screen_entrance, 5, 7, server_gettile(Server, "portal"))
+screen_setlandon(screen_entrance, 5, 7, "scripts/plop.lua")
+screen_addobject(screen_entrance, 2, 2, new_object("gem", string.byte('*')))
 
 -- Test Room
 testroom_height = 11;
-screen_testroom = new_screen("Test Room", 20, testroom_height, tile_floor)
+screen_testroom = new_screen("Test Room", 20, testroom_height, server_gettile(Server, "floor"))
 server_addscreen(Server, "testroom", screen_testroom)
-place_settile(screen_getplace(screen_testroom, 3, 3), tile_portal)
-place_setlandon(screen_getplace(screen_testroom, 3, 3), "scripts/plop.lua")
+screen_settile(screen_testroom, 3, 3, server_gettile(Server, "portal"))
+screen_setlandon(screen_testroom, 3, 3, "scripts/plop.lua")
 for i=0, testroom_height-1, 1 do
-	place_settile(screen_getplace(screen_testroom, 7, i), tile_wall)
+	screen_settile(screen_testroom, 7, i, server_gettile(Server, "wall"))
 end
-place_settile(screen_getplace(screen_testroom, 7, testroom_height/2), tile_door)
-place_settile(screen_getplace(screen_testroom, 13, 5), tile_spikes)
-place_setlandon(screen_getplace(screen_testroom, 13, 5), "scripts/spikes.lua")
+screen_settile(screen_testroom, 7, testroom_height/2, server_gettile(Server, "door"))
+screen_settile(screen_testroom, 13, 5, server_gettile(Server, "spikes"))
+screen_setlandon(screen_testroom, 13, 5, "scripts/spikes.lua")
 
 -- Graveyard
-screen_graveyard = new_screen("Graveyard", 30, 30, tile_floor)
+screen_graveyard = new_screen("Graveyard", 30, 30, server_gettile(Server, "floor"))
 server_addscreen(Server, "graveyard", screen_graveyard)
 
 -- Player's scripts

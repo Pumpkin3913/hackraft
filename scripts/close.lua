@@ -1,11 +1,9 @@
 #!/usr/bin/lua
 
 function closedoor(screen, x, y)
-	local place = screen_getplace(screen, x, y)
-	if tile_getid(place_gettile(place)) == "door" then
-		place_resetaspect(place)
-		screen_updatetile(screen, x, y)
-		place_resetcanland(place)
+	local id = tile_getid(screen_gettile(screen, x, y, place))
+	if id == "door_open" then
+		screen_settile(screen, x, y, server_gettile(Server, "door"))
 	end
 end
 
@@ -24,5 +22,4 @@ elseif Arg == "west" then
 else
 	player_message(Player, "/close [north|south|east|west]")
 end
-
 

@@ -2,6 +2,7 @@
 #define PLACE_H
 
 #include <string>
+#include <list>
 
 class Tile;
 
@@ -10,22 +11,20 @@ class Tile;
 class Place {
 	private:
 		class Tile * tile;
-		std::string local_description; // use tile's one if "".
-		Aspect local_aspect;           // use tile's one if 0.
+		std::string local_name; // use tile's one if "".
+		Aspect local_aspect;    // use tile's one if 0.
 		bool useLocalCanLand;
 		bool local_canLand;
-		// std::unordered_set<class Object *> objects;
-		// std::unordered_map<std::string, class Script *> usages;
-		// class Script * landon;
+		std::list<class Object *> objects;
 		std::string landon;
 	public:
 		Place(class Tile * tile);
 		~Place();
 		class Tile * getTile();
 		void setTile(class Tile * tile);
-		std::string getDescription();
-		void setDescription(std::string description);
-		void resetDescription();
+		std::string getName();
+		void setName(std::string name);
+		void resetName();
 		Aspect getAspect();
 		void setAspect(Aspect aspect);
 		void resetAspect();
@@ -33,21 +32,10 @@ class Place {
 		void setCanLand();
 		void setCantLand();
 		void resetCanLand();
-		std::string getLandon();
-		void setLandon(std::string script);
-		void resetLandon();
-		// getObject();
-		// addObject();
-		// remObject();
-		// isEmpty();
-		// getUsage();
-		// addUsage();
-		// remUsage();
-		// hasUsage();
-		// setLandon();
-		// resetLandon();
-		// hasLandon();
-		// troggerLandon();
+		std::list<class Object *> * getObjects();
+		std::string getLandOn();
+		void setLandOn(std::string script);
+		void resetLandOn();
 };
 
 #endif

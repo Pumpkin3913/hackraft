@@ -22,9 +22,6 @@
 
 /* Static */
 
-class Tile Server::defaultTile =
-Tile("nowhere", "Nowhere...", (Aspect) 0);
-
 /* Private */
 
 void Server::acceptLoop() {
@@ -45,8 +42,13 @@ void Server::acceptLoop() {
 					+ " on socket #"
 					+ std::to_string(fd)
 					);
-			this->luawrapper->spawnScript(
-					new Player(fd, "noname", "nodescription", (Aspect) '@'));
+			class Player * player = new Player(fd, "noname",
+					Tile::defaultTile.getAspect());
+			this->luawrapper->spawnScript(player);
+			if(player->getScreen() == NULL) {
+				warning("Spawn script didn't call spawn().");
+				delete(player);
+			}
 		}
 
 	}
@@ -191,7 +193,7 @@ void Server::addTile(class Tile * tile) {
 class Tile * Server::getTile(std::string id) {
 	class Tile * tile = this->tiles[id];
 	if(tile == NULL) {
-		return(&Server::defaultTile);
+		return(&Tile::defaultTile);
 	} else {
 		return(tile);
 	}

@@ -4,15 +4,19 @@
 // ToDO : latter : default spawn position.
 
 class Place;
-class Player;
 class Server;
+class Tile;
+class Place;
+class Player;
+class Object;
 
 #include "error.h"
+#include "aspect.h"
 
 #include <string>
 #include <vector>
 #include <map>
-#include <mutex>
+#include <list>
 
 class Screen {
 	private:
@@ -23,15 +27,16 @@ class Screen {
 		std::vector<class Place> places;
 		std::map<int, class Player *> players;
 
-	public:
-		std::mutex mutex;
+		class Place * getPlace(int x, int y);
+		void updateObject(int x, int y);
 
+	public:
 		Screen(
 			class Server * server,
 			std::string name,
 			unsigned int width,
 			unsigned int height,
-			class Tile* default_tile
+			class Tile * baseTile
 		);
 		~Screen();
 		class Server * getServer();
@@ -39,10 +44,18 @@ class Screen {
 		void setName(std::string name);
 		unsigned int getWidth();
 		unsigned int getHeight();
-		class Place * getPlace(int x, int y); // May return NULL.
+		class Tile * getTile(int x, int y); // May return NULL.
+		void setTile(int x, int y, class Tile * tile); // And broadcast it.
 		class Player * getPlayer(int id_fd); // May return NULL.
+		class Object * getTopObject(int x, int y); // May return NULL.
+		class Object * getObject(int x, int y, unsigned long int id); // Mau return NULL.
+		const std::list<class Object *> * getObjectList(int x, int y); // Only called by Player.
+		void addObject(int x, int y, class Object * object);
+		void remObject(int x, int y, unsigned long int id); // Don't delete; remove only.
+		std::string getLandOn(int x, int y); // May return NULL.
+		void setLandOn(int x, int y, std::string script);
+		void resetLandOn(int x, int y);
 		void event(std::string message); // Broadcast a message to all players.
-		void updateTile(int x, int y);
 
 		/* Called by Player only */
 
@@ -50,7 +63,7 @@ class Screen {
 
 		// Add the player to the screen,
 		// send him the floor and broadcast its position.
-		void enterPlayer(class Player * player);
+		void enterPlayer(class Player * player, int x, int y);
 
 		// Remove the player from the screen and broadcast it.
 		void exitPlayer(class Player * player);

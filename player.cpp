@@ -1,9 +1,10 @@
 #include "player.h"
 
 #include "screen.h"
-#include "place.h"
+#include "tile.h"
 #include "server.h"
 #include "gauge.h"
+#include "object.h"
 #include "luawrapper.h"
 
 #ifdef __linux__
@@ -88,17 +89,17 @@ void Player::parse() {
 			if(this->screen) {
 				this->screen->getServer()->exeScript(cmd.substr(1), this, arg);
 			}
-		} else if(!cmd.compare("move")) {
+		} else if(cmd == "move") {
 			signed int xShift = 0;
 			signed int yShift = 0;
 			bool valid = true;
-			if(!arg.compare("north")) {
+			if(arg == "north") {
 				yShift--;
-			} else if(!arg.compare("south")) {
+			} else if(arg == "south") {
 				yShift++;
-			} else if(!arg.compare("west")) {
+			} else if(arg == "west") {
 				xShift--;
-			} else if(!arg.compare("east")) {
+			} else if(arg == "east") {
 				xShift++;
 			} else {
 				valid = false;
@@ -106,13 +107,30 @@ void Player::parse() {
 			if(valid) {
 				this->move(xShift, yShift);
 			}
-		} else if(!cmd.compare("say")) {
+		} else if(cmd == "say") {
 			if(this->screen) {
-				this->screen->mutex.lock();
 				this->screen->event(this->name+" say "+arg);
-				this->screen->mutex.unlock();
 			}
-		} else if(!cmd.compare("quit")) {
+		} else if(cmd == "pickup") {
+			if(this->screen) {
+				unsigned long int id = std::stoi(arg);
+				class Object * object =
+						this->screen->getObject(this->x, this->y, id);
+				if(object) {
+					this->screen->remObject(this->x, this->y, id);
+					this->addObject(object);
+				}
+			}
+		} else if(cmd == "drop") {
+			if(this->screen) {
+				unsigned long int id = std::stoi(arg);
+				class Object * object = this->getObject(id);
+				if(object) {
+					this->remObject(id);
+					this->screen->addObject(this->x, this->y, object);
+				}
+			}
+		} else if(cmd == "quit") {
 			this->stop = true;
 		}
 	}
@@ -123,13 +141,11 @@ void Player::parse() {
 Player::Player(
 	int fd,
 	std::string name,
-	std::string description,
 	Aspect aspect
 ) :
 	fd(fd),
 	id(fd),
 	name(name),
-	description(description),
 	aspect(aspect),
 	screen(NULL),
 	x(0),
@@ -168,11 +184,7 @@ Player::~Player() {
 void Player::spawn(class Screen * screen, int x, int y) {
 	if(!this->loopThread) {
 		this->screen = screen;
-		this->x = x;
-		this->y = y;
-		this->screen->mutex.lock();
-		this->screen->enterPlayer(this);
-		this->screen->mutex.unlock();
+		this->screen->enterPlayer(this, x, y);
 		this->loopThread = new std::thread(&Player::loopFunction, this);
 		this->follow(this);
 		verbose_info("Player spawn successfully.");
@@ -190,14 +202,6 @@ std::string Player::getName() {
 // TODO : Player::setName() : auto broadcast new name.
 void Player::setName(std::string name) {
 	this->name = name;
-}
-
-std::string Player::getDescription() {
-	return(this->description);
-}
-
-void Player::setDescription(std::string description) {
-	this->description = description;
 }
 
 Aspect Player::getAspect() {
@@ -227,9 +231,7 @@ void Player::setXY(int x, int y) {
 	this->x = x;
 	this->y = y;
 	if(this->screen) {
-		this->screen->mutex.lock();
 		this->screen->updatePlayer(this);
-		this->screen->mutex.unlock();
 	}
 }
 
@@ -239,8 +241,17 @@ void Player::move(int xShift, int yShift) {
 	if(this->screen) {
 		if(this->screen->canLandPlayer(this, new_x, new_y)) {
 			this->setXY(new_x, new_y);
+			// Send floor objects list.
+			const std::list<class Object *> * lst =
+					this->screen->getObjectList(this->x, this->y);
+			if(lst) {
+				for(class Object * object : *lst) {
+					this->addFloorList(object->getId(), object->getAspect());
+				}
+			}
+			// Trigger landon script.
 			std::string script =
-				this->screen->getPlace(new_x, new_y)->getLandon();
+				this->screen->getLandOn(new_x, new_y);
 			if(script != "") {
 				this->screen->getServer()->getLua()->executeFile(script, this);
 			}
@@ -251,10 +262,8 @@ void Player::move(int xShift, int yShift) {
 void Player::changeScreen(class Screen * newScreen, int x, int y) {
 	if(this->screen) {
 		this->screen->exitPlayer(this);
-		this->x = x;
-		this->y = y;
 		this->screen = newScreen;
-		this->screen->enterPlayer(this);
+		this->screen->enterPlayer(this, x, y);
 	}
 }
 
@@ -279,7 +288,7 @@ void Player::addGauge(class Gauge * gauge) {
 	if(old) {
 		delete(old);
 	}
-	this->gauges[gauge->getName()] = gauge; // XXX
+	this->gauges[gauge->getName()] = gauge;
 }
 
 void Player::delGauge(std::string name) {
@@ -306,11 +315,25 @@ void Player::delTag(std::string name) {
 	this->tags.erase(name);
 }
 
-/* ToDO : latter :
+class Object * Player::getObject(unsigned long int id) {
+	try {
+		return(this->objects.at(id));
+	} catch(...) {
+		return(NULL);
+	}
+}
 
-getObject();
-addObject();
-remObject();
+void Player::addObject(class Object * object) {
+	this->objects[object->getId()] = object;
+	this->updateInventory(object->getId(), object->getAspect());
+}
+
+void Player::remObject(unsigned long int id) {
+	this->objects.erase(id);
+	this->updateNoInventory(id);
+}
+
+/* ToDO : latter :
 
 unsigned int Player::getMovePoints() {
 	return(this->movepoints);
@@ -400,7 +423,7 @@ void Player::updateFloor() {
 	std::string toSend = "";
 	for(unsigned int y=0; y<this->screen->getHeight(); y++) {
 		for(unsigned int x=0; x<this->screen->getWidth(); x++) {
-			toSend += std::to_string(this->screen->getPlace(x, y)->getAspect());
+			toSend += std::to_string(this->screen->getTile(x, y)->getAspect());
 			toSend += ",";
 		}
 	}
@@ -468,6 +491,39 @@ void Player::updateNoGauge(std::string name) {
 	this->send(
 			"nogauge "
 			+ name
+	);
+}
+
+void Player::updateInventory(unsigned long int id, Aspect aspect) {
+	// invent <id> <aspect>
+	this->send(
+			"invent "
+			+ std::to_string(id)
+			+ " "
+			+ std::to_string(aspect)
+	);
+}
+
+void Player::updateNoInventory(unsigned long int id) {
+	// noinvent <id>
+	this->send("noinvent " + std::to_string(id));
+}
+
+void Player::addFloorList(unsigned long int id, Aspect aspect) {
+	// floorlist <id> <aspect>
+	this->send(
+			"addfloorlist "
+			+ std::to_string(id)
+			+ " "
+			+ std::to_string(aspect)
+	);
+}
+
+void Player::remFloorList(unsigned long int id) {
+	// floorlist <id> <aspect>
+	this->send(
+			"remfloorlist "
+			+ std::to_string(id)
 	);
 }
 

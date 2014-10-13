@@ -9,15 +9,13 @@
 
 class Screen;
 class Gauge;
-// class Object;
-// ToDO : latter : special object slot : map<id,slot>.
+class Object;
 
 class Player {
 	private:
 		int fd;
 		int id;
 		std::string name;
-		std::string description;
 		Aspect aspect;
 		class Screen* screen;
 		int x;
@@ -25,9 +23,8 @@ class Player {
 		std::string onDeath;
 		std::map<std::string, class Gauge *> gauges;
 		std::map<std::string, std::string> tags;
+		std::map<unsigned long int, class Object *> objects;
 /* ToDO : latter :
-		std::list<class Object *> objects;
-
 		unsigned int movepoints;
 		bool visible;
 		bool solid;
@@ -43,14 +40,12 @@ class Player {
 		void parse(); // Receive one line from the socket and execute it. Return false if socket closed.
 
 	public:
-		Player(int fd, std::string name, std::string description, Aspect aspect);
+		Player(int fd, std::string name, Aspect aspect);
 		~Player();
 		void spawn(class Screen * screen, int x, int y); // Add itself to the screen and start the parsing loop. Do nothing if already running.
 		int getId();
 		std::string getName();
 		void setName(std::string name);
-		std::string getDescription();
-		void setDescription(std::string description);
 		Aspect getAspect();
 		void setAspect(Aspect aspect); // and broadcast it.
 		class Screen * getScreen(); // May return NULL.
@@ -67,11 +62,11 @@ class Player {
 		std::string getTag(std::string name);
 		void setTag(std::string name, std::string value);
 		void delTag(std::string name);
+		class Object * getObject(unsigned long int id); // Maux return NULL.
+		void addObject(class Object * object);
+		void remObject(unsigned long int id); // Don't delete, remove only.
 
 /* ToDO : latter :
-		getObject();
-		addObject();
-		remObject();
 		unsigned int getMovePoints();
 		void setMovePoints(unsigned int points);
 		void resetMovePoints();
@@ -101,6 +96,10 @@ class Player {
 			Aspect full,
 			Aspect empty);
 		void updateNoGauge(std::string name);
+		void updateInventory(unsigned long int id, Aspect aspect);
+		void updateNoInventory(unsigned long int id);
+		void addFloorList(unsigned long int id, Aspect aspect);
+		void remFloorList(unsigned long int id);
 		void follow(class Player * player);
 };
 

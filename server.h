@@ -26,8 +26,6 @@ class Server {
 		std::thread * acceptThread;
 		class Luawrapper * luawrapper;
 
-		static class Tile defaultTile;
-
 		void acceptLoop();
 
 	public:

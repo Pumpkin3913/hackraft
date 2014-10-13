@@ -1,34 +1,26 @@
 #ifndef OBJECT_H
 #define OBJECT_H
 
+#include "aspect.h"
+
 #include <string>
-// #include <unordered_map>
+// #include <map>
 
 // #include "script.h"
 
 class Object {
 	private:
 		std::string name;
-		std::string description;
-		aspect_t aspect;
-		unsigned int quantity;
-		// std::unordered_map<std::string, std::string> tags;
-		// std::unordered_map<std::string, class Script *> usage;
-		// class Script * onLoot;
-		// class Script * onDrop;
-		// bool stackable;
+		Aspect aspect;
+		// std::map<std::string, std::string> tags;
 	public:
-		Object(std::string name, std::string description, aspect_t aspect);
+		Object(std::string name, Aspect aspect);
 		~Object();
+		unsigned long int getId();
 		std::string getName();
 		void setName(std::string name);
-		std::string getDescription();
-		void setDescription(std::string description);
-		aspect_t get_aspect();
-		void setAspect(aspect_t aspect);
-		void increase(unsigned int quantity);
-		void setQuantity(unsigned int quantity);
-		// Don't decrease because you MUST know if there are enough to be consumed.
+		Aspect getAspect();
+		void setAspect(Aspect aspect);
 };
 
 #endif

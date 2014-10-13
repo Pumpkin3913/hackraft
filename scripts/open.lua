@@ -1,11 +1,11 @@
 #!/usr/bin/lua
 
 function opendoor(screen, x, y)
-	local place = screen_getplace(screen, x, y)
-	if tile_getid(place_gettile(place)) == "door" then
-		place_setaspect(place, string.byte('_'))
-		screen_updatetile(screen, x, y)
-		place_setcanland(place)
+	local id = tile_getid(screen_gettile(screen, x, y, place))
+	if id == "door" then
+		screen_settile(screen, x, y, server_gettile(Server, "door_open"))
+	-- elseif id == "door_open" then
+		-- screen_settile(screen, x, y, server_gettile(Server, "door"))
 	end
 end
 

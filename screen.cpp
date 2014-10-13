@@ -1,23 +1,24 @@
 #include "screen.h"
 
+#include "server.h"
+#include "tile.h"
 #include "place.h"
 #include "player.h"
-#include "server.h"
+#include "object.h"
 
 Screen::Screen(
 	class Server * server,
 	std::string name,
 	unsigned int width,
 	unsigned int height,
-	class Tile* default_tile
+	class Tile * baseTile
 ) :
 	server(server),
 	name(name),
 	width(width),
 	height(height)
 {
-	class Place defaultPlace(default_tile);
-	this->places = std::vector<class Place>(width * height, defaultPlace);
+	this->places = std::vector<class Place>(width * height, Place(baseTile));
 }
 
 Screen::~Screen() {
@@ -48,16 +49,116 @@ unsigned int Screen::getHeight() {
 	return(this->height);
 }
 
-class Place * Screen::getPlace(int x, int y) {
-	if(x >= 0 && x < this->width && y >= 0 && y < this->height) {
-		return(&(this->places[y*this->width+x]));
+class Tile * Screen::getTile(int x, int y) {
+	class Place * place = this->getPlace(x,y);
+	if(place) {
+		return(place->getTile());
 	} else {
 		return(NULL);
 	}
 }
 
+void Screen::setTile(int x, int y, class Tile * tile) {
+	class Place * place = this->getPlace(x,y);
+	if(place) {
+		return(place->setTile(tile));
+	}
+}
+
 class Player * Screen::getPlayer(int id_fd) {
-	return(this->players[id_fd]);
+	try {
+		return(this->players.at(id_fd));
+	} catch(...) {
+		return(NULL);
+	}
+}
+
+class Object * Screen::getTopObject(int x, int y) {
+	class Place * place = this->getPlace(x,y);
+	if(place && place->getObjects()->size() > 0) {
+		return(place->getObjects()->front());
+	} else {
+		return(NULL);
+	}
+}
+
+class Object * Screen::getObject(int x, int y, unsigned long int id) {
+	class Place * place = this->getPlace(x,y);
+	if(place) {
+		for(class Object * object : *(place->getObjects())) {
+			if(object->getId() == id) {
+				return(object);
+			}
+		}
+		return(NULL);
+	} else {
+		return(NULL);
+	}
+}
+
+// Only called by Player.
+const std::list<class Object *> * Screen::getObjectList(int x, int y) {
+	class Place * place = this->getPlace(x,y);
+	if(place) {
+		return(place->getObjects());
+	} else {
+		return(NULL);
+	}
+}
+
+void Screen::addObject(int x, int y, class Object * object) {
+	class Place * place = this->getPlace(x,y);
+	if(place) {
+		place->getObjects()->push_front(object);
+		this->updateObject(x, y);
+		for(std::pair<int, Player*> it : this->players) {
+			if(it.second->getX() == x && it.second->getY() == y) {
+				it.second->addFloorList(object->getId(), object->getAspect());
+			}
+		}
+	}
+}
+
+void Screen::remObject(int x, int y, unsigned long int id) {
+	class Place * place = this->getPlace(x,y);
+	if(place) {
+		std::list<class Object *> * lst = place->getObjects();
+		for(auto it = lst->begin(); it != lst->end(); it++) {
+			if((*it)->getId() == id) {
+				lst->erase(it);
+				this->updateObject(x, y); // FIXME: only if top changed.
+				for(std::pair<int, Player*> it : this->players) {
+					if(it.second->getX() == x && it.second->getY() == y) {
+						it.second->remFloorList(id);
+					}
+				}
+				break;
+			}
+		}
+	}
+}
+
+std::string Screen::getLandOn(int x, int y) {
+	class Place * place = this->getPlace(x,y);
+	if(place) {
+		return(place->getLandOn());
+	} else {
+		return("");
+	}
+}
+
+void Screen::setLandOn(int x, int y, std::string script) {
+	class Place * place = this->getPlace(x,y);
+	if(place) {
+		place->setLandOn(script);
+	}
+}
+
+void Screen::resetLandOn(int x, int y) {
+	class Place * place = this->getPlace(x,y);
+	if(place) {
+		place->resetLandOn();
+	}
 }
 
 void Screen::event(std::string message) {
@@ -66,19 +167,10 @@ void Screen::event(std::string message) {
 	}
 }
 
-void Screen::updateTile(int x, int y) {
-	class Place * place = this->getPlace(x, y);
-	if(place) {
-		for(std::pair<int, Player*> it : this->players) {
-			it.second->updateTile(x, y, place->getAspect());
-		}
-	}
-}
-
 /* Called by Player only */
 
 bool Screen::canLandPlayer(class Player * player, int x, int y) {
-	class Place * dst = this->getPlace(x,y);
+	class Tile * dst = this->getTile(x,y);
 	if(dst != NULL) {
 		return(dst->canLand());
 	} else {
@@ -86,14 +178,27 @@ bool Screen::canLandPlayer(class Player * player, int x, int y) {
 	}
 }
 
-void Screen::enterPlayer(class Player * player) {
+void Screen::enterPlayer(class Player * player, int x, int y) {
 	this->players[player->getId()] = player;
+	player->setXY(x, y);
 	player->updateFloor();
 	this->updatePlayer(player);
 	for(std::pair<int, Player*> it : this->players) {
 		if(it.second != player) {
 			player->updatePlayer(it.second);
 		}
+	}
+	for(int x=0; x<this->width; x++) {
+		for(int y=0; y<this->height; y++) {
+			class Object * object = this->getTopObject(x, y);
+			if(object) {
+				player->updateObject(x, y, object->getAspect());
+			}
+		}
+	}
+	for(class Object * object :
+			*(this->getObjectList(player->getX(), player->getY()))) {
+		player->addFloorList(object->getId(), object->getAspect());
 	}
 }
 
@@ -107,6 +212,38 @@ void Screen::exitPlayer(class Player * player) {
 void Screen::updatePlayer(class Player * player) {
 	for(std::pair<int, Player*> it : this->players) {
 		it.second->updatePlayer(player);
+	}
+}
+
+/* Private */
+
+class Place * Screen::getPlace(int x, int y) {
+	if(x >= 0 && x < this->width && y >= 0 && y < this->height) {
+		return(&(this->places[y*this->width+x]));
+	} else {
+		warning(
+			"In screen "
+			+ this->name
+			+ ": invalid place "
+			+ std::to_string(x)
+			+ "-"
+			+ std::to_string(y)
+			+ "."
+		);
+		return(NULL);
+	}
+}
+
+void Screen::updateObject(int x, int y) {
+	class Object * object = this->getTopObject(x, y);
+	if(object) {
+		for(std::pair<int, Player*> it : this->players) {
+			it.second->updateObject(x, y, object->getAspect());
+		}
+	} else {
+		for(std::pair<int, Player*> it : this->players) {
+			it.second->updateNoObject(x, y);
+		}
 	}
 }
 

@@ -22,6 +22,6 @@ elseif Arg ~= "" then
 end
 
 if doit then
-	local descr = place_getdescription(screen_getplace(screen, x, y))
+	local descr = tile_getdescription(screen_gettile(screen, x, y))
 	player_message(Player, descr)
 end
