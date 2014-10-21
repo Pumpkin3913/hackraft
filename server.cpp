@@ -132,7 +132,7 @@ void Server::_open(unsigned short port) {
 #endif
 
 	verbose_info("Connexions set on.");
-	// ToDO : latter : IPv4/IPv6 connexions.
+	// TODO : IPv4/IPv6 connexions.
 
 	// Start connexion accepting thread.
 	this->acceptThread = new std::thread(&Server::acceptLoop, this);

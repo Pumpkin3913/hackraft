@@ -36,9 +36,9 @@ std::string Screen::getName() {
 	return(this->name);
 }
 
+// TODO : Screen::setName() : broadcast new name.
 void Screen::setName(std::string name) {
 	this->name = name;
-	// TODO : Screen::setName() : broadcast new name.
 }
 
 unsigned int Screen::getWidth() {
@@ -61,7 +61,8 @@ class Tile * Screen::getTile(int x, int y) {
 void Screen::setTile(int x, int y, class Tile * tile) {
 	class Place * place = this->getPlace(x,y);
 	if(place) {
-		return(place->setTile(tile));
+		place->setTile(tile);
+		this->updateTile(x, y);
 	}
 }
 
@@ -113,7 +114,7 @@ void Screen::addObject(int x, int y, class Object * object) {
 		this->updateObject(x, y);
 		for(std::pair<int, Player*> it : this->players) {
 			if(it.second->getX() == x && it.second->getY() == y) {
-				it.second->addFloorList(object->getId(), object->getAspect());
+				it.second->addPickupList(object->getId(), object->getAspect());
 			}
 		}
 	}
@@ -129,7 +130,7 @@ void Screen::remObject(int x, int y, unsigned long int id) {
 				this->updateObject(x, y); // FIXME: only if top changed.
 				for(std::pair<int, Player*> it : this->players) {
 					if(it.second->getX() == x && it.second->getY() == y) {
-						it.second->remFloorList(id);
+						it.second->remPickupList(id);
 					}
 				}
 				break;
@@ -198,7 +199,7 @@ void Screen::enterPlayer(class Player * player, int x, int y) {
 	}
 	for(class Object * object :
 			*(this->getObjectList(player->getX(), player->getY()))) {
-		player->addFloorList(object->getId(), object->getAspect());
+		player->addPickupList(object->getId(), object->getAspect());
 	}
 }
 
@@ -243,6 +244,16 @@ void Screen::updateObject(int x, int y) {
 	} else {
 		for(std::pair<int, Player*> it : this->players) {
 			it.second->updateNoObject(x, y);
+		}
+	}
+}
+
+void Screen::updateTile(int x, int y) {
+	class Place * place = this->getPlace(x,y);
+	if(place) {
+		Aspect aspect = place->getAspect();
+		for(std::pair<int, Player*> it : this->players) {
+			it.second->updateTile(x, y, aspect);
 		}
 	}
 }

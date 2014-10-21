@@ -1,8 +1,6 @@
 #ifndef SCREEN_H
 #define SCREEN_H
 
-// ToDO : latter : default spawn position.
-
 class Place;
 class Server;
 class Tile;
@@ -29,6 +27,7 @@ class Screen {
 
 		class Place * getPlace(int x, int y);
 		void updateObject(int x, int y);
+		void updateTile(int x, int y);
 
 	public:
 		Screen(

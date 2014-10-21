@@ -5,8 +5,6 @@
 
 #include "aspect.h"
 
-// TODO : delete aspect, replace id by unsigned int
-
 class Tile {
 	private:
 		std::string id;

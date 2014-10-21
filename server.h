@@ -13,8 +13,7 @@ class Player;
 
 #define MAX_SOCKET_QUEUE 8
 
-// TODO : add a mutex to the server to avoid inserting a screen while another thread is iterating through screens.
-// TODO : ... no: add mutexes everywhere!
+// TODO : Add mutexes around every atomic non-cascading operations.
 
 class Server {
 	private:

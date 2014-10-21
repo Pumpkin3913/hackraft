@@ -11,20 +11,24 @@ class Screen;
 class Gauge;
 class Object;
 
+// TODO : Collisions.
+// TODO : Invisible.
+// TODO : Unmovable.
+
 class Player {
 	private:
 		int fd;
 		int id;
 		std::string name;
 		Aspect aspect;
-		class Screen* screen;
+		class Screen * screen;
 		int x;
 		int y;
 		std::string onDeath;
 		std::map<std::string, class Gauge *> gauges;
 		std::map<std::string, std::string> tags;
 		std::map<unsigned long int, class Object *> objects;
-/* ToDO : latter :
+/*
 		unsigned int movepoints;
 		bool visible;
 		bool solid;
@@ -66,7 +70,7 @@ class Player {
 		void addObject(class Object * object);
 		void remObject(unsigned long int id); // Don't delete, remove only.
 
-/* ToDO : latter :
+/*
 		unsigned int getMovePoints();
 		void setMovePoints(unsigned int points);
 		void resetMovePoints();
@@ -98,8 +102,8 @@ class Player {
 		void updateNoGauge(std::string name);
 		void updateInventory(unsigned long int id, Aspect aspect);
 		void updateNoInventory(unsigned long int id);
-		void addFloorList(unsigned long int id, Aspect aspect);
-		void remFloorList(unsigned long int id);
+		void addPickupList(unsigned long int id, Aspect aspect);
+		void remPickupList(unsigned long int id);
 		void follow(class Player * player);
 };
 

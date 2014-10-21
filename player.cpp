@@ -151,7 +151,7 @@ Player::Player(
 	x(0),
 	y(0),
 	onDeath(""),
-/* ToDO : latter
+/*
 	movepoints(0),
 	visible(true),
 	solid(true),
@@ -162,8 +162,7 @@ Player::Player(
 { }
 
 Player::~Player() {
-// ToDO : latter : ~Player() : delete objects, gauges and tags.
-// ToDO : latter : trigger this->onDeath here ?
+// ~Player() : delete objects, gauges and tags.
 	if(this->screen) {
 		if(this->onDeath != "") {
 			std::string script = this->onDeath;
@@ -171,6 +170,12 @@ Player::~Player() {
 			this->screen->getServer()->getLua()->executeFile(script, this);
 		}
 		this->screen->exitPlayer(this);
+	}
+	for(auto it : this->gauges) {
+		delete(it.second);
+	}
+	for(auto it : this->objects) {
+		delete(it.second);
 	}
 	this->_close();
 	if(this->loopThread != NULL &&
@@ -199,7 +204,6 @@ std::string Player::getName() {
 	return(this->name);
 }
 
-// TODO : Player::setName() : auto broadcast new name.
 void Player::setName(std::string name) {
 	this->name = name;
 }
@@ -246,7 +250,7 @@ void Player::move(int xShift, int yShift) {
 					this->screen->getObjectList(this->x, this->y);
 			if(lst) {
 				for(class Object * object : *lst) {
-					this->addFloorList(object->getId(), object->getAspect());
+					this->addPickupList(object->getId(), object->getAspect());
 				}
 			}
 			// Trigger landon script.
@@ -333,7 +337,7 @@ void Player::remObject(unsigned long int id) {
 	this->updateNoInventory(id);
 }
 
-/* ToDO : latter :
+/*
 
 unsigned int Player::getMovePoints() {
 	return(this->movepoints);
@@ -382,6 +386,7 @@ void Player::setMovable() {
 void Player::setNotMovable() {
 	this->movable = false;
 }
+
 */
 
 /* Send messages to client */
@@ -509,20 +514,20 @@ void Player::updateNoInventory(unsigned long int id) {
 	this->send("noinvent " + std::to_string(id));
 }
 
-void Player::addFloorList(unsigned long int id, Aspect aspect) {
-	// floorlist <id> <aspect>
+void Player::addPickupList(unsigned long int id, Aspect aspect) {
+	// pickuplist <id> <aspect>
 	this->send(
-			"addfloorlist "
+			"addpickuplist "
 			+ std::to_string(id)
 			+ " "
 			+ std::to_string(aspect)
 	);
 }
 
-void Player::remFloorList(unsigned long int id) {
-	// floorlist <id> <aspect>
+void Player::remPickupList(unsigned long int id) {
+	// pickuplist <id> <aspect>
 	this->send(
-			"remfloorlist "
+			"rempickuplist "
 			+ std::to_string(id)
 	);
 }
