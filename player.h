@@ -6,6 +6,7 @@
 #include <map>
 
 #include "aspect.h"
+#include "tagged.h"
 
 class Screen;
 class Gauge;
@@ -15,7 +16,7 @@ class Object;
 // TODO : Invisible.
 // TODO : Unmovable.
 
-class Player {
+class Player : public Tagged {
 	private:
 		int fd;
 		int id;
@@ -26,7 +27,6 @@ class Player {
 		int y;
 		std::string onDeath;
 		std::map<std::string, class Gauge *> gauges;
-		std::map<std::string, std::string> tags;
 		std::map<unsigned long int, class Object *> objects;
 /*
 		unsigned int movepoints;
@@ -63,9 +63,6 @@ class Player {
 		class Gauge * getGauge(std::string name); // May return NULL.
 		void addGauge(class Gauge * gauge); // Only a new gauge can call it.
 		void delGauge(std::string name);
-		std::string getTag(std::string name);
-		void setTag(std::string name, std::string value);
-		void delTag(std::string name);
 		class Object * getObject(unsigned long int id); // Maux return NULL.
 		void addObject(class Object * object);
 		void remObject(unsigned long int id); // Don't delete, remove only.

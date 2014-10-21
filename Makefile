@@ -11,7 +11,7 @@ CXXFLAGS = -DDEBUG -g -Wall -pedantic -g -std=c++11
 LDLIBS = -lstdc++ -lpthread -llua
 $(RM) = rm -f
 
-SRCS = main.cpp player.cpp screen.cpp server.cpp tile.cpp place.cpp error.cpp luawrapper.cpp gauge.cpp object.cpp
+SRCS = main.cpp player.cpp screen.cpp server.cpp tile.cpp place.cpp error.cpp luawrapper.cpp gauge.cpp object.cpp tagged.cpp
 OBJS = $(SRCS:.cpp=.o)
 EXE = server
 

@@ -303,22 +303,6 @@ void Player::delGauge(std::string name) {
 	this->gauges.erase(name);
 }
 
-std::string Player::getTag(std::string name) {
-	try {
-		return(this->tags.at(name));
-	} catch(...) {
-		return("");
-	}
-}
-
-void Player::setTag(std::string name, std::string value) {
-	this->tags[name] = value;
-}
-
-void Player::delTag(std::string name) {
-	this->tags.erase(name);
-}
-
 class Object * Player::getObject(unsigned long int id) {
 	try {
 		return(this->objects.at(id));

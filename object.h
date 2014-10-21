@@ -2,17 +2,14 @@
 #define OBJECT_H
 
 #include "aspect.h"
+#include "tagged.h"
 
 #include <string>
-// #include <map>
 
-// #include "script.h"
-
-class Object {
+class Object : public Tagged {
 	private:
 		std::string name;
 		Aspect aspect;
-		// std::map<std::string, std::string> tags;
 	public:
 		Object(std::string name, Aspect aspect);
 		~Object();

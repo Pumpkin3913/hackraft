@@ -1166,6 +1166,41 @@ int l_object_setaspect(lua_State * lua) {
 	return(0);
 }
 
+int l_object_gettag(lua_State * lua) {
+	class Object * object = (class Object *) lua_touserdata(lua, 1);
+	if(object == NULL or not lua_isstring(lua, 2)) {
+		lua_arg_error("object_gettag(object, name)");
+	} else {
+		std::string name = lua_tostring(lua, 2);
+		lua_pushstring(lua, object->getTag(name).c_str());
+		return(1);
+	}
+	return(0);
+}
+
+int l_object_settag(lua_State * lua) {
+	class Object * object = (class Object *) lua_touserdata(lua, 1);
+	if(object == NULL or not lua_isstring(lua, 2) or not lua_isstring(lua, 3)) {
+		lua_arg_error("object_settag(object, name, value)");
+	} else {
+		std::string name = lua_tostring(lua, 2);
+		std::string value = lua_tostring(lua, 3);
+		object->setTag(name, value);
+	}
+	return(0);
+}
+
+int l_object_deltag(lua_State * lua) {
+	class Object * object = (class Object *) lua_touserdata(lua, 1);
+	if(object == NULL or not lua_isstring(lua, 2)) {
+		lua_arg_error("object_deltag(object, name)");
+	} else {
+		std::string name = lua_tostring(lua, 2);
+		object->delTag(name);
+	}
+	return(0);
+}
+
 /* Wraper class */
 
 Luawrapper::Luawrapper(class Server * server) :
@@ -1281,6 +1316,9 @@ Luawrapper::Luawrapper(class Server * server) :
 	lua_register(this->lua_state, "object_setname", l_object_setname);
 	lua_register(this->lua_state, "object_getaspect", l_object_getaspect);
 	lua_register(this->lua_state, "object_setaspect", l_object_setaspect);
+	lua_register(this->lua_state, "object_gettag", l_object_gettag);
+	lua_register(this->lua_state, "object_settag", l_object_settag);
+	lua_register(this->lua_state, "object_deltag", l_object_deltag);
 
 	this->executeFile(LUA_INIT_SCRIPT);
 }
