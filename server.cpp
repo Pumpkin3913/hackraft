@@ -65,6 +65,7 @@ Server::Server() :
 	acceptThread(NULL),
 	luawrapper(new Luawrapper(this))
 {
+	this->terminaisonLock.lock();
 	// Main loop thread starting is done at _open(), not at constructor.
 }
 
@@ -83,7 +84,7 @@ Server::~Server() {
 		delete(it.second);
 	}
 
-	info("Exiting...");
+	this->terminaisonLock.unlock();
 }
 
 void Server::_open(unsigned short port) {
@@ -131,7 +132,7 @@ void Server::_open(unsigned short port) {
 #elif defined _WIN32
 #endif
 
-	verbose_info("Connexions set on.");
+	verbose_info("Server opened.");
 	// TODO : IPv4/IPv6 connexions.
 
 	// Start connexion accepting thread.
@@ -152,6 +153,8 @@ void Server::_close() {
 		// this->acceptThread->join();
 		this->acceptThread = NULL;
 	}
+
+	verbose_info("Server closed.");
 }
 
 bool Server::isOpen() {
@@ -235,5 +238,9 @@ void Server::exeScript(std::string id, class Player * player, std::string arg) {
 
 class Luawrapper * Server::getLua() {
 	return(this->luawrapper);
+}
+
+void Server::waitForTerminaison() {
+	this->terminaisonLock.lock();
 }
 

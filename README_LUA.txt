@@ -8,6 +8,7 @@ fatal(message)
 info(message)
 verboseinfo(message)
 
+delete_server(server)
 server_open(server, port)
 server_close(server)
 server_isopen(server)

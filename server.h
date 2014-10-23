@@ -10,6 +10,7 @@ class Player;
 
 #include <map>
 #include <thread>
+#include <mutex>
 
 #define MAX_SOCKET_QUEUE 8
 
@@ -24,6 +25,7 @@ class Server {
 		std::map<std::string, std::string *> scripts;
 		std::thread * acceptThread;
 		class Luawrapper * luawrapper;
+		std::mutex terminaisonLock;
 
 		void acceptLoop();
 
@@ -46,6 +48,7 @@ class Server {
 		void delScript(std::string id);
 		void exeScript(std::string id, class Player * player = NULL, std::string arg = "");
 		class Luawrapper * getLua();
+		void waitForTerminaison();
 };
 
 #endif

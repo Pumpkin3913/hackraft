@@ -96,6 +96,17 @@ int l_verboseinfo(lua_State * lua) {
 
 /* Server */
 
+int l_delete_server(lua_State * lua) {
+	class Server * server = (class Server *) lua_touserdata(lua, 1);
+	if(server == NULL) {
+		lua_arg_error("delete_server(server)");
+	} else {
+		delete(server);
+	}
+	return(0);
+}
+
+
 int l_server_open(lua_State * lua) {
 	class Server * server = (class Server *) lua_touserdata(lua, 1);
 	if(server == NULL or not lua_isnumber(lua, 2)) {
@@ -1223,6 +1234,7 @@ Luawrapper::Luawrapper(class Server * server) :
 	lua_register(this->lua_state, "info", l_info);
 	lua_register(this->lua_state, "verboseinfo", l_verboseinfo);
 
+	lua_register(this->lua_state, "delete_server", l_delete_server);
 	lua_register(this->lua_state, "server_open", l_server_open);
 	lua_register(this->lua_state, "server_close", l_server_close);
 	lua_register(this->lua_state, "server_isopen", l_server_isopen);

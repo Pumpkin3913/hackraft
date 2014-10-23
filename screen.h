@@ -25,6 +25,7 @@ class Screen {
 		std::vector<class Place> places;
 		std::map<int, class Player *> players;
 
+		bool isPlaceValid(int x, int y);
 		class Place * getPlace(int x, int y);
 		void updateObject(int x, int y);
 		void updateTile(int x, int y);

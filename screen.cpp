@@ -171,9 +171,9 @@ void Screen::event(std::string message) {
 /* Called by Player only */
 
 bool Screen::canLandPlayer(class Player * player, int x, int y) {
-	class Tile * dst = this->getTile(x,y);
-	if(dst != NULL) {
-		return(dst->canLand());
+	class Place * place;
+	if(this->isPlaceValid(x, y) && (place = this->getPlace(x,y)) != NULL) {
+		return(place->canLand());
 	} else {
 		return(false);
 	}
@@ -218,8 +218,12 @@ void Screen::updatePlayer(class Player * player) {
 
 /* Private */
 
+bool Screen::isPlaceValid(int x, int y) {
+	return(x >= 0 && x < this->width && y >= 0 && y < this->height);
+}
+
 class Place * Screen::getPlace(int x, int y) {
-	if(x >= 0 && x < this->width && y >= 0 && y < this->height) {
+	if(this->isPlaceValid(x,y)) {
 		return(&(this->places[y*this->width+x]));
 	} else {
 		warning(
