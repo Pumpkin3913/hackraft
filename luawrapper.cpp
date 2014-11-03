@@ -18,7 +18,11 @@ int l_c_rand(lua_State * lua) {
 	if(not lua_isnumber(lua, 1)) {
 		lua_arg_error("c_rand(max)");
 	} else {
-		srand(time(NULL));
+		static bool done = false;
+		if(not done) {
+			srand(time(NULL));
+			done = true;
+		}
 		int max = lua_tointeger(lua, 1);
 		int x = rand()%max+1;
 		lua_pushinteger(lua, x);
