@@ -1227,6 +1227,9 @@ Luawrapper::Luawrapper(class Server * server) :
 	lua_pushlightuserdata(this->lua_state, this->server);
 	lua_setglobal(this->lua_state, "Server");
 
+	lua_pushlightuserdata(this->lua_state, NULL);
+	lua_setglobal(this->lua_state, "NULL");
+
 	lua_register(this->lua_state, "c_rand", l_c_rand);
 
 	lua_register(this->lua_state, "setverbose", l_setverbose);
