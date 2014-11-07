@@ -28,10 +28,10 @@ class Player : public Tagged {
 		std::string onDeath;
 		std::map<std::string, class Gauge *> gauges;
 		std::map<unsigned long int, class Object *> objects;
+		bool ghost;
 /*
 		unsigned int movepoints;
 		bool visible;
-		bool solid;
 		bool movable;
 */
 		std::thread * loopThread;
@@ -67,6 +67,9 @@ class Player : public Tagged {
 		void addObject(class Object * object);
 		void remObject(unsigned long int id); // Don't delete, remove only.
 
+		bool isGhost();
+		void setGhost();
+		void setNotGhost();
 /*
 		unsigned int getMovePoints();
 		void setMovePoints(unsigned int points);
@@ -74,9 +77,6 @@ class Player : public Tagged {
 		bool isVisible();
 		void setVisible();
 		void setNotVisible();
-		bool isSolid();
-		void setSolid();
-		void setNotSolid();
 		bool isMovable();
 		void setMovable();
 		void setNotMovable();

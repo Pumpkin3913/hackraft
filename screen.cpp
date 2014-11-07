@@ -49,6 +49,10 @@ unsigned int Screen::getHeight() {
 	return(this->height);
 }
 
+bool Screen::isPlaceValid(int x, int y) {
+	return(x >= 0 && x < this->width && y >= 0 && y < this->height);
+}
+
 class Tile * Screen::getTile(int x, int y) {
 	class Place * place = this->getPlace(x,y);
 	if(place) {
@@ -217,10 +221,6 @@ void Screen::updatePlayer(class Player * player) {
 }
 
 /* Private */
-
-bool Screen::isPlaceValid(int x, int y) {
-	return(x >= 0 && x < this->width && y >= 0 && y < this->height);
-}
 
 class Place * Screen::getPlace(int x, int y) {
 	if(this->isPlaceValid(x,y)) {

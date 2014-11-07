@@ -151,10 +151,10 @@ Player::Player(
 	x(0),
 	y(0),
 	onDeath(""),
+	ghost(false),
 /*
 	movepoints(0),
 	visible(true),
-	solid(true),
 	movable(true),
 */
 	loopThread(NULL),
@@ -242,8 +242,8 @@ void Player::setXY(int x, int y) {
 void Player::move(int xShift, int yShift) {
 	int new_x = this->x + xShift;
 	int new_y = this->y + yShift;
-	if(this->screen) {
-		if(this->screen->canLandPlayer(this, new_x, new_y)) {
+	if(this->screen and this->screen->isPlaceValid(new_x, new_y)) {
+		if(this->ghost or this->screen->canLandPlayer(this, new_x, new_y)) {
 			this->setXY(new_x, new_y);
 			// Send floor objects list.
 			const std::list<class Object *> * lst =
@@ -321,6 +321,18 @@ void Player::remObject(unsigned long int id) {
 	this->updateNoInventory(id);
 }
 
+bool Player::isGhost() {
+	return(this->ghost);
+}
+
+void Player::setGhost() {
+	this->ghost = true;
+}
+
+void Player::setNotGhost() {
+	this->ghost = false;
+}
+
 /*
 
 unsigned int Player::getMovePoints() {
@@ -345,18 +357,6 @@ void Player::setVisible() {
 
 void Player::setNotVisible() {
 	this->visible = false;
-}
-
-bool Player::isSolid() {
-	return(this->solid);
-}
-
-void Player::setSolid() {
-	this->solid = true;
-}
-
-void Player::setNotSolid() {
-	this->solid = false;
 }
 
 bool Player::isMovable() {

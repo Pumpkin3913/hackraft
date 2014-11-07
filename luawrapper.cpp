@@ -865,6 +865,37 @@ int l_player_remobject(lua_State * lua) {
 	return(0);
 }
 
+int l_player_isghost(lua_State * lua) {
+	class Player * player = (class Player *) lua_touserdata(lua, 1);
+	if(player == NULL) {
+		lua_arg_error("player_isghost(player)");
+	} else {
+		lua_pushboolean(lua, player->isGhost());
+		return(1);
+	}
+	return(0);
+}
+
+int l_player_setghost(lua_State * lua) {
+	class Player * player = (class Player *) lua_touserdata(lua, 1);
+	if(player == NULL) {
+		lua_arg_error("player_setghost(player)");
+	} else {
+		player->setGhost();
+	}
+	return(0);
+}
+
+int l_player_setnotghost(lua_State * lua) {
+	class Player * player = (class Player *) lua_touserdata(lua, 1);
+	if(player == NULL) {
+		lua_arg_error("player_setnotghost(player)");
+	} else {
+		player->setNotGhost();
+	}
+	return(0);
+}
+
 int l_player_message(lua_State * lua) {
 	class Player * player = (class Player *) lua_touserdata(lua, 1);
 	if(player == NULL or not lua_isstring(lua, 2)) {
@@ -1306,6 +1337,9 @@ Luawrapper::Luawrapper(class Server * server) :
 	lua_register(this->lua_state, "player_getobject", l_player_getobject);
 	lua_register(this->lua_state, "player_addobject", l_player_addobject);
 	lua_register(this->lua_state, "player_remobject", l_player_remobject);
+	lua_register(this->lua_state, "player_isghost", l_player_isghost);
+	lua_register(this->lua_state, "player_setghost", l_player_setghost);
+	lua_register(this->lua_state, "player_setnotghost", l_player_setnotghost);
 	lua_register(this->lua_state, "player_message", l_player_message);
 	lua_register(this->lua_state, "player_follow", l_player_follow);
 
