@@ -16,7 +16,7 @@ class Place {
 		bool useLocalCanLand;
 		bool local_canLand;
 		std::list<class Object *> objects;
-		std::string landon;
+		std::string * landon;
 	public:
 		Place(class Tile * tile);
 		~Place();
@@ -33,7 +33,7 @@ class Place {
 		void setCantLand();
 		void resetCanLand();
 		std::list<class Object *> * getObjects();
-		std::string getLandOn();
+		std::string * getLandOn();
 		void setLandOn(std::string script);
 		void resetLandOn();
 };

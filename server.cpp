@@ -169,8 +169,12 @@ unsigned short Server::getPort() {
 	}
 }
 
+// Automatically done by new Screen().
 void Server::addScreen(std::string id, class Screen * screen) {
-	this->delScreen(id);
+	if(this->getScreen(id) != NULL) {
+		this->delScreen(id);
+		verbose_info("Screen '"+id+"' replaced.");
+	}
 	this->screens[id] = screen;
 }
 
@@ -189,8 +193,10 @@ void Server::addTile(class Tile * tile) {
 	if(this->tiles[tile->getId()] != NULL) {
 		delete(this->tiles[tile->getId()]);
 		this->tiles.erase(tile->getId());
+		verbose_info("Tile '"+tile->getId()+"' replaced.");
 	}
 	this->tiles[tile->getId()] = tile;
+// TODO : replace tile's content and delete new one when replacing a tile.
 }
 
 class Tile * Server::getTile(std::string id) {
@@ -214,18 +220,23 @@ class Player * Server::getPlayer(int id) {
 }
 
 void Server::addScript(std::string id, std::string * filename) {
-	this->delScript(id);
+	if(this->getScript(id) != NULL) {
+		this->delScript(id);
+		verbose_info("Script '"+id+"' replaced.");
+	}
 	this->scripts[id] = filename;
 }
 
 std::string * Server::getScript(std::string id) {
-		return(this->scripts[id]);
+	return(this->scripts[id]);
 }
 
 void Server::delScript(std::string id) {
 	if(this->scripts[id] != NULL) {
 		delete(this->scripts[id]);
 		this->scripts.erase(id);
+	} else {
+		verbose_info("Script '"+id+"' doesn't exist.");
 	}
 }
 
@@ -233,6 +244,8 @@ void Server::exeScript(std::string id, class Player * player, std::string arg) {
 	std::string * script = this->getScript(id);
 	if(script != NULL) {
 		this->luawrapper->executeFile(*script, player, arg);
+	} else {
+		verbose_info("Script '"+id+"' doesn't exist.");
 	}
 }
 

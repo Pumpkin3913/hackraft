@@ -19,6 +19,7 @@ class Object;
 class Screen {
 	private:
 		class Server * server;
+		std::string id;
 		std::string name;
 		unsigned int width;
 		unsigned int height;
@@ -32,6 +33,7 @@ class Screen {
 	public:
 		Screen(
 			class Server * server,
+			std::string id,
 			std::string name,
 			unsigned int width,
 			unsigned int height,
@@ -39,6 +41,7 @@ class Screen {
 		);
 		~Screen();
 		class Server * getServer();
+		std::string getId();
 		std::string getName();
 		void setName(std::string name);
 		unsigned int getWidth();
@@ -52,7 +55,7 @@ class Screen {
 		const std::list<class Object *> * getObjectList(int x, int y); // Only called by Player.
 		void addObject(int x, int y, class Object * object);
 		void remObject(int x, int y, unsigned long int id); // Don't delete; remove only.
-		std::string getLandOn(int x, int y); // May return NULL.
+		std::string * getLandOn(int x, int y); // May return NULL.
 		void setLandOn(int x, int y, std::string script);
 		void resetLandOn(int x, int y);
 		void event(std::string message); // Broadcast a message to all players.

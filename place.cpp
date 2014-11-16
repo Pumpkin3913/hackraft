@@ -7,7 +7,8 @@ Place::Place(class Tile * tile) :
 	local_name(""),
 	local_aspect(noAspect),
 	useLocalCanLand(false),
-	local_canLand(true) // useless.
+	local_canLand(true), // useless.
+	landon(NULL)
 { }
 
 Place::~Place() {
@@ -79,15 +80,18 @@ std::list<class Object *> * Place::getObjects() {
 	return(&(this->objects));
 }
 
-std::string Place::getLandOn() {
+std::string * Place::getLandOn() {
 	return(this->landon);
 }
 
 void Place::setLandOn(std::string script) {
-	this->landon = script;
+	this->landon = new std::string(script);
 }
 
 void Place::resetLandOn() {
-	this->landon = "";
+	if(this->landon) {
+		delete(this->landon);
+		this->landon = NULL;
+	}
 }
 

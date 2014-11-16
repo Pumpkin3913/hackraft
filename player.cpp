@@ -254,10 +254,10 @@ void Player::move(int xShift, int yShift) {
 				}
 			}
 			// Trigger landon script.
-			std::string script =
+			std::string * script =
 				this->screen->getLandOn(new_x, new_y);
-			if(script != "") {
-				this->screen->getServer()->getLua()->executeFile(script, this);
+			if(script != NULL) {
+				this->screen->getServer()->getLua()->executeFile(*script, this);
 			}
 		}
 	}
@@ -301,6 +301,7 @@ void Player::delGauge(std::string name) {
 		delete(old);
 	}
 	this->gauges.erase(name);
+// TODO : Player::delGauge : warn if nothing to delete.
 }
 
 class Object * Player::getObject(unsigned long int id) {

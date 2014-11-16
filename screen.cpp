@@ -8,17 +8,20 @@
 
 Screen::Screen(
 	class Server * server,
+	std::string id,
 	std::string name,
 	unsigned int width,
 	unsigned int height,
 	class Tile * baseTile
 ) :
 	server(server),
+	id(id),
 	name(name),
 	width(width),
 	height(height)
 {
 	this->places = std::vector<class Place>(width * height, Place(baseTile));
+	this->server->addScreen(id, this);
 }
 
 Screen::~Screen() {
@@ -30,6 +33,10 @@ Screen::~Screen() {
 
 class Server * Screen::getServer() {
 	return(this->server);
+}
+
+std::string Screen::getId() {
+	return(this->id);
 }
 
 std::string Screen::getName() {
@@ -143,12 +150,12 @@ void Screen::remObject(int x, int y, unsigned long int id) {
 	}
 }
 
-std::string Screen::getLandOn(int x, int y) {
+std::string * Screen::getLandOn(int x, int y) {
 	class Place * place = this->getPlace(x,y);
 	if(place) {
 		return(place->getLandOn());
 	} else {
-		return("");
+		return(NULL);
 	}
 }
 
@@ -156,6 +163,8 @@ void Screen::setLandOn(int x, int y, std::string script) {
 	class Place * place = this->getPlace(x,y);
 	if(place) {
 		place->setLandOn(script);
+	} else {
+		// Warning already done by Screen::getPlace();
 	}
 }
 
@@ -163,6 +172,8 @@ void Screen::resetLandOn(int x, int y) {
 	class Place * place = this->getPlace(x,y);
 	if(place) {
 		place->resetLandOn();
+	} else {
+		// Warning already done by Screen::getPlace();
 	}
 }
 

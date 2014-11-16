@@ -18,8 +18,9 @@ extern "C" {
 class Luawrapper {
 	private:
 		lua_State * lua_state;
-		class Server * server;
 	public:
+		static class Server * server;
+
 		Luawrapper(class Server * server);
 		~Luawrapper();
 		void executeFile(std::string filename, class Player * player = NULL, std::string arg = "");

@@ -36,7 +36,7 @@ class Server {
 		void _close();
 		bool isOpen();
 		unsigned short getPort();
-		void addScreen(std::string id, class Screen * screen);
+		void addScreen(std::string id, class Screen * screen); // Automatically done by new Screen().
 		class Screen * getScreen(std::string id);
 		void delScreen(std::string id);
 		void addTile(class Tile * tile);

@@ -32,6 +32,7 @@ class Gauge {
 			Aspect aFull,
 			Aspect aEmpty,
 			bool visible = true);
+		// Automatically add itself to its player.
 		~Gauge();
 		std::string getName();
 		void setName(std::string name);
