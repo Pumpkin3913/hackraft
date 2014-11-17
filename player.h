@@ -12,7 +12,6 @@ class Screen;
 class Gauge;
 class Object;
 
-// TODO : Collisions.
 // TODO : Invisible.
 // TODO : Unmovable.
 

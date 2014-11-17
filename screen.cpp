@@ -26,8 +26,8 @@ Screen::Screen(
 
 Screen::~Screen() {
 	// For now, players in a screen are deleted with it.
-	for(std::pair<int, Player*> it : this->players) {
-		delete(it.second);
+	for(int id : this->players) {
+		this->server->delPlayer(id);
 	}
 }
 
@@ -56,7 +56,7 @@ unsigned int Screen::getHeight() {
 	return(this->height);
 }
 
-bool Screen::isPlaceValid(int x, int y) {
+bool Screen::isPlaceValid(unsigned int x, unsigned int y) {
 	return(x >= 0 && x < this->width && y >= 0 && y < this->height);
 }
 
@@ -74,14 +74,6 @@ void Screen::setTile(int x, int y, class Tile * tile) {
 	if(place) {
 		place->setTile(tile);
 		this->updateTile(x, y);
-	}
-}
-
-class Player * Screen::getPlayer(int id_fd) {
-	try {
-		return(this->players.at(id_fd));
-	} catch(...) {
-		return(NULL);
 	}
 }
 
@@ -123,9 +115,10 @@ void Screen::addObject(int x, int y, class Object * object) {
 	if(place) {
 		place->getObjects()->push_front(object);
 		this->updateObject(x, y);
-		for(std::pair<int, Player*> it : this->players) {
-			if(it.second->getX() == x && it.second->getY() == y) {
-				it.second->addPickupList(object->getId(), object->getAspect());
+		for(int id : this->players) {
+			class Player * player = this->getPlayer(id);
+			if(player && player->getX() == x && player->getY() == y) {
+				player->addPickupList(object->getId(), object->getAspect());
 			}
 		}
 	}
@@ -139,9 +132,10 @@ void Screen::remObject(int x, int y, unsigned long int id) {
 			if((*it)->getId() == id) {
 				lst->erase(it);
 				this->updateObject(x, y); // FIXME: only if top changed.
-				for(std::pair<int, Player*> it : this->players) {
-					if(it.second->getX() == x && it.second->getY() == y) {
-						it.second->remPickupList(id);
+				for(int player_id : this->players) {
+					class Player * player = this->getPlayer(player_id);
+					if(player && player->getX() == x && player->getY() == y) {
+						player->remPickupList(id);
 					}
 				}
 				break;
@@ -178,8 +172,9 @@ void Screen::resetLandOn(int x, int y) {
 }
 
 void Screen::event(std::string message) {
-	for(std::pair<int, Player*> it : this->players) {
-		it.second->message(message);
+	for(int id : this->players) {
+		class Player * player = this->getPlayer(id);
+		if(player) player->message(message);
 	}
 }
 
@@ -187,7 +182,7 @@ void Screen::event(std::string message) {
 
 bool Screen::canLandPlayer(class Player * player, int x, int y) {
 	class Place * place;
-	if(this->isPlaceValid(x, y) && (place = this->getPlace(x,y)) != NULL) {
+	if(this->isPlaceValid(x,y) && (place = this->getPlace(x,y)) != NULL) {
 		return(place->canLand());
 	} else {
 		return(false);
@@ -195,17 +190,18 @@ bool Screen::canLandPlayer(class Player * player, int x, int y) {
 }
 
 void Screen::enterPlayer(class Player * player, int x, int y) {
-	this->players[player->getId()] = player;
+	this->players.push_front(player->getId());
 	player->setXY(x, y);
 	player->updateFloor();
 	this->updatePlayer(player);
-	for(std::pair<int, Player*> it : this->players) {
-		if(it.second != player) {
-			player->updatePlayer(it.second);
+	for(int id : this->players) {
+		if(id != player->getId()) {
+			class Player * p = this->getPlayer(id);
+			if(p) player->updatePlayer(p);
 		}
 	}
-	for(int x=0; x<this->width; x++) {
-		for(int y=0; y<this->height; y++) {
+	for(unsigned int x=0; x<this->width; x++) {
+		for(unsigned int y=0; y<this->height; y++) {
 			class Object * object = this->getTopObject(x, y);
 			if(object) {
 				player->updateObject(x, y, object->getAspect());
@@ -219,19 +215,31 @@ void Screen::enterPlayer(class Player * player, int x, int y) {
 }
 
 void Screen::exitPlayer(class Player * player) {
-	this->players.erase(player->getId());
-	for(std::pair<int, Player*> it : this->players) {
-		it.second->updatePlayerExit(player);
+	this->players.remove(player->getId());
+	for(int id : this->players) {
+		class Player * p = this->getPlayer(id);
+		if(p) p->updatePlayerExit(player);
 	}
 }
 
 void Screen::updatePlayer(class Player * player) {
-	for(std::pair<int, Player*> it : this->players) {
-		it.second->updatePlayer(player);
+	for(int id : this->players) {
+		class Player * p = this->getPlayer(id);
+		if(p) p->updatePlayer(player);
 	}
 }
 
 /* Private */
+
+class Player * Screen::getPlayer(int id) {
+	class Player * player = this->server->getPlayer(id);
+	if(player != NULL) {
+		return(player);
+	} else {
+		this->players.remove(id);
+		return(NULL);
+	}
+}
 
 class Place * Screen::getPlace(int x, int y) {
 	if(this->isPlaceValid(x,y)) {
@@ -253,12 +261,14 @@ class Place * Screen::getPlace(int x, int y) {
 void Screen::updateObject(int x, int y) {
 	class Object * object = this->getTopObject(x, y);
 	if(object) {
-		for(std::pair<int, Player*> it : this->players) {
-			it.second->updateObject(x, y, object->getAspect());
+		for(int id : this->players) {
+			class Player * player = this->getPlayer(id);
+			if(player) player->updateObject(x, y, object->getAspect());
 		}
 	} else {
-		for(std::pair<int, Player*> it : this->players) {
-			it.second->updateNoObject(x, y);
+		for(int id : this->players) {
+			class Player * player = this->getPlayer(id);
+			if(player) player->updateNoObject(x, y);
 		}
 	}
 }
@@ -267,8 +277,9 @@ void Screen::updateTile(int x, int y) {
 	class Place * place = this->getPlace(x,y);
 	if(place) {
 		Aspect aspect = place->getAspect();
-		for(std::pair<int, Player*> it : this->players) {
-			it.second->updateTile(x, y, aspect);
+		for(int id : this->players) {
+			class Player * player = this->getPlayer(id);
+			if(player) player->updateTile(x, y, aspect);
 		}
 	}
 }

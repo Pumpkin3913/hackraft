@@ -162,7 +162,7 @@ Player::Player(
 { }
 
 Player::~Player() {
-// ~Player() : delete objects, gauges and tags.
+	verbose_info("Player "+std::to_string(this->getId())+" deleted.");
 	if(this->screen) {
 		if(this->onDeath != "") {
 			std::string script = this->onDeath;
@@ -170,6 +170,7 @@ Player::~Player() {
 			this->screen->getServer()->getLua()->executeFile(script, this);
 		}
 		this->screen->exitPlayer(this);
+		this->screen->getServer()->remPlayer(id);
 	}
 	for(auto it : this->gauges) {
 		delete(it.second);
@@ -180,7 +181,7 @@ Player::~Player() {
 	this->_close();
 	if(this->loopThread != NULL &&
 			this->loopThread->get_id() != std::this_thread::get_id()) {
-		// Only when deleted by something else than its self loopThread.
+		// Only when deleted by something else than its own loopThread.
 		this->loopThread->detach();
 		delete(this->loopThread);
 	}
@@ -192,7 +193,8 @@ void Player::spawn(class Screen * screen, int x, int y) {
 		this->screen->enterPlayer(this, x, y);
 		this->loopThread = new std::thread(&Player::loopFunction, this);
 		this->follow(this);
-		verbose_info("Player spawn successfully.");
+		verbose_info("Player "+std::to_string(this->getId())
+				+" spawn successfully.");
 	}
 }
 
@@ -242,7 +244,8 @@ void Player::setXY(int x, int y) {
 void Player::move(int xShift, int yShift) {
 	int new_x = this->x + xShift;
 	int new_y = this->y + yShift;
-	if(this->screen and this->screen->isPlaceValid(new_x, new_y)) {
+	if(this->screen and new_x >= 0 and new_y >= 0
+			and this->screen->isPlaceValid((unsigned) new_x, (unsigned) new_y)) {
 		if(this->ghost or this->screen->canLandPlayer(this, new_x, new_y)) {
 			this->setXY(new_x, new_y);
 			// Send floor objects list.
@@ -295,13 +298,14 @@ void Player::addGauge(class Gauge * gauge) {
 	this->gauges[gauge->getName()] = gauge;
 }
 
-void Player::delGauge(std::string name) {
-	class Gauge * old = this->getGauge(name);
+void Player::delGauge(std::string id) {
+	class Gauge * old = this->getGauge(id);
 	if(old) {
 		delete(old);
+		this->gauges.erase(id);
+	} else {
+		verbose_info("Gauge '"+id+"' doesn't exist: can't be deleted.");
 	}
-	this->gauges.erase(name);
-// TODO : Player::delGauge : warn if nothing to delete.
 }
 
 class Object * Player::getObject(unsigned long int id) {

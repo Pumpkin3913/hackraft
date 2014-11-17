@@ -25,7 +25,6 @@ int main (int argc, char** argv) {
 	server = new Server();
 	luaLoopThread = new std::thread(&luaLoop, server);
 
-	// TODO : pause until server's deletion.
 	server->waitForTerminaison();
 
 	luaLoopThread->detach();

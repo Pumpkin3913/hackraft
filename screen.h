@@ -13,7 +13,6 @@ class Object;
 
 #include <string>
 #include <vector>
-#include <map>
 #include <list>
 
 class Screen {
@@ -24,8 +23,9 @@ class Screen {
 		unsigned int width;
 		unsigned int height;
 		std::vector<class Place> places;
-		std::map<int, class Player *> players;
+		std::list<int> players;
 
+		class Player * getPlayer(int id); // Auto remove if invalid.
 		class Place * getPlace(int x, int y);
 		void updateObject(int x, int y);
 		void updateTile(int x, int y);
@@ -46,10 +46,9 @@ class Screen {
 		void setName(std::string name);
 		unsigned int getWidth();
 		unsigned int getHeight();
-		bool isPlaceValid(int x, int y);
+		bool isPlaceValid(unsigned int x, unsigned int y);
 		class Tile * getTile(int x, int y); // May return NULL.
 		void setTile(int x, int y, class Tile * tile); // And broadcast it.
-		class Player * getPlayer(int id_fd); // May return NULL.
 		class Object * getTopObject(int x, int y); // May return NULL.
 		class Object * getObject(int x, int y, unsigned long int id); // Mau return NULL.
 		const std::list<class Object *> * getObjectList(int x, int y); // Only called by Player.

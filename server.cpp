@@ -44,10 +44,11 @@ void Server::acceptLoop() {
 					);
 			class Player * player = new Player(fd, "noname",
 					Tile::defaultTile.getAspect());
+			this->addPlayer(player);
 			this->luawrapper->spawnScript(player);
 			if(player->getScreen() == NULL) {
 				warning("Spawn script didn't call spawn().");
-				delete(player);
+				this->delPlayer(player->getId());
 			}
 		}
 
@@ -202,21 +203,44 @@ void Server::addTile(class Tile * tile) {
 class Tile * Server::getTile(std::string id) {
 	class Tile * tile = this->tiles[id];
 	if(tile == NULL) {
-		return(&Tile::defaultTile);
+		// return(&Tile::defaultTile);
+		return(NULL);
 	} else {
 		return(tile);
 	}
 }
 
-class Player * Server::getPlayer(int id) {
-	class Player * player;
-	for(std::pair<std::string, class Screen *> entry : this->screens) {
-		player = entry.second->getPlayer(id);
-		if(player) {
-			return(player);
-		}
+void Server::addPlayer(class Player * player) {
+	int id = player->getId();
+	if(this->players[id] != NULL) {
+		warning("Player '"+std::to_string(id)+"' replaced.");
+		delete(this->players[id]);
 	}
-	return(NULL);
+	this->players[id] = player;
+}
+
+class Player * Server::getPlayer(int id) {
+	class Player * player = this->players[id];
+	if(player == NULL) {
+		return(NULL);
+	} else {
+		return(player);
+	}
+}
+
+void Server::delPlayer(int id) {
+	class Player * player = this->players[id];
+	if(player == NULL) {
+		verbose_info("Player '"+std::to_string(id)+
+				"' can't be deleted: doesn't exist.");
+	} else {
+		delete(player);
+		this->remPlayer(id);
+	}
+}
+
+void Server::remPlayer(int id) {
+	this->players.erase(id);
 }
 
 void Server::addScript(std::string id, std::string * filename) {
