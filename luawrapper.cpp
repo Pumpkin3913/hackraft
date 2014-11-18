@@ -206,6 +206,22 @@ int l_new_tile(lua_State * lua) {
 	return(0);
 }
 
+int l_assert_tile(lua_State * lua) {
+	if(not lua_isstring(lua, 1)) {
+		lua_arg_error("assert_tile(tile_id)");
+		lua_pushnil(lua);
+	} else {
+		std::string tile_id = lua_tostring(lua, 1);
+		class Tile * tile = Luawrapper::server->getTile(tile_id);
+		if(tile == NULL) {
+			lua_pushboolean(lua, false);
+		} else {
+			lua_pushboolean(lua, true);
+		}
+	}
+	return(1);
+}
+
 int l_tile_getname(lua_State * lua) {
 	if(not lua_isstring(lua, 1)) {
 		lua_arg_error("tile_getname(tile_id)");
@@ -326,6 +342,22 @@ int l_new_screen(lua_State * lua) {
 		}
 	}
 	return(0);
+}
+
+int l_assert_screen(lua_State * lua) {
+	if(not lua_isstring(lua, 1)) {
+		lua_arg_error("assert_screen(screen_id)");
+		lua_pushnil(lua);
+	} else {
+		std::string screen_id = lua_tostring(lua, 1);
+		class Screen * screen = Luawrapper::server->getScreen(screen_id);
+		if(screen == NULL) {
+			lua_pushboolean(lua, false);
+		} else {
+			lua_pushboolean(lua, true);
+		}
+	}
+	return(1);
 }
 
 int l_screen_getname(lua_State * lua) {
@@ -637,6 +669,22 @@ int l_delete_player(lua_State * lua) {
 		}
 	}
 	return(0);
+}
+
+int l_assert_player(lua_State * lua) {
+	if(not lua_isnumber(lua, 1)) {
+		lua_arg_error("assert_player(player_id)");
+		lua_pushnil(lua);
+	} else {
+		int player_id = lua_tointeger(lua, 1);
+		class Player * player = Luawrapper::server->getPlayer(player_id);
+		if(player == NULL) {
+			lua_pushboolean(lua, false);
+		} else {
+			lua_pushboolean(lua, true);
+		}
+	}
+	return(1);
 }
 
 int l_player_spawn(lua_State * lua) {
@@ -1100,6 +1148,29 @@ int l_new_gauge(lua_State * lua) {
 		}
 	}
 	return(0);
+}
+
+int l_assert_gauge(lua_State * lua) {
+	if(not lua_isnumber(lua, 1) or not lua_isstring(lua, 2)) {
+		lua_arg_error("assert_gauge(player_id, gauge_id)");
+		lua_pushnil(lua);
+	} else {
+		int player_id = lua_tointeger(lua, 1);
+		class Player * player = Luawrapper::server->getPlayer(player_id);
+		if(player != NULL) {
+			std::string gauge_id = lua_tostring(lua, 2);
+			class Gauge * gauge = player->getGauge(gauge_id);
+			if(gauge == NULL) {
+				lua_pushboolean(lua, false);
+			} else {
+				lua_pushboolean(lua, true);
+			}
+		} else {
+			warning("Player '"+std::to_string(player_id)+"' doesn't exist.");
+			lua_pushnil(lua);
+		}
+	}
+	return(1);
 }
 
 int l_gauge_getname(lua_State * lua) {
@@ -1658,6 +1729,7 @@ Luawrapper::Luawrapper(class Server * server) :
 	lua_register(this->lua_state, "delete_script", l_delete_script);
 
 	lua_register(this->lua_state, "new_tile", l_new_tile);
+	lua_register(this->lua_state, "assert_tile", l_assert_tile);
 	lua_register(this->lua_state, "tile_getname", l_tile_getname);
 	lua_register(this->lua_state, "tile_setname", l_tile_setname);
 	lua_register(this->lua_state, "tile_getaspect", l_tile_getaspect);
@@ -1666,6 +1738,7 @@ Luawrapper::Luawrapper(class Server * server) :
 	lua_register(this->lua_state, "tile_setcanland", l_tile_setcanland);
 
 	lua_register(this->lua_state, "new_screen", l_new_screen);
+	lua_register(this->lua_state, "assert_screen", l_assert_screen);
 	lua_register(this->lua_state, "screen_getname", l_screen_getname);
 	lua_register(this->lua_state, "screen_setname", l_screen_setname);
 	lua_register(this->lua_state, "screen_getwidth", l_screen_getwidth);
@@ -1685,6 +1758,7 @@ Luawrapper::Luawrapper(class Server * server) :
 	lua_register(this->lua_state, "screen_event", l_screen_event);
 
 	lua_register(this->lua_state, "delete_player", l_delete_player);
+	lua_register(this->lua_state, "assert_player", l_assert_player);
 	lua_register(this->lua_state, "player_spawn", l_player_spawn);
 	lua_register(this->lua_state, "player_getname", l_player_getname);
 	lua_register(this->lua_state, "player_setname", l_player_setname);
@@ -1714,6 +1788,7 @@ Luawrapper::Luawrapper(class Server * server) :
 	lua_register(this->lua_state, "player_follow", l_player_follow);
 
 	lua_register(this->lua_state, "new_gauge", l_new_gauge);
+	lua_register(this->lua_state, "assert_gauge", l_assert_gauge);
 	lua_register(this->lua_state, "gauge_getname", l_gauge_getname);
 	lua_register(this->lua_state, "gauge_setname", l_gauge_setname);
 	lua_register(this->lua_state, "gauge_getval", l_gauge_getval);

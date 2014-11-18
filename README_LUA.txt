@@ -21,6 +21,7 @@ delete_script(command)
 -- list_scripts()
 
 new_tile(id, name, aspect [, passable])
+assert_tile(tile_id) -> bool | nil
 tile_getname(tile_id) -> string | nil
 tile_setname(tile_id, name)
 tile_getaspect(tile_id) -> int | nil
@@ -30,6 +31,7 @@ tile_setcanland(tile_id, bool)
 -- list_tiles()
 
 new_screen(id, name, width, height, tile_id)
+assert_screen(screen_id) -> bool
 screen_getname(screen_id) -> string | nil
 screen_setname(screen_id, name)
 screen_getwidth(screen_id) -> int | nil
@@ -47,6 +49,7 @@ screen_resetlandon(screen_id, x, y)
 screen_event(screen_id, message)
 
 delete_player(player_id)
+assert_player(player_id) -> bool | nil
 player_spawn(player_id, screen_id, x, y)
 player_getname(player_id) -> string | nil
 player_setname(player_id, name)
@@ -76,6 +79,7 @@ player_message(player_id, message)
 player_follow(player_id, target_player_id)
 
 new_gauge(player_id, gauge_id, val, max, aspectFull, aspectEmpty, [, visible])
+assert_gauge(player_id, gauge_id) -> bool | nil
 gauge_getname(player_id, gauge_id) -> string | nil
 gauge_setname(player_id, gauge_id, name)
 gauge_getval(player_id, gauge_id) -> int | nil
