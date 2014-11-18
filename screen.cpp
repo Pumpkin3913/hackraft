@@ -29,6 +29,7 @@ Screen::~Screen() {
 	for(int id : this->players) {
 		this->server->delPlayer(id);
 	}
+	verbose_info("Screen '"+id+"' deleted.");
 }
 
 class Server * Screen::getServer() {

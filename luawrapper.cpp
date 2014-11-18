@@ -136,7 +136,7 @@ int l_delete_screen(lua_State * lua) {
 	if(not lua_isstring(lua, 1)) {
 		lua_arg_error("delete_screen(screen_id)");
 	} else {
-		std::string id = lua_tostring(lua, 2);
+		std::string id = lua_tostring(lua, 1);
 		Luawrapper::server->delScreen(id);
 	}
 	return(0);
@@ -1210,7 +1210,7 @@ int l_gauge_setname(lua_State * lua) {
 			std::string gauge_id = lua_tostring(lua, 2);
 			class Gauge * gauge = player->getGauge(gauge_id);
 			if(gauge != NULL) {
-				std::string name = lua_tostring(lua, 2);
+				std::string name = lua_tostring(lua, 3);
 				gauge->setName(name);
 			} else {
 				warning("Player '"+std::to_string(player_id)
