@@ -112,7 +112,7 @@ void Player::parse() {
 				this->screen->event(this->name+" say "+arg);
 			}
 		} else if(cmd == "pickup") {
-			if(this->screen) {
+			if(this->screen and arg != "") {
 				unsigned long int id = std::stoi(arg);
 				class Object * object =
 						this->screen->getObject(this->x, this->y, id);
@@ -122,7 +122,7 @@ void Player::parse() {
 				}
 			}
 		} else if(cmd == "drop") {
-			if(this->screen) {
+			if(this->screen and arg != "") {
 				unsigned long int id = std::stoi(arg);
 				class Object * object = this->getObject(id);
 				if(object) {
