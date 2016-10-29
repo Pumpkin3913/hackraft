@@ -260,7 +260,7 @@ void Player::move(int xShift, int yShift) {
 			std::string * script =
 				this->screen->getLandOn(new_x, new_y);
 			if(script != NULL) {
-				this->screen->getServer()->getLua()->executeFile(*script, this);
+				this->screen->getServer()->getLua()->executeCode(*script, this);
 			}
 		}
 	}

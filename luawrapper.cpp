@@ -1844,7 +1844,14 @@ void Luawrapper::executeFile(std::string filename, class Player * player, std::s
 	luaL_dofile(this->lua_state, filename.c_str());
 }
 
-void Luawrapper::executeCode(std::string code) {
+void Luawrapper::executeCode(std::string code, class Player * player) {
+	if(player) {
+		lua_pushinteger(this->lua_state, player->getId());
+	} else {
+		lua_pushnil(this->lua_state);
+	}
+	lua_setglobal(this->lua_state, "Player");
+
 	luaL_dostring(this->lua_state, code.c_str());
 }
 
