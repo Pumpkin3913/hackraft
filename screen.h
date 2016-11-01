@@ -46,7 +46,7 @@ class Screen {
 		void setName(std::string name);
 		unsigned int getWidth();
 		unsigned int getHeight();
-		bool isPlaceValid(unsigned int x, unsigned int y);
+		bool isPlaceValid(int x, int y);
 		class Tile * getTile(int x, int y); // May return NULL.
 		void setTile(int x, int y, class Tile * tile); // And broadcast it.
 		class Object * getTopObject(int x, int y); // May return NULL.
@@ -58,6 +58,10 @@ class Screen {
 		void setLandOn(int x, int y, std::string script);
 		void resetLandOn(int x, int y);
 		void event(std::string message); // Broadcast a message to all players.
+
+		std::string getTag(int x, int y, std::string id);
+		void setTag(int x, int y, std::string id, std::string value);
+		void delTag(int x, int y, std::string id);
 
 		/* Called by Player only */
 

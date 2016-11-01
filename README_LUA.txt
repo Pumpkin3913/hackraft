@@ -46,6 +46,9 @@ screen_settile(screen_id, x, y, tile_id)
 screen_getlandon(screen_id, x, y) -> string | nil
 screen_setlandon(screen_id, x, y, script)
 screen_resetlandon(screen_id, x, y)
+screen_gettag(screen_id, x, y, tag_id)
+screen_settag(screen_id, x, y, tag_id, value)
+screen_deltag(screen_id, x, y, tag_id)
 screen_event(screen_id, message)
 
 delete_player(player_id)

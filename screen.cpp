@@ -57,7 +57,7 @@ unsigned int Screen::getHeight() {
 	return(this->height);
 }
 
-bool Screen::isPlaceValid(unsigned int x, unsigned int y) {
+bool Screen::isPlaceValid(int x, int y) {
 	return(x >= 0 && x < this->width && y >= 0 && y < this->height);
 }
 
@@ -176,6 +176,51 @@ void Screen::event(std::string message) {
 	for(int id : this->players) {
 		class Player * player = this->getPlayer(id);
 		if(player) player->message(message);
+	}
+}
+
+std::string Screen::getTag(int x, int y, std::string id) {
+	class Place * place = this->getPlace(x,y);
+	if(place) {
+		return(place->getTag(id));
+	} else {
+		return("");
+	}
+}
+
+void Screen::setTag(int x, int y, std::string id, std::string value) {
+	class Place * place = this->getPlace(x,y);
+	if(place) {
+		place->setTag(id, value);
+	} else {
+		warning("In screen "
+		+ this->name
+		+ ": unable to set tag "
+		+ id
+		+ "to value "
+		+ value
+		+ " because place "
+		+ std::to_string(x)
+		+ "-"
+		+ std::to_string(y)
+		+ "is invalid.");
+	}
+}
+
+void Screen::delTag(int x, int y, std::string id) {
+	class Place * place = this->getPlace(x,y);
+	if(place) {
+		place->delTag(id);
+	} else {
+		warning("In screen "
+		+ this->name
+		+ ": unable to remove tag "
+		+ id
+		+ " because place "
+		+ std::to_string(x)
+		+ "-"
+		+ std::to_string(y)
+		+ "is invalid.");
 	}
 }
 

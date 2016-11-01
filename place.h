@@ -7,8 +7,9 @@
 class Tile;
 
 #include "aspect.h"
+#include "tagged.h"
 
-class Place {
+class Place : public Tagged {
 	private:
 		class Tile * tile;
 		std::string local_name; // use tile's one if "".

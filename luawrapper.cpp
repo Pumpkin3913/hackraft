@@ -618,7 +618,6 @@ int l_screen_setlandon(lua_State * lua) {
 	return(0);
 }
 
-
 int l_screen_resetlandon(lua_State * lua) {
 	if(not lua_isstring(lua, 1)
 			or not lua_isnumber(lua, 2)
@@ -631,6 +630,73 @@ int l_screen_resetlandon(lua_State * lua) {
 			unsigned int x = lua_tointeger(lua, 2);
 			unsigned int y = lua_tointeger(lua, 3);
 			screen->resetLandOn(x, y);
+		} else {
+			warning("Screen '"+screen_id+"' doesn't exist.");
+		}
+	}
+	return(0);
+}
+
+int l_screen_gettag(lua_State * lua) {
+	if(not lua_isstring(lua, 1)
+			or not lua_isnumber(lua, 2)
+			or not lua_isnumber(lua, 3)
+			or not lua_isstring(lua, 3)) {
+		lua_arg_error("screen_gettag(screen_id, x, y, tag_id)");
+		lua_pushnil(lua);
+	} else {
+		std::string screen_id = lua_tostring(lua, 1);
+		class Screen * screen = Luawrapper::server->getScreen(screen_id);
+		if(screen != NULL) {
+			int x = lua_tointeger(lua, 2);
+			int y = lua_tointeger(lua, 3);
+			std::string tag_id = lua_tostring(lua, 4);
+			lua_pushstring(lua, screen->getTag(x, y, tag_id).c_str());
+		} else {
+			warning("Screen '"+screen_id+"' doesn't exist.");
+			lua_pushnil(lua);
+		}
+	}
+	return(1);
+}
+
+int l_screen_settag(lua_State * lua) {
+	if(not lua_isstring(lua, 1)
+			or not lua_isnumber(lua, 2)
+			or not lua_isnumber(lua, 3)
+			or not lua_isstring(lua, 4)
+			or not lua_isstring(lua, 5)) {
+		lua_arg_error("screen_settag(screen_id, x, y, tag_id, value)");
+	} else {
+		std::string screen_id = lua_tostring(lua, 1);
+		class Screen * screen = Luawrapper::server->getScreen(screen_id);
+		if(screen != NULL) {
+			int x = lua_tointeger(lua, 2);
+			int y = lua_tointeger(lua, 3);
+			std::string tag_id = lua_tostring(lua, 4);
+			std::string value = lua_tostring(lua, 5);
+			screen->setTag(x, y, tag_id, value);
+		} else {
+			warning("Screen '"+screen_id+"' doesn't exist.");
+		}
+	}
+	return(0);
+}
+
+int l_screen_deltag(lua_State * lua) {
+	if(not lua_isstring(lua, 1)
+			or not lua_isnumber(lua, 2)
+			or not lua_isnumber(lua, 3)
+			or not lua_isstring(lua, 4)) {
+		lua_arg_error("screen_deltag(screen_id, x, y, tag_id)");
+	} else {
+		std::string screen_id = lua_tostring(lua, 1);
+		class Screen * screen = Luawrapper::server->getScreen(screen_id);
+		if(screen != NULL) {
+			int x = lua_tointeger(lua, 2);
+			int y = lua_tointeger(lua, 3);
+			std::string tag_id = lua_tostring(lua, 4);
+			screen->delTag(x, y, tag_id);
 		} else {
 			warning("Screen '"+screen_id+"' doesn't exist.");
 		}
@@ -1755,6 +1821,9 @@ Luawrapper::Luawrapper(class Server * server) :
 	lua_register(this->lua_state, "screen_getlandon", l_screen_getlandon);
 	lua_register(this->lua_state, "screen_setlandon", l_screen_setlandon);
 	lua_register(this->lua_state, "screen_resetlandon", l_screen_resetlandon);
+	lua_register(this->lua_state, "screen_gettag", l_screen_gettag);
+	lua_register(this->lua_state, "screen_settag", l_screen_settag);
+	lua_register(this->lua_state, "screen_deltag", l_screen_deltag);
 	lua_register(this->lua_state, "screen_event", l_screen_event);
 
 	lua_register(this->lua_state, "delete_player", l_delete_player);
