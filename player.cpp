@@ -64,7 +64,7 @@ void Player::loopFunction() {
 	while(!this->stop) {
 		this->parse();
 	}
-	this->loopThread = NULL;
+	this->loopThread = nullptr;
 	delete(this);
 }
 
@@ -147,7 +147,7 @@ Player::Player(
 	id(fd),
 	name(name),
 	aspect(aspect),
-	screen(NULL),
+	screen(nullptr),
 	x(0),
 	y(0),
 	onDeath(""),
@@ -157,7 +157,7 @@ Player::Player(
 	visible(true),
 	movable(true),
 */
-	loopThread(NULL),
+	loopThread(nullptr),
 	stop(false)
 { }
 
@@ -179,7 +179,7 @@ Player::~Player() {
 		delete(it.second);
 	}
 	this->_close();
-	if(this->loopThread != NULL &&
+	if(this->loopThread != nullptr &&
 			this->loopThread->get_id() != std::this_thread::get_id()) {
 		// Only when deleted by something else than its own loopThread.
 		this->loopThread->detach();
@@ -259,7 +259,7 @@ void Player::move(int xShift, int yShift) {
 			// Trigger landon script.
 			std::string * script =
 				this->screen->getLandOn(new_x, new_y);
-			if(script != NULL) {
+			if(script != nullptr) {
 				this->screen->getServer()->getLua()->executeCode(*script, this);
 			}
 		}
@@ -286,7 +286,7 @@ class Gauge * Player::getGauge(std::string name) {
 	try {
 		return(this->gauges.at(name));
 	} catch(...) {
-		return(NULL);
+		return(nullptr);
 	}
 }
 
@@ -312,7 +312,7 @@ class Object * Player::getObject(unsigned long int id) {
 	try {
 		return(this->objects.at(id));
 	} catch(...) {
-		return(NULL);
+		return(nullptr);
 	}
 }
 

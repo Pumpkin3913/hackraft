@@ -46,7 +46,7 @@ void Server::acceptLoop() {
 					Tile::defaultTile.getAspect());
 			this->addPlayer(player);
 			this->luawrapper->spawnScript(player);
-			if(player->getScreen() == NULL) {
+			if(player->getScreen() == nullptr) {
 				warning("Spawn script didn't call spawn().");
 				this->delPlayer(player->getId());
 			}
@@ -54,7 +54,7 @@ void Server::acceptLoop() {
 
 	}
 
-	this->acceptThread = NULL;
+	this->acceptThread = nullptr;
 }
 
 /* Public */
@@ -63,7 +63,7 @@ Server::Server() :
 	// 0 is a valid file descriptor, but not a valid socket file descriptor.
 	connexion_fd(0),
 	port(0),
-	acceptThread(NULL),
+	acceptThread(nullptr),
 	luawrapper(new Luawrapper(this))
 {
 	this->terminaisonLock.lock();
@@ -148,11 +148,11 @@ void Server::_close() {
 	this->connexion_fd = 0;
 	this->port = 0;
 
-	if(this->acceptThread != NULL) {
+	if(this->acceptThread != nullptr) {
 		this->acceptThread->detach();
 		delete(this->acceptThread);
 		// this->acceptThread->join();
-		this->acceptThread = NULL;
+		this->acceptThread = nullptr;
 	}
 
 	verbose_info("Server closed.");
@@ -172,7 +172,7 @@ unsigned short Server::getPort() {
 
 // Automatically done by new Screen().
 void Server::addScreen(std::string id, class Screen * screen) {
-	if(this->getScreen(id) != NULL) {
+	if(this->getScreen(id) != nullptr) {
 		this->delScreen(id);
 		verbose_info("Screen '"+id+"' replaced.");
 	}
@@ -184,14 +184,14 @@ class Screen * Server::getScreen(std::string id) {
 }
 
 void Server::delScreen(std::string id) {
-	if(this->screens[id] != NULL) {
+	if(this->screens[id] != nullptr) {
 		delete(this->screens[id]);
 		this->screens.erase(id);
 	}
 }
 
 void Server::addTile(class Tile * tile) {
-	if(this->tiles[tile->getId()] != NULL) {
+	if(this->tiles[tile->getId()] != nullptr) {
 		delete(this->tiles[tile->getId()]);
 		this->tiles.erase(tile->getId());
 		verbose_info("Tile '"+tile->getId()+"' replaced.");
@@ -202,9 +202,9 @@ void Server::addTile(class Tile * tile) {
 
 class Tile * Server::getTile(std::string id) {
 	class Tile * tile = this->tiles[id];
-	if(tile == NULL) {
+	if(tile == nullptr) {
 		// return(&Tile::defaultTile);
-		return(NULL);
+		return(nullptr);
 	} else {
 		return(tile);
 	}
@@ -212,7 +212,7 @@ class Tile * Server::getTile(std::string id) {
 
 void Server::addPlayer(class Player * player) {
 	int id = player->getId();
-	if(this->players[id] != NULL) {
+	if(this->players[id] != nullptr) {
 		warning("Player '"+std::to_string(id)+"' replaced.");
 		delete(this->players[id]);
 	}
@@ -221,8 +221,8 @@ void Server::addPlayer(class Player * player) {
 
 class Player * Server::getPlayer(int id) {
 	class Player * player = this->players[id];
-	if(player == NULL) {
-		return(NULL);
+	if(player == nullptr) {
+		return(nullptr);
 	} else {
 		return(player);
 	}
@@ -230,7 +230,7 @@ class Player * Server::getPlayer(int id) {
 
 void Server::delPlayer(int id) {
 	class Player * player = this->players[id];
-	if(player == NULL) {
+	if(player == nullptr) {
 		verbose_info("Player '"+std::to_string(id)+
 				"' can't be deleted: doesn't exist.");
 	} else {
@@ -244,7 +244,7 @@ void Server::remPlayer(int id) {
 }
 
 void Server::addScript(std::string id, std::string * filename) {
-	if(this->getScript(id) != NULL) {
+	if(this->getScript(id) != nullptr) {
 		this->delScript(id);
 		verbose_info("Script '"+id+"' replaced.");
 	}
@@ -256,7 +256,7 @@ std::string * Server::getScript(std::string id) {
 }
 
 void Server::delScript(std::string id) {
-	if(this->scripts[id] != NULL) {
+	if(this->scripts[id] != nullptr) {
 		delete(this->scripts[id]);
 		this->scripts.erase(id);
 	} else {
@@ -266,7 +266,7 @@ void Server::delScript(std::string id) {
 
 void Server::exeScript(std::string id, class Player * player, std::string arg) {
 	std::string * script = this->getScript(id);
-	if(script != NULL) {
+	if(script != nullptr) {
 		this->luawrapper->executeFile(*script, player, arg);
 	} else {
 		verbose_info("Script '"+id+"' doesn't exist.");

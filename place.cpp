@@ -8,7 +8,7 @@ Place::Place(class Tile * tile) :
 	local_aspect(noAspect),
 	useLocalCanLand(false),
 	local_canLand(true), // useless.
-	landon(NULL)
+	landon(nullptr)
 { }
 
 Place::~Place() {
@@ -91,7 +91,7 @@ void Place::setLandOn(std::string script) {
 void Place::resetLandOn() {
 	if(this->landon) {
 		delete(this->landon);
-		this->landon = NULL;
+		this->landon = nullptr;
 	}
 }
 

@@ -66,7 +66,7 @@ class Tile * Screen::getTile(int x, int y) {
 	if(place) {
 		return(place->getTile());
 	} else {
-		return(NULL);
+		return(nullptr);
 	}
 }
 
@@ -83,7 +83,7 @@ class Object * Screen::getTopObject(int x, int y) {
 	if(place && place->getObjects()->size() > 0) {
 		return(place->getObjects()->front());
 	} else {
-		return(NULL);
+		return(nullptr);
 	}
 }
 
@@ -95,9 +95,9 @@ class Object * Screen::getObject(int x, int y, unsigned long int id) {
 				return(object);
 			}
 		}
-		return(NULL);
+		return(nullptr);
 	} else {
-		return(NULL);
+		return(nullptr);
 	}
 }
 
@@ -107,7 +107,7 @@ const std::list<class Object *> * Screen::getObjectList(int x, int y) {
 	if(place) {
 		return(place->getObjects());
 	} else {
-		return(NULL);
+		return(nullptr);
 	}
 }
 
@@ -150,7 +150,7 @@ std::string * Screen::getLandOn(int x, int y) {
 	if(place) {
 		return(place->getLandOn());
 	} else {
-		return(NULL);
+		return(nullptr);
 	}
 }
 
@@ -228,7 +228,7 @@ void Screen::delTag(int x, int y, std::string id) {
 
 bool Screen::canLandPlayer(class Player * player, int x, int y) {
 	class Place * place;
-	if(this->isPlaceValid(x,y) && (place = this->getPlace(x,y)) != NULL) {
+	if(this->isPlaceValid(x,y) && (place = this->getPlace(x,y)) != nullptr) {
 		return(place->canLand());
 	} else {
 		return(false);
@@ -279,11 +279,11 @@ void Screen::updatePlayer(class Player * player) {
 
 class Player * Screen::getPlayer(int id) {
 	class Player * player = this->server->getPlayer(id);
-	if(player != NULL) {
+	if(player != nullptr) {
 		return(player);
 	} else {
 		this->players.remove(id);
-		return(NULL);
+		return(nullptr);
 	}
 }
 
@@ -300,7 +300,7 @@ class Place * Screen::getPlace(int x, int y) {
 			+ std::to_string(y)
 			+ "."
 		);
-		return(NULL);
+		return(nullptr);
 	}
 }
 

@@ -10,7 +10,7 @@
 #include <cstdlib> // srand(), rand()
 #include <ctime> // time()
 
-class Server * Luawrapper::server = NULL;
+class Server * Luawrapper::server = nullptr;
 
 void lua_arg_error(std::string msg) {
 	warning("Lua must call '"+msg+"'.");
@@ -23,7 +23,7 @@ int l_c_rand(lua_State * lua) {
 	} else {
 		static bool done = false;
 		if(not done) {
-			srand(time(NULL));
+			srand(time(nullptr));
 			done = true;
 		}
 		int max = lua_tointeger(lua, 1);
@@ -162,7 +162,7 @@ int l_get_script(lua_State * lua) {
 	} else {
 		std::string command = lua_tostring(lua, 1);
 		std::string * script = Luawrapper::server->getScript(command);
-		if(script != NULL) {
+		if(script != nullptr) {
 			lua_pushstring(lua, script->c_str());
 		} else {
 			lua_pushnil(lua);
@@ -213,7 +213,7 @@ int l_assert_tile(lua_State * lua) {
 	} else {
 		std::string tile_id = lua_tostring(lua, 1);
 		class Tile * tile = Luawrapper::server->getTile(tile_id);
-		if(tile == NULL) {
+		if(tile == nullptr) {
 			lua_pushboolean(lua, false);
 		} else {
 			lua_pushboolean(lua, true);
@@ -229,7 +229,7 @@ int l_tile_getname(lua_State * lua) {
 	} else {
 		std::string id = lua_tostring(lua, 1);
 		class Tile * tile = Luawrapper::server->getTile(id);
-		if(tile != NULL) {
+		if(tile != nullptr) {
 			lua_pushstring(lua, tile->getName().c_str());
 		} else {
 			lua_pushnil(lua);
@@ -244,7 +244,7 @@ int l_tile_setname(lua_State * lua) {
 	} else {
 		std::string id = lua_tostring(lua, 1);
 		class Tile * tile = Luawrapper::server->getTile(id);
-		if(tile != NULL) {
+		if(tile != nullptr) {
 			std::string name = lua_tostring(lua, 2);
 			tile->setName(name);
 		} else {
@@ -261,7 +261,7 @@ int l_tile_getaspect(lua_State * lua) {
 	} else {
 		std::string id = lua_tostring(lua, 1);
 		class Tile * tile = Luawrapper::server->getTile(id);
-		if(tile != NULL) {
+		if(tile != nullptr) {
 			lua_pushinteger(lua, tile->getAspect());
 		} else {
 			lua_pushnil(lua);
@@ -276,7 +276,7 @@ int l_tile_setaspect(lua_State * lua) {
 	} else {
 		std::string id = lua_tostring(lua, 1);
 		class Tile * tile = Luawrapper::server->getTile(id);
-		if(tile != NULL) {
+		if(tile != nullptr) {
 			Aspect aspect = lua_tointeger(lua, 2);
 			tile->setAspect(aspect);
 		} else {
@@ -293,7 +293,7 @@ int l_tile_canland(lua_State * lua) {
 	} else {
 		std::string id = lua_tostring(lua, 1);
 		class Tile * tile = Luawrapper::server->getTile(id);
-		if(tile != NULL) {
+		if(tile != nullptr) {
 			lua_pushboolean(lua, tile->canLand());
 		} else {
 			lua_pushnil(lua);
@@ -308,7 +308,7 @@ int l_tile_setcanland(lua_State * lua) {
 	} else {
 		std::string id = lua_tostring(lua, 1);
 		class Tile * tile = Luawrapper::server->getTile(id);
-		if(tile != NULL) {
+		if(tile != nullptr) {
 			bool b = lua_toboolean(lua, 2);
 			b ? tile->setCanLand() : tile->setCantLand();
 		} else {
@@ -334,7 +334,7 @@ int l_new_screen(lua_State * lua) {
 		unsigned int height = lua_tointeger(lua, 4);
 		std::string tile_id = lua_tostring(lua, 5);
 		class Tile * tile = Luawrapper::server->getTile(tile_id);
-		if(tile != NULL) {
+		if(tile != nullptr) {
 			new Screen(Luawrapper::server,
 					screen_id, name, width, height, tile);
 		} else {
@@ -351,7 +351,7 @@ int l_assert_screen(lua_State * lua) {
 	} else {
 		std::string screen_id = lua_tostring(lua, 1);
 		class Screen * screen = Luawrapper::server->getScreen(screen_id);
-		if(screen == NULL) {
+		if(screen == nullptr) {
 			lua_pushboolean(lua, false);
 		} else {
 			lua_pushboolean(lua, true);
@@ -367,7 +367,7 @@ int l_screen_getname(lua_State * lua) {
 	} else {
 		std::string screen_id = lua_tostring(lua, 1);
 		class Screen * screen = Luawrapper::server->getScreen(screen_id);
-		if(screen != NULL) {
+		if(screen != nullptr) {
 			lua_pushstring(lua, screen->getName().c_str());
 		} else {
 			warning("Screen '"+screen_id+"' doesn't exist.");
@@ -383,7 +383,7 @@ int l_screen_setname(lua_State * lua) {
 	} else {
 		std::string screen_id = lua_tostring(lua, 1);
 		class Screen * screen = Luawrapper::server->getScreen(screen_id);
-		if(screen != NULL) {
+		if(screen != nullptr) {
 			std::string name = lua_tostring(lua, 2);
 			screen->setName(name);
 		} else {
@@ -400,7 +400,7 @@ int l_screen_getwidth(lua_State * lua) {
 	} else {
 		std::string screen_id = lua_tostring(lua, 1);
 		class Screen * screen = Luawrapper::server->getScreen(screen_id);
-		if(screen != NULL) {
+		if(screen != nullptr) {
 			lua_pushinteger(lua, screen->getWidth());
 		} else {
 			warning("Screen '"+screen_id+"' doesn't exist.");
@@ -417,7 +417,7 @@ int l_screen_getheight(lua_State * lua) {
 	} else {
 		std::string screen_id = lua_tostring(lua, 1);
 		class Screen * screen = Luawrapper::server->getScreen(screen_id);
-		if(screen != NULL) {
+		if(screen != nullptr) {
 			lua_pushinteger(lua, screen->getHeight());
 		} else {
 			warning("Screen '"+screen_id+"' doesn't exist.");
@@ -436,11 +436,11 @@ int l_screen_gettile(lua_State * lua) {
 	} else {
 		std::string screen_id = lua_tostring(lua, 1);
 		class Screen * screen = Luawrapper::server->getScreen(screen_id);
-		if(screen != NULL) {
+		if(screen != nullptr) {
 			unsigned int x = lua_tointeger(lua, 2);
 			unsigned int y = lua_tointeger(lua, 3);
 			class Tile * tile = screen->getTile(x, y);
-			if(tile != NULL) {
+			if(tile != nullptr) {
 				lua_pushstring(lua, tile->getId().c_str());
 			} else {
 				warning("Invalid place "
@@ -465,10 +465,10 @@ int l_screen_settile(lua_State * lua) {
 	} else {
 		std::string screen_id = lua_tostring(lua, 1);
 		class Screen * screen = Luawrapper::server->getScreen(screen_id);
-		if(screen != NULL) {
+		if(screen != nullptr) {
 			std::string tile_id = lua_tostring(lua, 4);
 			class Tile * tile = Luawrapper::server->getTile(tile_id);
-			if(tile != NULL) {
+			if(tile != nullptr) {
 				unsigned int x = lua_tointeger(lua, 2);
 				unsigned int y = lua_tointeger(lua, 3);
 				screen->setTile(x, y, tile);
@@ -486,7 +486,7 @@ int l_screen_settile(lua_State * lua) {
 
 int l_screen_getplayer(lua_State * lua) {
 	class Screen * screen = (class Screen *) lua_touserdata(lua, 1);
-	if(screen == NULL or not lua_isnumber(lua, 2)) {
+	if(screen == nullptr or not lua_isnumber(lua, 2)) {
 		lua_arg_error("screen_getplayer(screen, id)");
 	} else {
 		int id = lua_tointeger(lua, 2);
@@ -500,7 +500,7 @@ int l_screen_getplayer(lua_State * lua) {
 int l_screen_gettopobject(lua_State * lua) {
 	class Screen * screen = (class Screen *) lua_touserdata(lua, 1);
 	if(
-		screen == NULL
+		screen == nullptr
 		or not lua_isnumber(lua, 2)
 		or not lua_isnumber(lua, 3)
 	) {
@@ -517,7 +517,7 @@ int l_screen_gettopobject(lua_State * lua) {
 int l_screen_getobject(lua_State * lua) {
 	class Screen * screen = (class Screen *) lua_touserdata(lua, 1);
 	if(
-		screen == NULL
+		screen == nullptr
 		or not lua_isnumber(lua, 2)
 		or not lua_isnumber(lua, 3)
 		or not lua_isnumber(lua, 4)
@@ -537,10 +537,10 @@ int l_screen_addobject(lua_State * lua) {
 	class Screen * screen = (class Screen *) lua_touserdata(lua, 1);
 	class Object * object = (class Object *) lua_touserdata(lua, 4);
 	if(
-		screen == NULL
+		screen == nullptr
 		or not lua_isnumber(lua, 2)
 		or not lua_isnumber(lua, 3)
-		or object == NULL
+		or object == nullptr
 	) {
 		lua_arg_error("screen_addobject(screen, x, y, object)");
 	} else {
@@ -554,7 +554,7 @@ int l_screen_addobject(lua_State * lua) {
 int l_screen_remobject(lua_State * lua) {
 	class Screen * screen = (class Screen *) lua_touserdata(lua, 1);
 	if(
-		screen == NULL
+		screen == nullptr
 		or not lua_isnumber(lua, 2)
 		or not lua_isnumber(lua, 3)
 		or not lua_isnumber(lua, 4)
@@ -580,11 +580,11 @@ int l_screen_getlandon(lua_State * lua) {
 	} else {
 		std::string screen_id = lua_tostring(lua, 1);
 		class Screen * screen = Luawrapper::server->getScreen(screen_id);
-		if(screen != NULL) {
+		if(screen != nullptr) {
 			unsigned int x = lua_tointeger(lua, 2);
 			unsigned int y = lua_tointeger(lua, 3);
 			std::string * script = screen->getLandOn(x, y);
-			if(script != NULL) {
+			if(script != nullptr) {
 				lua_pushstring(lua, script->c_str());
 			} else {
 				lua_pushnil(lua);
@@ -606,7 +606,7 @@ int l_screen_setlandon(lua_State * lua) {
 	} else {
 		std::string screen_id = lua_tostring(lua, 1);
 		class Screen * screen = Luawrapper::server->getScreen(screen_id);
-		if(screen != NULL) {
+		if(screen != nullptr) {
 			unsigned int x = lua_tointeger(lua, 2);
 			unsigned int y = lua_tointeger(lua, 3);
 			std::string script = lua_tostring(lua, 4);
@@ -626,7 +626,7 @@ int l_screen_resetlandon(lua_State * lua) {
 	} else {
 		std::string screen_id = lua_tostring(lua, 1);
 		class Screen * screen = Luawrapper::server->getScreen(screen_id);
-		if(screen != NULL) {
+		if(screen != nullptr) {
 			unsigned int x = lua_tointeger(lua, 2);
 			unsigned int y = lua_tointeger(lua, 3);
 			screen->resetLandOn(x, y);
@@ -647,7 +647,7 @@ int l_screen_gettag(lua_State * lua) {
 	} else {
 		std::string screen_id = lua_tostring(lua, 1);
 		class Screen * screen = Luawrapper::server->getScreen(screen_id);
-		if(screen != NULL) {
+		if(screen != nullptr) {
 			int x = lua_tointeger(lua, 2);
 			int y = lua_tointeger(lua, 3);
 			std::string tag_id = lua_tostring(lua, 4);
@@ -670,7 +670,7 @@ int l_screen_settag(lua_State * lua) {
 	} else {
 		std::string screen_id = lua_tostring(lua, 1);
 		class Screen * screen = Luawrapper::server->getScreen(screen_id);
-		if(screen != NULL) {
+		if(screen != nullptr) {
 			int x = lua_tointeger(lua, 2);
 			int y = lua_tointeger(lua, 3);
 			std::string tag_id = lua_tostring(lua, 4);
@@ -692,7 +692,7 @@ int l_screen_deltag(lua_State * lua) {
 	} else {
 		std::string screen_id = lua_tostring(lua, 1);
 		class Screen * screen = Luawrapper::server->getScreen(screen_id);
-		if(screen != NULL) {
+		if(screen != nullptr) {
 			int x = lua_tointeger(lua, 2);
 			int y = lua_tointeger(lua, 3);
 			std::string tag_id = lua_tostring(lua, 4);
@@ -710,7 +710,7 @@ int l_screen_event(lua_State * lua) {
 	} else {
 		std::string screen_id = lua_tostring(lua, 1);
 		class Screen * screen = Luawrapper::server->getScreen(screen_id);
-		if(screen != NULL) {
+		if(screen != nullptr) {
 			std::string message = lua_tostring(lua, 2);
 			screen->event(message);
 		} else {
@@ -728,7 +728,7 @@ int l_delete_player(lua_State * lua) {
 	} else {
 		int player_id = lua_tointeger(lua, 1);
 		class Player * player = Luawrapper::server->getPlayer(player_id);
-		if(player != NULL) {
+		if(player != nullptr) {
 			delete(player);
 		} else {
 			warning("Player '"+std::to_string(player_id)+"' doesn't exist.");
@@ -744,7 +744,7 @@ int l_assert_player(lua_State * lua) {
 	} else {
 		int player_id = lua_tointeger(lua, 1);
 		class Player * player = Luawrapper::server->getPlayer(player_id);
-		if(player == NULL) {
+		if(player == nullptr) {
 			lua_pushboolean(lua, false);
 		} else {
 			lua_pushboolean(lua, true);
@@ -762,10 +762,10 @@ int l_player_spawn(lua_State * lua) {
 	} else {
 		int player_id = lua_tointeger(lua, 1);
 		class Player * player = Luawrapper::server->getPlayer(player_id);
-		if(player != NULL) {
+		if(player != nullptr) {
 			std::string screen_id = lua_tostring(lua, 2);
 			class Screen * screen = Luawrapper::server->getScreen(screen_id);
-			if(screen != NULL) {
+			if(screen != nullptr) {
 				int x = lua_tointeger(lua, 3);
 				int y = lua_tointeger(lua, 4);
 				player->spawn(screen, x, y);
@@ -786,7 +786,7 @@ int l_player_getname(lua_State * lua) {
 	} else {
 		int player_id = lua_tointeger(lua, 1);
 		class Player * player = Luawrapper::server->getPlayer(player_id);
-		if(player != NULL) {
+		if(player != nullptr) {
 			lua_pushstring(lua, player->getName().c_str());
 		} else {
 			warning("Player '"+std::to_string(player_id)+"' doesn't exist.");
@@ -802,7 +802,7 @@ int l_player_setname(lua_State * lua) {
 	} else {
 		int player_id = lua_tointeger(lua, 1);
 		class Player * player = Luawrapper::server->getPlayer(player_id);
-		if(player != NULL) {
+		if(player != nullptr) {
 			std::string name = lua_tostring(lua, 2);
 			player->setName(name);
 		} else {
@@ -819,7 +819,7 @@ int l_player_getaspect(lua_State * lua) {
 	} else {
 		int player_id = lua_tointeger(lua, 1);
 		class Player * player = Luawrapper::server->getPlayer(player_id);
-		if(player != NULL) {
+		if(player != nullptr) {
 			lua_pushinteger(lua, player->getAspect());
 		} else {
 			warning("Player '"+std::to_string(player_id)+"' doesn't exist.");
@@ -835,7 +835,7 @@ int l_player_setaspect(lua_State * lua) {
 	} else {
 		int player_id = lua_tointeger(lua, 1);
 		class Player * player = Luawrapper::server->getPlayer(player_id);
-		if(player != NULL) {
+		if(player != nullptr) {
 			Aspect aspect = lua_tointeger(lua, 2);
 			player->setAspect(aspect);
 		} else {
@@ -852,7 +852,7 @@ int l_player_getscreen(lua_State * lua) {
 	} else {
 		int player_id = lua_tointeger(lua, 1);
 		class Player * player = Luawrapper::server->getPlayer(player_id);
-		if(player != NULL) {
+		if(player != nullptr) {
 			lua_pushstring(lua, player->getScreen()->getId().c_str());
 		} else {
 			warning("Player '"+std::to_string(player_id)+"' doesn't exist.");
@@ -869,7 +869,7 @@ int l_player_getx(lua_State * lua) {
 	} else {
 		int player_id = lua_tointeger(lua, 1);
 		class Player * player = Luawrapper::server->getPlayer(player_id);
-		if(player != NULL) {
+		if(player != nullptr) {
 			lua_pushinteger(lua, player->getX());
 		} else {
 			warning("Player '"+std::to_string(player_id)+"' doesn't exist.");
@@ -886,7 +886,7 @@ int l_player_gety(lua_State * lua) {
 	} else {
 		int player_id = lua_tointeger(lua, 1);
 		class Player * player = Luawrapper::server->getPlayer(player_id);
-		if(player != NULL) {
+		if(player != nullptr) {
 			lua_pushinteger(lua, player->getY());
 		} else {
 			warning("Player '"+std::to_string(player_id)+"' doesn't exist.");
@@ -904,7 +904,7 @@ int l_player_setxy(lua_State * lua) {
 	} else {
 		int player_id = lua_tointeger(lua, 1);
 		class Player * player = Luawrapper::server->getPlayer(player_id);
-		if(player != NULL) {
+		if(player != nullptr) {
 			int x = lua_tointeger(lua, 2);
 			int y = lua_tointeger(lua, 3);
 			player->setXY(x, y);
@@ -923,7 +923,7 @@ int l_player_move(lua_State * lua) {
 	} else {
 		int player_id = lua_tointeger(lua, 1);
 		class Player * player = Luawrapper::server->getPlayer(player_id);
-		if(player != NULL) {
+		if(player != nullptr) {
 			int x = lua_tointeger(lua, 2);
 			int y = lua_tointeger(lua, 3);
 			player->move(x, y);
@@ -943,10 +943,10 @@ int l_player_changescreen(lua_State * lua) {
 	} else {
 		int player_id = lua_tointeger(lua, 1);
 		class Player * player = Luawrapper::server->getPlayer(player_id);
-		if(player != NULL) {
+		if(player != nullptr) {
 			std::string screen_id = lua_tostring(lua, 2);
 			class Screen * screen = Luawrapper::server->getScreen(screen_id);
-			if(screen != NULL) {
+			if(screen != nullptr) {
 				int x = lua_tointeger(lua, 3);
 				int y = lua_tointeger(lua, 4);
 				player->changeScreen(screen, x, y);
@@ -967,7 +967,7 @@ int l_player_getondeath(lua_State * lua) {
 	} else {
 		int player_id = lua_tointeger(lua, 1);
 		class Player * player = Luawrapper::server->getPlayer(player_id);
-		if(player != NULL) {
+		if(player != nullptr) {
 			lua_pushstring(lua, player->getOnDeath().c_str());
 		} else {
 			warning("Player '"+std::to_string(player_id)+"' doesn't exist.");
@@ -983,7 +983,7 @@ int l_player_setondeath(lua_State * lua) {
 	} else {
 		int player_id = lua_tointeger(lua, 1);
 		class Player * player = Luawrapper::server->getPlayer(player_id);
-		if(player != NULL) {
+		if(player != nullptr) {
 			std::string script = lua_tostring(lua, 2);
 			player->setOnDeath(script);
 		} else {
@@ -996,7 +996,7 @@ int l_player_setondeath(lua_State * lua) {
 /* XXX //
 int l_player_getgauge(lua_State * lua) {
 	class Player * player = (class Player *) lua_touserdata(lua, 1);
-	if(player == NULL or not lua_isstring(lua, 2)) {
+	if(player == nullptr or not lua_isstring(lua, 2)) {
 		lua_arg_error("player_getgauge(player, name)");
 	} else {
 		std::string name = lua_tostring(lua, 2);
@@ -1013,7 +1013,7 @@ int l_player_delgauge(lua_State * lua) {
 	} else {
 		int player_id = lua_tointeger(lua, 1);
 		class Player * player = Luawrapper::server->getPlayer(player_id);
-		if(player != NULL) {
+		if(player != nullptr) {
 			std::string gauge_id = lua_tostring(lua, 2);
 			player->delGauge(gauge_id);
 		} else {
@@ -1030,7 +1030,7 @@ int l_player_gettag(lua_State * lua) {
 	} else {
 		int player_id = lua_tointeger(lua, 1);
 		class Player * player = Luawrapper::server->getPlayer(player_id);
-		if(player != NULL) {
+		if(player != nullptr) {
 			std::string tag_id = lua_tostring(lua, 2);
 			lua_pushstring(lua, player->getTag(tag_id).c_str());
 		} else {
@@ -1049,7 +1049,7 @@ int l_player_settag(lua_State * lua) {
 	} else {
 		int player_id = lua_tointeger(lua, 1);
 		class Player * player = Luawrapper::server->getPlayer(player_id);
-		if(player != NULL) {
+		if(player != nullptr) {
 			std::string tag_id = lua_tostring(lua, 2);
 			std::string value = lua_tostring(lua, 3);
 			player->setTag(tag_id, value);
@@ -1066,7 +1066,7 @@ int l_player_deltag(lua_State * lua) {
 	} else {
 		int player_id = lua_tointeger(lua, 1);
 		class Player * player = Luawrapper::server->getPlayer(player_id);
-		if(player != NULL) {
+		if(player != nullptr) {
 			std::string tag_id = lua_tostring(lua, 2);
 			player->delTag(tag_id);
 		} else {
@@ -1080,7 +1080,7 @@ int l_player_deltag(lua_State * lua) {
 
 int l_player_getobject(lua_State * lua) {
 	class Player * player = (class Player *) lua_touserdata(lua, 1);
-	if(player == NULL or not lua_isnumber(lua, 2)) {
+	if(player == nullptr or not lua_isnumber(lua, 2)) {
 		lua_arg_error("player_getobject(player, id)");
 	} else {
 		unsigned long int id = lua_tointeger(lua, 2);
@@ -1093,7 +1093,7 @@ int l_player_getobject(lua_State * lua) {
 int l_player_addobject(lua_State * lua) {
 	class Player * player = (class Player *) lua_touserdata(lua, 1);
 	class Object * object = (class Object *) lua_touserdata(lua, 2);
-	if(player == NULL or object == NULL) {
+	if(player == nullptr or object == nullptr) {
 		lua_arg_error("player_addobject(player, object)");
 	} else {
 		player->addObject(object);
@@ -1103,7 +1103,7 @@ int l_player_addobject(lua_State * lua) {
 
 int l_player_remobject(lua_State * lua) {
 	class Player * player = (class Player *) lua_touserdata(lua, 1);
-	if(player == NULL or not lua_isnumber(lua, 2)) {
+	if(player == nullptr or not lua_isnumber(lua, 2)) {
 		lua_arg_error("player_remobject(player, id)");
 	} else {
 		unsigned long int id = lua_tointeger(lua, 2);
@@ -1121,7 +1121,7 @@ int l_player_isghost(lua_State * lua) {
 	} else {
 		int player_id = lua_tointeger(lua, 1);
 		class Player * player = Luawrapper::server->getPlayer(player_id);
-		if(player != NULL) {
+		if(player != nullptr) {
 			lua_pushboolean(lua, player->isGhost());
 		} else {
 			warning("Player '"+std::to_string(player_id)+"' doesn't exist.");
@@ -1137,7 +1137,7 @@ int l_player_setghost(lua_State * lua) {
 	} else {
 		int player_id = lua_tointeger(lua, 1);
 		class Player * player = Luawrapper::server->getPlayer(player_id);
-		if(player != NULL) {
+		if(player != nullptr) {
 			bool b = lua_toboolean(lua, 2);
 			b ? player->setGhost() : player->setNotGhost();
 		} else {
@@ -1153,7 +1153,7 @@ int l_player_message(lua_State * lua) {
 	} else {
 		int player_id = lua_tointeger(lua, 1);
 		class Player * player = Luawrapper::server->getPlayer(player_id);
-		if(player != NULL) {
+		if(player != nullptr) {
 			std::string message = lua_tostring(lua, 2);
 			player->message(message);
 		} else {
@@ -1169,10 +1169,10 @@ int l_player_follow(lua_State * lua) {
 	} else {
 		int player_id = lua_tointeger(lua, 1);
 		class Player * player = Luawrapper::server->getPlayer(player_id);
-		if(player != NULL) {
+		if(player != nullptr) {
 			int target_id = lua_tointeger(lua, 2);
 			class Player * target = Luawrapper::server->getPlayer(target_id);
-			if(target != NULL) {
+			if(target != nullptr) {
 				player->follow(target);
 			} else {
 				warning("Player '"+std::to_string(player_id)+"' doesn't exist.");
@@ -1197,7 +1197,7 @@ int l_new_gauge(lua_State * lua) {
 	} else {
 		int player_id = lua_tointeger(lua, 1);
 		class Player * player = Luawrapper::server->getPlayer(player_id);
-		if(player != NULL) {
+		if(player != nullptr) {
 			std::string gauge_id = lua_tostring(lua, 2);
 			unsigned int val = lua_tointeger(lua, 3);
 			unsigned int max = lua_tointeger(lua, 4);
@@ -1223,10 +1223,10 @@ int l_assert_gauge(lua_State * lua) {
 	} else {
 		int player_id = lua_tointeger(lua, 1);
 		class Player * player = Luawrapper::server->getPlayer(player_id);
-		if(player != NULL) {
+		if(player != nullptr) {
 			std::string gauge_id = lua_tostring(lua, 2);
 			class Gauge * gauge = player->getGauge(gauge_id);
-			if(gauge == NULL) {
+			if(gauge == nullptr) {
 				lua_pushboolean(lua, false);
 			} else {
 				lua_pushboolean(lua, true);
@@ -1246,10 +1246,10 @@ int l_gauge_getname(lua_State * lua) {
 	} else {
 		int player_id = lua_tointeger(lua, 1);
 		class Player * player = Luawrapper::server->getPlayer(player_id);
-		if(player != NULL) {
+		if(player != nullptr) {
 			std::string gauge_id = lua_tostring(lua, 2);
 			class Gauge * gauge = player->getGauge(gauge_id);
-			if(gauge != NULL) {
+			if(gauge != nullptr) {
 				lua_pushstring(lua, gauge->getName().c_str());
 			} else {
 				warning("Player '"+std::to_string(player_id)
@@ -1272,10 +1272,10 @@ int l_gauge_setname(lua_State * lua) {
 	} else {
 		int player_id = lua_tointeger(lua, 1);
 		class Player * player = Luawrapper::server->getPlayer(player_id);
-		if(player != NULL) {
+		if(player != nullptr) {
 			std::string gauge_id = lua_tostring(lua, 2);
 			class Gauge * gauge = player->getGauge(gauge_id);
-			if(gauge != NULL) {
+			if(gauge != nullptr) {
 				std::string name = lua_tostring(lua, 3);
 				gauge->setName(name);
 			} else {
@@ -1297,10 +1297,10 @@ int l_gauge_getval(lua_State * lua) {
 	} else {
 		int player_id = lua_tointeger(lua, 1);
 		class Player * player = Luawrapper::server->getPlayer(player_id);
-		if(player != NULL) {
+		if(player != nullptr) {
 			std::string gauge_id = lua_tostring(lua, 2);
 			class Gauge * gauge = player->getGauge(gauge_id);
-			if(gauge != NULL) {
+			if(gauge != nullptr) {
 				lua_pushinteger(lua, gauge->getVal());
 			} else {
 				warning("Player '"+std::to_string(player_id)
@@ -1323,10 +1323,10 @@ int l_gauge_setval(lua_State * lua) {
 	} else {
 		int player_id = lua_tointeger(lua, 1);
 		class Player * player = Luawrapper::server->getPlayer(player_id);
-		if(player != NULL) {
+		if(player != nullptr) {
 			std::string gauge_id = lua_tostring(lua, 2);
 			class Gauge * gauge = player->getGauge(gauge_id);
-			if(gauge != NULL) {
+			if(gauge != nullptr) {
 				unsigned int val = lua_tointeger(lua, 3);
 				gauge->setVal(val);
 			} else {
@@ -1348,10 +1348,10 @@ int l_gauge_increase(lua_State * lua) {
 	} else {
 		int player_id = lua_tointeger(lua, 1);
 		class Player * player = Luawrapper::server->getPlayer(player_id);
-		if(player != NULL) {
+		if(player != nullptr) {
 			std::string gauge_id = lua_tostring(lua, 2);
 			class Gauge * gauge = player->getGauge(gauge_id);
-			if(gauge != NULL) {
+			if(gauge != nullptr) {
 				unsigned int val = lua_tointeger(lua, 3);
 				gauge->increase(val);
 			} else {
@@ -1373,10 +1373,10 @@ int l_gauge_decrease(lua_State * lua) {
 	} else {
 		int player_id = lua_tointeger(lua, 1);
 		class Player * player = Luawrapper::server->getPlayer(player_id);
-		if(player != NULL) {
+		if(player != nullptr) {
 			std::string gauge_id = lua_tostring(lua, 2);
 			class Gauge * gauge = player->getGauge(gauge_id);
-			if(gauge != NULL) {
+			if(gauge != nullptr) {
 				unsigned int val = lua_tointeger(lua, 3);
 				gauge->decrease(val);
 			} else {
@@ -1398,10 +1398,10 @@ int l_gauge_getmax(lua_State * lua) {
 	} else {
 		int player_id = lua_tointeger(lua, 1);
 		class Player * player = Luawrapper::server->getPlayer(player_id);
-		if(player != NULL) {
+		if(player != nullptr) {
 			std::string gauge_id = lua_tostring(lua, 2);
 			class Gauge * gauge = player->getGauge(gauge_id);
-			if(gauge != NULL) {
+			if(gauge != nullptr) {
 				lua_pushinteger(lua, gauge->getMax());
 			} else {
 				warning("Player '"+std::to_string(player_id)
@@ -1424,10 +1424,10 @@ int l_gauge_setmax(lua_State * lua) {
 	} else {
 		int player_id = lua_tointeger(lua, 1);
 		class Player * player = Luawrapper::server->getPlayer(player_id);
-		if(player != NULL) {
+		if(player != nullptr) {
 			std::string gauge_id = lua_tostring(lua, 2);
 			class Gauge * gauge = player->getGauge(gauge_id);
-			if(gauge != NULL) {
+			if(gauge != nullptr) {
 				unsigned int val = lua_tointeger(lua, 3);
 				gauge->setMax(val);
 			} else {
@@ -1449,10 +1449,10 @@ int l_gauge_getonfull(lua_State * lua) {
 	} else {
 		int player_id = lua_tointeger(lua, 1);
 		class Player * player = Luawrapper::server->getPlayer(player_id);
-		if(player != NULL) {
+		if(player != nullptr) {
 			std::string gauge_id = lua_tostring(lua, 2);
 			class Gauge * gauge = player->getGauge(gauge_id);
-			if(gauge != NULL) {
+			if(gauge != nullptr) {
 				lua_pushstring(lua, gauge->getOnFull().c_str());
 			} else {
 				warning("Player '"+std::to_string(player_id)
@@ -1475,10 +1475,10 @@ int l_gauge_setonfull(lua_State * lua) {
 	} else {
 		int player_id = lua_tointeger(lua, 1);
 		class Player * player = Luawrapper::server->getPlayer(player_id);
-		if(player != NULL) {
+		if(player != nullptr) {
 			std::string gauge_id = lua_tostring(lua, 2);
 			class Gauge * gauge = player->getGauge(gauge_id);
-			if(gauge != NULL) {
+			if(gauge != nullptr) {
 				std::string script = lua_tostring(lua, 3);
 				gauge->setOnFull(script);
 			} else {
@@ -1499,10 +1499,10 @@ int l_gauge_resetonfull(lua_State * lua) {
 	} else {
 		int player_id = lua_tointeger(lua, 1);
 		class Player * player = Luawrapper::server->getPlayer(player_id);
-		if(player != NULL) {
+		if(player != nullptr) {
 			std::string gauge_id = lua_tostring(lua, 2);
 			class Gauge * gauge = player->getGauge(gauge_id);
-			if(gauge != NULL) {
+			if(gauge != nullptr) {
 				gauge->resetOnFull();
 			} else {
 				warning("Player '"+std::to_string(player_id)
@@ -1523,10 +1523,10 @@ int l_gauge_getonempty(lua_State * lua) {
 	} else {
 		int player_id = lua_tointeger(lua, 1);
 		class Player * player = Luawrapper::server->getPlayer(player_id);
-		if(player != NULL) {
+		if(player != nullptr) {
 			std::string gauge_id = lua_tostring(lua, 2);
 			class Gauge * gauge = player->getGauge(gauge_id);
-			if(gauge != NULL) {
+			if(gauge != nullptr) {
 				lua_pushstring(lua, gauge->getOnEmpty().c_str());
 			} else {
 				warning("Player '"+std::to_string(player_id)
@@ -1549,10 +1549,10 @@ int l_gauge_setonempty(lua_State * lua) {
 	} else {
 		int player_id = lua_tointeger(lua, 1);
 		class Player * player = Luawrapper::server->getPlayer(player_id);
-		if(player != NULL) {
+		if(player != nullptr) {
 			std::string gauge_id = lua_tostring(lua, 2);
 			class Gauge * gauge = player->getGauge(gauge_id);
-			if(gauge != NULL) {
+			if(gauge != nullptr) {
 				std::string script = lua_tostring(lua, 3);
 				gauge->setOnEmpty(script);
 			} else {
@@ -1573,10 +1573,10 @@ int l_gauge_resetonempty(lua_State * lua) {
 	} else {
 		int player_id = lua_tointeger(lua, 1);
 		class Player * player = Luawrapper::server->getPlayer(player_id);
-		if(player != NULL) {
+		if(player != nullptr) {
 			std::string gauge_id = lua_tostring(lua, 2);
 			class Gauge * gauge = player->getGauge(gauge_id);
-			if(gauge != NULL) {
+			if(gauge != nullptr) {
 				gauge->resetOnEmpty();
 			} else {
 				warning("Player '"+std::to_string(player_id)
@@ -1597,10 +1597,10 @@ int l_gauge_isvisible(lua_State * lua) {
 	} else {
 		int player_id = lua_tointeger(lua, 1);
 		class Player * player = Luawrapper::server->getPlayer(player_id);
-		if(player != NULL) {
+		if(player != nullptr) {
 			std::string gauge_id = lua_tostring(lua, 2);
 			class Gauge * gauge = player->getGauge(gauge_id);
-			if(gauge != NULL) {
+			if(gauge != nullptr) {
 				lua_pushboolean(lua, gauge->isVisible());
 			} else {
 				warning("Player '"+std::to_string(player_id)
@@ -1621,10 +1621,10 @@ int l_gauge_setvisible(lua_State * lua) {
 	} else {
 		int player_id = lua_tointeger(lua, 1);
 		class Player * player = Luawrapper::server->getPlayer(player_id);
-		if(player != NULL) {
+		if(player != nullptr) {
 			std::string gauge_id = lua_tostring(lua, 2);
 			class Gauge * gauge = player->getGauge(gauge_id);
-			if(gauge != NULL) {
+			if(gauge != nullptr) {
 				bool b = lua_toboolean(lua, 3);
 				b ? gauge->setVisible() : gauge->setNotVisible();
 			} else {
@@ -1657,7 +1657,7 @@ int l_new_object(lua_State * lua) {
 
 int l_delete_object(lua_State * lua) {
 	class Object * object = (class Object *) lua_touserdata(lua, 1);
-	if(object == NULL) {
+	if(object == nullptr) {
 		lua_arg_error("delete_object(object)");
 	} else {
 		delete(object);
@@ -1667,7 +1667,7 @@ int l_delete_object(lua_State * lua) {
 
 int l_object_getid(lua_State * lua) {
 	class Object * object = (class Object *) lua_touserdata(lua, 1);
-	if(object == NULL) {
+	if(object == nullptr) {
 		lua_arg_error("object_getid(object)");
 	} else {
 		lua_pushinteger(lua, object->getId());
@@ -1678,7 +1678,7 @@ int l_object_getid(lua_State * lua) {
 
 int l_object_getname(lua_State * lua) {
 	class Object * object = (class Object *) lua_touserdata(lua, 1);
-	if(object == NULL) {
+	if(object == nullptr) {
 		lua_arg_error("object_getname(object)");
 	} else {
 		lua_pushstring(lua, object->getName().c_str());
@@ -1689,7 +1689,7 @@ int l_object_getname(lua_State * lua) {
 
 int l_object_setname(lua_State * lua) {
 	class Object * object = (class Object *) lua_touserdata(lua, 1);
-	if(object == NULL or not lua_isstring(lua, 2)) {
+	if(object == nullptr or not lua_isstring(lua, 2)) {
 		lua_arg_error("object_setname(object, name)");
 	} else {
 		std::string name = lua_tostring(lua, 2);
@@ -1700,7 +1700,7 @@ int l_object_setname(lua_State * lua) {
 
 int l_object_getaspect(lua_State * lua) {
 	class Object * object = (class Object *) lua_touserdata(lua, 1);
-	if(object == NULL) {
+	if(object == nullptr) {
 		lua_arg_error("object_getaspect(object)");
 	} else {
 		lua_pushinteger(lua, object->getAspect());
@@ -1711,7 +1711,7 @@ int l_object_getaspect(lua_State * lua) {
 
 int l_object_setaspect(lua_State * lua) {
 	class Object * object = (class Object *) lua_touserdata(lua, 1);
-	if(object == NULL or not lua_isnumber(lua, 2)) {
+	if(object == nullptr or not lua_isnumber(lua, 2)) {
 		lua_arg_error("object_setaspect(object, aspect)");
 	} else {
 		Aspect aspect = lua_tointeger(lua, 2);
@@ -1722,7 +1722,7 @@ int l_object_setaspect(lua_State * lua) {
 
 int l_object_gettag(lua_State * lua) {
 	class Object * object = (class Object *) lua_touserdata(lua, 1);
-	if(object == NULL or not lua_isstring(lua, 2)) {
+	if(object == nullptr or not lua_isstring(lua, 2)) {
 		lua_arg_error("object_gettag(object, name)");
 	} else {
 		std::string name = lua_tostring(lua, 2);
@@ -1734,7 +1734,7 @@ int l_object_gettag(lua_State * lua) {
 
 int l_object_settag(lua_State * lua) {
 	class Object * object = (class Object *) lua_touserdata(lua, 1);
-	if(object == NULL or not lua_isstring(lua, 2) or not lua_isstring(lua, 3)) {
+	if(object == nullptr or not lua_isstring(lua, 2) or not lua_isstring(lua, 3)) {
 		lua_arg_error("object_settag(object, name, value)");
 	} else {
 		std::string name = lua_tostring(lua, 2);
@@ -1746,7 +1746,7 @@ int l_object_settag(lua_State * lua) {
 
 int l_object_deltag(lua_State * lua) {
 	class Object * object = (class Object *) lua_touserdata(lua, 1);
-	if(object == NULL or not lua_isstring(lua, 2)) {
+	if(object == nullptr or not lua_isstring(lua, 2)) {
 		lua_arg_error("object_deltag(object, name)");
 	} else {
 		std::string name = lua_tostring(lua, 2);
@@ -1769,8 +1769,8 @@ Luawrapper::Luawrapper(class Server * server) :
 	lua_pushlightuserdata(this->lua_state, this->server);
 	lua_setglobal(this->lua_state, "Server");
 
-	lua_pushlightuserdata(this->lua_state, NULL);
-	lua_setglobal(this->lua_state, "NULL");
+	lua_pushlightuserdata(this->lua_state, nullptr);
+	lua_setglobal(this->lua_state, "nullptr");
 // XXX */
 
 	lua_register(this->lua_state, "c_rand", l_c_rand);

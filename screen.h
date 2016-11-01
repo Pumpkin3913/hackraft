@@ -47,14 +47,14 @@ class Screen {
 		unsigned int getWidth();
 		unsigned int getHeight();
 		bool isPlaceValid(int x, int y);
-		class Tile * getTile(int x, int y); // May return NULL.
+		class Tile * getTile(int x, int y); // May return nullptr.
 		void setTile(int x, int y, class Tile * tile); // And broadcast it.
-		class Object * getTopObject(int x, int y); // May return NULL.
-		class Object * getObject(int x, int y, unsigned long int id); // Mau return NULL.
+		class Object * getTopObject(int x, int y); // May return nullptr.
+		class Object * getObject(int x, int y, unsigned long int id); // Mau return nullptr.
 		const std::list<class Object *> * getObjectList(int x, int y); // Only called by Player.
 		void addObject(int x, int y, class Object * object);
 		void remObject(int x, int y, unsigned long int id); // Don't delete; remove only.
-		std::string * getLandOn(int x, int y); // May return NULL.
+		std::string * getLandOn(int x, int y); // May return nullptr.
 		void setLandOn(int x, int y, std::string script);
 		void resetLandOn(int x, int y);
 		void event(std::string message); // Broadcast a message to all players.

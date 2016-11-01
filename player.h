@@ -51,7 +51,7 @@ class Player : public Tagged {
 		void setName(std::string name);
 		Aspect getAspect();
 		void setAspect(Aspect aspect); // and broadcast it.
-		class Screen * getScreen(); // May return NULL.
+		class Screen * getScreen(); // May return nullptr.
 		unsigned int getX();
 		unsigned int getY();
 		void setXY(int x, int y); // dont check if canLand(); auto bcast new position.
@@ -59,10 +59,10 @@ class Player : public Tagged {
 		void changeScreen(class Screen * newScreen, int x, int y); // exit this screen, enter the new one.
 		std::string getOnDeath();
 		void setOnDeath(std::string script);
-		class Gauge * getGauge(std::string name); // May return NULL.
+		class Gauge * getGauge(std::string name); // May return nullptr.
 		void addGauge(class Gauge * gauge); // Only a new gauge can call it.
 		void delGauge(std::string name);
-		class Object * getObject(unsigned long int id); // Maux return NULL.
+		class Object * getObject(unsigned long int id); // Maux return nullptr.
 		void addObject(class Object * object);
 		void remObject(unsigned long int id); // Don't delete, remove only.
 

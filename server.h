@@ -41,16 +41,16 @@ class Server {
 		class Screen * getScreen(std::string id);
 		void delScreen(std::string id);
 		void addTile(class Tile * tile);
-		class Tile * getTile(std::string id); // May return NULL.
+		class Tile * getTile(std::string id); // May return nullptr.
 		// A Tile must never be removed before the destruction of the server.
 		void addPlayer(class Player * player); // Automatically called by new Player()
-		class Player * getPlayer(int id); // May return NULL.
+		class Player * getPlayer(int id); // May return nullptr.
 		void delPlayer(int id);
 		void remPlayer(int id);
 		void addScript(std::string id, std::string * filename);
 		std::string * getScript(std::string id);
 		void delScript(std::string id);
-		void exeScript(std::string id, class Player * player = NULL, std::string arg = "");
+		void exeScript(std::string id, class Player * player = nullptr, std::string arg = "");
 		class Luawrapper * getLua();
 		void waitForTerminaison();
 };

@@ -153,7 +153,7 @@ void Gauge::disapear() {
 void Gauge::exeFull() {
 	if(this->onFull != "") {
 		class Screen * screen = this->player->getScreen();
-		if(screen != NULL) {
+		if(screen != nullptr) {
 			screen->getServer()->getLua()->executeFile(this->onFull, this->player);
 		}
 	}
@@ -162,7 +162,7 @@ void Gauge::exeFull() {
 void Gauge::exeEmpty() {
 	if(this->onEmpty != "") {
 		class Screen * screen = this->player->getScreen();
-		if(screen != NULL) {
+		if(screen != nullptr) {
 			screen->getServer()->getLua()->executeFile(this->onEmpty, this->player);
 		}
 	}
