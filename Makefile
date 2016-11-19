@@ -1,13 +1,15 @@
 # Pumpkin's
 
 # (re)define default variables.
-CC  = clang
+#CC  = clang
 CXX = clang
 #CC = g++
 #CC = gcc
 #CXX = g++
-CFLAGS   = -DDEBUG -g -Wall -pedantic -g
-CXXFLAGS = -DDEBUG -g -Wall -pedantic -g -std=c++11
+DEBUG    = -DDEBUG -g 
+ERROR    = -Wall -Werror -pedantic
+#CFLAGS   = $(DEBUG) $(ERROR)
+CXXFLAGS = $(DEBUG) $(ERROR) -std=c++14
 LDLIBS = -lstdc++ -lpthread -llua
 $(RM) = rm -f
 
