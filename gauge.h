@@ -3,14 +3,15 @@
 #include <string>
 
 #include "aspect.h"
+#include "name.h"
 
 class Player;
 
-class Gauge {
+class Gauge : public Named {
 public:
 	Gauge(
 		Player * player,
-		std::string name,
+		Name name,
 		unsigned int initVal,
 		unsigned int max,
 		Aspect aFull,
@@ -18,8 +19,6 @@ public:
 		bool visible = true);
 	// Automatically add itself to its player.
 	~Gauge();
-	std::string getName();
-	void setName(std::string name);
 	unsigned int getVal();
 	void setVal(unsigned int val);
 	void increase(unsigned int val);
@@ -38,7 +37,6 @@ public:
 
 private:
 	class Player * player;
-	std::string name;
 	unsigned int val;
 	unsigned int max;
 	std::string onFull;

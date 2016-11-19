@@ -108,7 +108,11 @@ void Player::parse() {
 			}
 		} else if(cmd == "say") {
 			if(this->zone) {
-				this->zone->event(this->name+" say "+arg);
+				// this->zone->event(this->getName()+" say "+arg);
+				// this->zone->event((const std::string)(this->getName())+" say "+arg); // XXX
+				this->zone->event(this->getName().toString()+" say "+arg); // XXX
+				// this->zone->event(this->getName()+" say "+arg); // XXX
+				// this->zone->event(std::string{}+this->getName()+" say "+arg); // XXX
 			}
 		} else if(cmd == "quit") {
 			this->stop = true;
@@ -120,12 +124,13 @@ void Player::parse() {
 
 Player::Player(
 	int fd,
-	std::string name,
+	Name name,
 	Aspect aspect
 ) :
+	Named(name), // XXX
 	fd(fd),
 	id(fd),
-	name(name),
+	// name(name), // XXX
 	aspect(aspect),
 	zone(nullptr),
 	x(0),
@@ -177,14 +182,6 @@ void Player::spawn(class Zone * zone, int x, int y) {
 
 int Player::getId() {
 	return(this->id);
-}
-
-std::string Player::getName() {
-	return(this->name);
-}
-
-void Player::setName(std::string name) {
-	this->name = name;
 }
 
 Aspect Player::getAspect() {
@@ -251,9 +248,9 @@ void Player::setOnDeath(std::string script) {
 	this->onDeath = script;
 }
 
-class Gauge * Player::getGauge(std::string name) {
+class Gauge * Player::getGauge(const Name& name) {
 	try {
-		return(this->gauges.at(name));
+		return(this->gauges.at(name.toString()));
 	} catch(...) {
 		return(nullptr);
 	}
@@ -264,16 +261,16 @@ void Player::addGauge(class Gauge * gauge) {
 	if(old) {
 		delete(old);
 	}
-	this->gauges[gauge->getName()] = gauge;
+	this->gauges[gauge->getName().toString()] = gauge;
 }
 
-void Player::delGauge(std::string id) {
-	class Gauge * old = this->getGauge(id);
+void Player::delGauge(const Name& name) {
+	class Gauge * old = this->getGauge(name);
 	if(old) {
 		delete(old);
-		this->gauges.erase(id);
+		this->gauges.erase(name.toString());
 	} else {
-		verbose_info("Gauge '"+id+"' doesn't exist: can't be deleted.");
+		verbose_info("Gauge '"+name.toString()+"' doesn't exist: can't be deleted.");
 	}
 }
 
@@ -361,7 +358,7 @@ void Player::updateFloor() {
 			+ " "
 			+ std::to_string(this->zone->getHeight())
 			+ " "
-			+ this->zone->getName()
+			+ this->zone->getName().toString()
 		  );
 
 	// Send tiles.

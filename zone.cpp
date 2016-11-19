@@ -5,17 +5,19 @@
 #include "place.h"
 #include "player.h"
 
+// TODO : Zone::setName() : broadcast new name.
+
 Zone::Zone(
 	class Server * server,
 	std::string id,
-	std::string name,
+	const Name& name,
 	unsigned int width,
 	unsigned int height,
 	class Tile * baseTile
 ) :
+	Named(name),
 	server(server),
 	id(id),
-	name(name),
 	width(width),
 	height(height)
 {
@@ -37,15 +39,6 @@ class Server * Zone::getServer() {
 
 std::string Zone::getId() {
 	return(this->id);
-}
-
-std::string Zone::getName() {
-	return(this->name);
-}
-
-// TODO : Zone::setName() : broadcast new name.
-void Zone::setName(std::string name) {
-	this->name = name;
 }
 
 unsigned int Zone::getWidth() {
@@ -126,7 +119,7 @@ void Zone::setTag(int x, int y, std::string id, std::string value) {
 		place->setTag(id, value);
 	} else {
 		warning("In zone "
-		+ this->name
+		+ this->id
 		+ ": unable to set tag "
 		+ id
 		+ "to value "
@@ -145,7 +138,7 @@ void Zone::delTag(int x, int y, std::string id) {
 		place->delTag(id);
 	} else {
 		warning("In zone "
-		+ this->name
+		+ this->id
 		+ ": unable to remove tag "
 		+ id
 		+ " because place "
@@ -213,7 +206,7 @@ class Place * Zone::getPlace(int x, int y) {
 	} else {
 		warning(
 			"In zone "
-			+ this->name
+			+ this->id
 			+ ": invalid place "
 			+ std::to_string(x)
 			+ "-"

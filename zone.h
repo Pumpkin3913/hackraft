@@ -8,17 +8,18 @@ class Player;
 
 #include "error.h"
 #include "aspect.h"
+#include "name.h"
 
 #include <string>
 #include <vector>
 #include <list>
 
-class Zone {
+class Zone : public Named {
 public:
 	Zone(
 		class Server * server,
 		std::string id,
-		std::string name,
+		const Name& name,
 		unsigned int width,
 		unsigned int height,
 		class Tile * baseTile
@@ -26,8 +27,6 @@ public:
 	~Zone();
 	class Server * getServer();
 	std::string getId();
-	std::string getName();
-	void setName(std::string name);
 	unsigned int getWidth();
 	unsigned int getHeight();
 	bool isPlaceValid(int x, int y);
@@ -59,7 +58,6 @@ public:
 private:
 	class Server * server;
 	std::string id;
-	std::string name;
 	unsigned int width;
 	unsigned int height;
 	std::vector<class Place> places;

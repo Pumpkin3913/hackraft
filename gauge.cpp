@@ -6,15 +6,15 @@
 
 Gauge::Gauge(
 	class Player * player,
-	std::string name,
+	Name name,
 	unsigned int initVal,
 	unsigned int max,
 	Aspect aFull,
 	Aspect aEmpty,
 	bool visible
 ) :
+	Named(name),
 	player(player),
-	name(name),
 	val(initVal),
 	max(max),
 	onFull(""),
@@ -31,15 +31,6 @@ Gauge::~Gauge() {
 	if(this->visible) {
 		this->disapear();
 	}
-}
-
-std::string Gauge::getName() {
-	return(this->name);
-}
-
-void Gauge::setName(std::string name) {
-	this->name = name;
-	this->update();
 }
 
 unsigned int Gauge::getVal() {
@@ -138,7 +129,7 @@ void Gauge::setNotVisible() {
 void Gauge::update() {
 	if(this->visible) {
 		this->player->updateGauge(
-			this->name,
+			this->getName().toString(),
 			this->val,
 			this->max,
 			this->aFull,
@@ -147,7 +138,7 @@ void Gauge::update() {
 }
 
 void Gauge::disapear() {
-	this->player->updateNoGauge(this->name);
+	this->player->updateNoGauge(this->getName().toString());
 }
 
 void Gauge::exeFull() {

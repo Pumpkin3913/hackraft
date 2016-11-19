@@ -6,6 +6,7 @@
 
 #include "aspect.h"
 #include "tagged.h"
+#include "name.h"
 
 class Zone;
 class Gauge;
@@ -13,14 +14,12 @@ class Gauge;
 // TODO : Invisible.
 // TODO : Unmovable.
 
-class Player : public Tagged {
+class Player : public Tagged, public Named {
 public:
-	Player(int fd, std::string name, Aspect aspect);
+	Player(int fd, Name name, Aspect aspect);
 	~Player();
 	void spawn(class Zone * zone, int x, int y); // Add itself to the zone and start the parsing loop. Do nothing if already running.
 	int getId();
-	std::string getName();
-	void setName(std::string name);
 	Aspect getAspect();
 	void setAspect(Aspect aspect); // and broadcast it.
 	class Zone * getZone(); // May return nullptr.
@@ -31,9 +30,9 @@ public:
 	void changeZone(class Zone * newZone, int x, int y); // exit this zone, enter the new one.
 	std::string getOnDeath();
 	void setOnDeath(std::string script);
-	class Gauge * getGauge(std::string name); // May return nullptr.
+	class Gauge * getGauge(const Name& name); // May return nullptr.
 	void addGauge(class Gauge * gauge); // Only a new gauge can call it.
-	void delGauge(std::string name);
+	void delGauge(const Name& name);
 
 	bool isGhost();
 	void setGhost();
@@ -72,7 +71,6 @@ public:
 private:
 	int fd;
 	int id;
-	std::string name;
 	Aspect aspect;
 	class Zone * zone;
 	int x;

@@ -42,7 +42,7 @@ void Server::acceptLoop() {
 					+ " on socket #"
 					+ std::to_string(fd)
 					);
-			class Player * player = new Player(fd, "noname",
+			class Player * player = new Player(fd, Name{},
 					Tile::defaultTile.getAspect());
 			this->addPlayer(player);
 			this->luawrapper->spawnScript(player);
