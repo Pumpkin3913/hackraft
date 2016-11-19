@@ -86,7 +86,7 @@ void Player::parse() {
 
 		if(cmd[0] == '/') {
 			if(this->zone) {
-				this->zone->getServer()->exeScript(cmd.substr(1), this, arg);
+				this->zone->getServer()->doAction(cmd.substr(1), *this, arg);
 			}
 		} else if(cmd == "move") {
 			signed int xShift = 0;
@@ -135,7 +135,7 @@ Player::Player(
 	zone(nullptr),
 	x(0),
 	y(0),
-	onDeath(""),
+	whenDeath(""),
 	ghost(false),
 /*
 	movepoints(0),
@@ -149,10 +149,10 @@ Player::Player(
 Player::~Player() {
 	verbose_info("Player "+std::to_string(this->getId())+" deleted.");
 	if(this->zone) {
-		if(this->onDeath != "") {
-			std::string script = this->onDeath;
-			this->onDeath = "";
-			this->zone->getServer()->getLua()->executeFile(script, this);
+		if(this->whenDeath != Script::noValue) {
+			Script script = this->whenDeath;
+			this->whenDeath = Script::noValue;
+			script.execute(*(this->zone->getServer()->getLua()), this);
 		}
 		this->zone->exitPlayer(this);
 		this->zone->getServer()->remPlayer(id);
@@ -240,12 +240,12 @@ void Player::changeZone(class Zone * newZone, int x, int y) {
 	}
 }
 
-std::string Player::getOnDeath() {
-	return(this->onDeath);
+const Script& Player::getWhenDeath() {
+	return(this->whenDeath);
 }
 
-void Player::setOnDeath(std::string script) {
-	this->onDeath = script;
+void Player::setWhenDeath(const Script& script) {
+	this->whenDeath = script;
 }
 
 class Gauge * Player::getGauge(const Name& name) {

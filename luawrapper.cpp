@@ -144,28 +144,28 @@ int l_delete_zone(lua_State * lua) {
 	return(0);
 }
 
-/* Scripts */
+/* Actions */
 
-int l_add_script(lua_State * lua) {
+int l_add_action(lua_State * lua) {
 	if(not lua_isstring(lua, 1) or not lua_isstring(lua, 2)) {
-		lua_arg_error("add_script(command, filename)");
+		lua_arg_error("add_action(trigger, script)");
 	} else {
-		std::string command = lua_tostring(lua, 1);
-		std::string filename = lua_tostring(lua, 2);
-		Luawrapper::server->addScript(command, new std::string(filename));
+		std::string trigger = lua_tostring(lua, 1);
+		Script script = Script { lua_tostring(lua, 2) };
+		Luawrapper::server->addAction(script, trigger);
 	}
 	return(0);
 }
 
-int l_get_script(lua_State * lua) {
+int l_get_action(lua_State * lua) {
 	if(not lua_isstring(lua, 1)) {
-		lua_arg_error("get_script(command)");
+		lua_arg_error("get_action(trigger)");
 		lua_pushnil(lua);
 	} else {
-		std::string command = lua_tostring(lua, 1);
-		std::string * script = Luawrapper::server->getScript(command);
-		if(script != nullptr) {
-			lua_pushstring(lua, script->c_str());
+		std::string trigger = lua_tostring(lua, 1);
+		const Script& script = Luawrapper::server->getAction(trigger);
+		if(script != Script::noValue) {
+			lua_pushstring(lua, script.toString().c_str());
 		} else {
 			lua_pushnil(lua);
 		}
@@ -173,12 +173,12 @@ int l_get_script(lua_State * lua) {
 	return(1);
 }
 
-int l_delete_script(lua_State * lua) {
+int l_delete_action(lua_State * lua) {
 	if(not lua_isstring(lua, 1)) {
-		lua_arg_error("delete_script(command)");
+		lua_arg_error("delete_action(trigger)");
 	} else {
-		std::string command = lua_tostring(lua, 1);
-		Luawrapper::server->delScript(command);
+		std::string trigger = lua_tostring(lua, 1);
+		Luawrapper::server->delAction(trigger);
 	}
 	return(0);
 }
@@ -891,15 +891,15 @@ int l_player_changezone(lua_State * lua) {
 	return(0);
 }
 
-int l_player_getondeath(lua_State * lua) {
+int l_player_getwhendeath(lua_State * lua) {
 	if(not lua_isnumber(lua, 1)) {
-		lua_arg_error("player_getondeath(player_id)");
+		lua_arg_error("player_getwhendeath(player_id)");
 		lua_pushnil(lua);
 	} else {
 		int player_id = lua_tointeger(lua, 1);
 		class Player * player = Luawrapper::server->getPlayer(player_id);
 		if(player != nullptr) {
-			lua_pushstring(lua, player->getOnDeath().c_str());
+			lua_pushstring(lua, player->getWhenDeath().toString().c_str());
 		} else {
 			warning("Player '"+std::to_string(player_id)+"' doesn't exist.");
 			lua_pushnil(lua);
@@ -908,15 +908,15 @@ int l_player_getondeath(lua_State * lua) {
 	return(1);
 }
 
-int l_player_setondeath(lua_State * lua) {
+int l_player_setwhendeath(lua_State * lua) {
 	if(not lua_isnumber(lua, 1) or not lua_isstring(lua, 2)) {
-		lua_arg_error("player_setondeath(player_id, script)");
+		lua_arg_error("player_setwhendeath(player_id, script)");
 	} else {
 		int player_id = lua_tointeger(lua, 1);
 		class Player * player = Luawrapper::server->getPlayer(player_id);
 		if(player != nullptr) {
-			std::string script = lua_tostring(lua, 2);
-			player->setOnDeath(script);
+			Script script = Script { lua_tostring(lua, 2) };
+			player->setWhenDeath(script);
 		} else {
 			warning("Player '"+std::to_string(player_id)+"' doesn't exist.");
 		}
@@ -1334,10 +1334,10 @@ int l_gauge_setmax(lua_State * lua) {
 	return(0);
 }
 
-int l_gauge_getonfull(lua_State * lua) {
+int l_gauge_getwhenfull(lua_State * lua) {
 	if(not lua_isnumber(lua, 1)
 			or not lua_isstring(lua, 2)) {
-		lua_arg_error("gauge_getonfull(player_id, gauge_id)");
+		lua_arg_error("gauge_getwhenfull(player_id, gauge_id)");
 		lua_pushnil(lua);
 	} else {
 		int player_id = lua_tointeger(lua, 1);
@@ -1346,7 +1346,7 @@ int l_gauge_getonfull(lua_State * lua) {
 			Name name = Name { lua_tostring(lua, 2) };
 			class Gauge * gauge = player->getGauge(name);
 			if(gauge != nullptr) {
-				lua_pushstring(lua, gauge->getOnFull().c_str());
+				lua_pushstring(lua, gauge->getWhenFull().toString().c_str());
 			} else {
 				warning("Player '"+std::to_string(player_id)
 						+"' doesn't have gauge '"+name.toString()+"'.");
@@ -1360,11 +1360,11 @@ int l_gauge_getonfull(lua_State * lua) {
 	return(1);
 }
 
-int l_gauge_setonfull(lua_State * lua) {
+int l_gauge_setwhenfull(lua_State * lua) {
 	if(not lua_isnumber(lua, 1)
 			or not lua_isstring(lua, 2)
 			or not lua_isstring(lua, 3)) {
-		lua_arg_error("gauge_setonfull(player_id, gauge_id, script)");
+		lua_arg_error("gauge_setwhenfull(player_id, gauge_id, script)");
 	} else {
 		int player_id = lua_tointeger(lua, 1);
 		class Player * player = Luawrapper::server->getPlayer(player_id);
@@ -1372,8 +1372,8 @@ int l_gauge_setonfull(lua_State * lua) {
 			Name name = Name { lua_tostring(lua, 2) };
 			class Gauge * gauge = player->getGauge(name);
 			if(gauge != nullptr) {
-				std::string script = lua_tostring(lua, 3);
-				gauge->setOnFull(script);
+				Script script = Script { lua_tostring(lua, 3) };
+				gauge->setWhenFull(script);
 			} else {
 				warning("Player '"+std::to_string(player_id)
 						+"' doesn't have gauge '"+name.toString()+"'.");
@@ -1385,10 +1385,10 @@ int l_gauge_setonfull(lua_State * lua) {
 	return(0);
 }
 
-int l_gauge_resetonfull(lua_State * lua) {
+int l_gauge_resetwhenfull(lua_State * lua) {
 	if(not lua_isnumber(lua, 1)
 			or not lua_isstring(lua, 2)) {
-		lua_arg_error("gauge_resetonfull(player_id, gauge_id)");
+		lua_arg_error("gauge_resetwhenfull(player_id, gauge_id)");
 	} else {
 		int player_id = lua_tointeger(lua, 1);
 		class Player * player = Luawrapper::server->getPlayer(player_id);
@@ -1396,7 +1396,7 @@ int l_gauge_resetonfull(lua_State * lua) {
 			Name name = Name { lua_tostring(lua, 2) };
 			class Gauge * gauge = player->getGauge(name);
 			if(gauge != nullptr) {
-				gauge->resetOnFull();
+				gauge->resetWhenFull();
 			} else {
 				warning("Player '"+std::to_string(player_id)
 						+"' doesn't have gauge '"+name.toString()+"'.");
@@ -1408,10 +1408,10 @@ int l_gauge_resetonfull(lua_State * lua) {
 	return(0);
 }
 
-int l_gauge_getonempty(lua_State * lua) {
+int l_gauge_getwhenempty(lua_State * lua) {
 	if(not lua_isnumber(lua, 1)
 			or not lua_isstring(lua, 2)) {
-		lua_arg_error("gauge_getonempty(player_id, gauge_id)");
+		lua_arg_error("gauge_getwhenempty(player_id, gauge_id)");
 		lua_pushnil(lua);
 	} else {
 		int player_id = lua_tointeger(lua, 1);
@@ -1420,7 +1420,7 @@ int l_gauge_getonempty(lua_State * lua) {
 			Name name = Name { lua_tostring(lua, 2) };
 			class Gauge * gauge = player->getGauge(name);
 			if(gauge != nullptr) {
-				lua_pushstring(lua, gauge->getOnEmpty().c_str());
+				lua_pushstring(lua, gauge->getWhenEmpty().toString().c_str());
 			} else {
 				warning("Player '"+std::to_string(player_id)
 						+"' doesn't have gauge '"+name.toString()+"'.");
@@ -1434,11 +1434,11 @@ int l_gauge_getonempty(lua_State * lua) {
 	return(1);
 }
 
-int l_gauge_setonempty(lua_State * lua) {
+int l_gauge_setwhenempty(lua_State * lua) {
 	if(not lua_isnumber(lua, 1)
 			or not lua_isstring(lua, 2)
 			or not lua_isstring(lua, 3)) {
-		lua_arg_error("gauge_setonempty(player_id, gauge_id, script)");
+		lua_arg_error("gauge_setwhenempty(player_id, gauge_id, script)");
 	} else {
 		int player_id = lua_tointeger(lua, 1);
 		class Player * player = Luawrapper::server->getPlayer(player_id);
@@ -1446,8 +1446,8 @@ int l_gauge_setonempty(lua_State * lua) {
 			Name name = Name { lua_tostring(lua, 2) };
 			class Gauge * gauge = player->getGauge(name);
 			if(gauge != nullptr) {
-				std::string script = lua_tostring(lua, 3);
-				gauge->setOnEmpty(script);
+				Script script = Script { lua_tostring(lua, 3) };
+				gauge->setWhenEmpty(script);
 			} else {
 				warning("Player '"+std::to_string(player_id)
 						+"' doesn't have gauge '"+name.toString()+"'.");
@@ -1459,10 +1459,10 @@ int l_gauge_setonempty(lua_State * lua) {
 	return(0);
 }
 
-int l_gauge_resetonempty(lua_State * lua) {
+int l_gauge_resetwhenempty(lua_State * lua) {
 	if(not lua_isnumber(lua, 1)
 			or not lua_isstring(lua, 2)) {
-		lua_arg_error("gauge_resetonempty(player_id, gauge_id)");
+		lua_arg_error("gauge_resetwhenempty(player_id, gauge_id)");
 	} else {
 		int player_id = lua_tointeger(lua, 1);
 		class Player * player = Luawrapper::server->getPlayer(player_id);
@@ -1470,7 +1470,7 @@ int l_gauge_resetonempty(lua_State * lua) {
 			Name name = Name { lua_tostring(lua, 2) };
 			class Gauge * gauge = player->getGauge(name);
 			if(gauge != nullptr) {
-				gauge->resetOnEmpty();
+				gauge->resetWhenEmpty();
 			} else {
 				warning("Player '"+std::to_string(player_id)
 						+"' doesn't have gauge '"+name.toString()+"'.");
@@ -1564,9 +1564,9 @@ Luawrapper::Luawrapper(class Server * server) :
 	lua_register(this->lua_state, "is_open", l_is_open);
 	lua_register(this->lua_state, "get_port", l_get_port);
 	lua_register(this->lua_state, "delete_zone", l_delete_zone);
-	lua_register(this->lua_state, "add_script", l_add_script);
-	lua_register(this->lua_state, "get_script", l_get_script);
-	lua_register(this->lua_state, "delete_script", l_delete_script);
+	lua_register(this->lua_state, "add_action", l_add_action);
+	lua_register(this->lua_state, "get_action", l_get_action);
+	lua_register(this->lua_state, "delete_action", l_delete_action);
 
 	lua_register(this->lua_state, "new_tile", l_new_tile);
 	lua_register(this->lua_state, "assert_tile", l_assert_tile);
@@ -1607,8 +1607,8 @@ Luawrapper::Luawrapper(class Server * server) :
 	lua_register(this->lua_state, "player_setxy", l_player_setxy);
 	lua_register(this->lua_state, "player_move", l_player_move);
 	lua_register(this->lua_state, "player_changezone", l_player_changezone);
-	lua_register(this->lua_state, "player_getondeath", l_player_getondeath);
-	lua_register(this->lua_state, "player_setondeath", l_player_setondeath);
+	lua_register(this->lua_state, "player_getwhendeath", l_player_getwhendeath);
+	lua_register(this->lua_state, "player_setwhendeath", l_player_setwhendeath);
 	// lua_register(this->lua_state, "player_getgauge", l_player_getgauge);
 	lua_register(this->lua_state, "player_delgauge", l_player_delgauge);
 	lua_register(this->lua_state, "player_gettag", l_player_gettag);
@@ -1630,12 +1630,12 @@ Luawrapper::Luawrapper(class Server * server) :
 	lua_register(this->lua_state, "gauge_decrease", l_gauge_decrease);
 	lua_register(this->lua_state, "gauge_getmax", l_gauge_getmax);
 	lua_register(this->lua_state, "gauge_setmax", l_gauge_setmax);
-	lua_register(this->lua_state, "gauge_getonfull", l_gauge_getonfull);
-	lua_register(this->lua_state, "gauge_setonfull", l_gauge_setonfull);
-	lua_register(this->lua_state, "gauge_resetonfull", l_gauge_resetonfull);
-	lua_register(this->lua_state, "gauge_getonempty", l_gauge_getonempty);
-	lua_register(this->lua_state, "gauge_setonempty", l_gauge_setonempty);
-	lua_register(this->lua_state, "gauge_resetonempty", l_gauge_resetonempty);
+	lua_register(this->lua_state, "gauge_getwhenfull", l_gauge_getwhenfull);
+	lua_register(this->lua_state, "gauge_setwhenfull", l_gauge_setwhenfull);
+	lua_register(this->lua_state, "gauge_resetwhenfull", l_gauge_resetwhenfull);
+	lua_register(this->lua_state, "gauge_getwhenempty", l_gauge_getwhenempty);
+	lua_register(this->lua_state, "gauge_setwhenempty", l_gauge_setwhenempty);
+	lua_register(this->lua_state, "gauge_resetwhenempty", l_gauge_resetwhenempty);
 	lua_register(this->lua_state, "gauge_isvisible", l_gauge_isvisible);
 	lua_register(this->lua_state, "gauge_setvisible", l_gauge_setvisible);
 
@@ -1664,13 +1664,20 @@ void Luawrapper::executeFile(std::string filename, class Player * player, std::s
 	luaL_dofile(this->lua_state, filename.c_str());
 }
 
-void Luawrapper::executeCode(std::string code, class Player * player) {
+void Luawrapper::executeCode(std::string code, class Player * player, std::string arg) {
 	if(player) {
 		lua_pushinteger(this->lua_state, player->getId());
 	} else {
 		lua_pushnil(this->lua_state);
 	}
 	lua_setglobal(this->lua_state, "Player");
+
+	if(arg == "") {
+		lua_pushnil(this->lua_state);
+	} else {
+		lua_pushstring(this->lua_state, arg.c_str());
+	}
+	lua_setglobal(this->lua_state, "Arg");
 
 	luaL_dostring(this->lua_state, code.c_str());
 }

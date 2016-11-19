@@ -7,6 +7,7 @@
 #include "aspect.h"
 #include "name.h"
 #include "tag.h"
+#include "script.h"
 
 class Zone;
 class Gauge;
@@ -28,8 +29,11 @@ public:
 	void setXY(int x, int y); // dont check if canLand(); auto bcast new position.
 	void move(int xShift, int yShift); // check if canLand() and setXY() if yes.
 	void changeZone(class Zone * newZone, int x, int y); // exit this zone, enter the new one.
-	std::string getOnDeath();
-	void setOnDeath(std::string script);
+
+	/* Scripts */
+	const Script& getWhenDeath();
+	void setWhenDeath(const Script& script);
+
 	class Gauge * getGauge(const Name& name); // May return nullptr.
 	void addGauge(class Gauge * gauge); // Only a new gauge can call it.
 	void delGauge(const Name& name);
@@ -75,7 +79,7 @@ private:
 	class Zone * zone;
 	int x;
 	int y;
-	std::string onDeath;
+	Script whenDeath;
 	std::map<std::string, class Gauge *> gauges;
 	bool ghost;
 /*

@@ -15,10 +15,10 @@ is_open() -> bool
 get_port() -> int
 delete_zone(zone_id)
 
-add_script(command, filename)
-get_script(command) -> string | nil
-delete_script(command)
--- list_scripts()
+add_action(trigger, script)
+get_action(trigger) -> string | nil
+delete_action(trigger)
+-- list_actions()
 
 new_tile(id, name, aspect [, passable])
 assert_tile(tile_id) -> bool | nil
@@ -60,8 +60,8 @@ player_gety(player_id) -> int | nil
 player_setxy(player_id, x, y)
 player_move(player_id, x_shift, y_shift)
 player_changezone(player_id, zone_id, x, y)
-player_getondeath(player_id) -> string | nil
-player_setondeath(player_id, script)
+player_getwhendeath(player_id) -> string | nil
+player_setwhendeath(player_id, script)
 -- player_getgauge(player_id, gauge_id)
 -- player_list_gauges(player_id)
 player_delgauge(player_id, gauge_id)
@@ -83,12 +83,12 @@ gauge_increase(player_id, gauge_id, val)
 gauge_decrease(player_id, gauge_id, val)
 gauge_getmax(player_id, gauge_id) -> int | nil
 gauge_setmax(player_id, gauge_id, max)
-gauge_getonfull(player_id, gauge_id) -> string | nil
-gauge_setonfull(player_id, gauge_id, script)
-gauge_resetonfull(player_id, gauge_id)
-gauge_getonempty(player_id, gauge_id) -> string | nil
-gauge_setonempty(player_id, gauge_id, script)
-gauge_resetonempty(player_id, gauge_id)
+gauge_getwhenfull(player_id, gauge_id) -> string | nil
+gauge_setwhenfull(player_id, gauge_id, script)
+gauge_resetwhenfull(player_id, gauge_id)
+gauge_getwhenempty(player_id, gauge_id) -> string | nil
+gauge_setwhenempty(player_id, gauge_id, script)
+gauge_resetwhenempty(player_id, gauge_id)
 gauge_isvisible(player_id, gauge_id) -> bool | nil
 gauge_setvisible(player_id, gauge_id, bool)
 

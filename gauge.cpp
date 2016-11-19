@@ -17,8 +17,8 @@ Gauge::Gauge(
 	player(player),
 	val(initVal),
 	max(max),
-	onFull(""),
-	onEmpty(""),
+	whenFull(Script::noValue),
+	whenEmpty(Script::noValue),
 	aFull(aFull),
 	aEmpty(aEmpty),
 	visible(visible)
@@ -82,28 +82,28 @@ void Gauge::setMax(unsigned int max) {
 	this->update();
 }
 
-std::string Gauge::getOnFull() {
-	return(this->onFull);
+const Script& Gauge::getWhenFull() {
+	return(this->whenFull);
 }
 
-void Gauge::setOnFull(std::string script) {
-	this->onFull = script;
+void Gauge::setWhenFull(const Script& script) {
+	this->whenFull = script;
 }
 
-void Gauge::resetOnFull() {
-	this->onFull = "";
+void Gauge::resetWhenFull() {
+	this->whenFull = Script::noValue;
 }
 
-std::string Gauge::getOnEmpty() {
-	return(this->onEmpty);
+const Script& Gauge::getWhenEmpty() {
+	return(this->whenEmpty);
 }
 
-void Gauge::setOnEmpty(std::string script) {
-	this->onEmpty = script;
+void Gauge::setWhenEmpty(const Script& script) {
+	this->whenEmpty = script;
 }
 
-void Gauge::resetOnEmpty() {
-	this->onEmpty = "";
+void Gauge::resetWhenEmpty() {
+	this->whenEmpty = Script::noValue;
 }
 
 bool Gauge::isVisible() {
@@ -142,19 +142,19 @@ void Gauge::disapear() {
 }
 
 void Gauge::exeFull() {
-	if(this->onFull != "") {
+	if(this->whenFull != Script::noValue) {
 		class Zone * zone = this->player->getZone();
 		if(zone != nullptr) {
-			zone->getServer()->getLua()->executeFile(this->onFull, this->player);
+			this->whenFull.execute(*(zone->getServer()->getLua()), this->player);
 		}
 	}
 }
 
 void Gauge::exeEmpty() {
-	if(this->onEmpty != "") {
+	if(this->whenEmpty != Script::noValue) {
 		class Zone * zone = this->player->getZone();
 		if(zone != nullptr) {
-			zone->getServer()->getLua()->executeFile(this->onEmpty, this->player);
+			this->whenEmpty.execute(*(zone->getServer()->getLua()), this->player);
 		}
 	}
 }

@@ -243,33 +243,34 @@ void Server::remPlayer(int id) {
 	this->players.erase(id);
 }
 
-void Server::addScript(std::string id, std::string * filename) {
-	if(this->getScript(id) != nullptr) {
-		this->delScript(id);
-		verbose_info("Script '"+id+"' replaced.");
+void Server::addAction(const Script& script, std::string trigger) {
+	if(this->actions.count(trigger) > 0) {
+		warning("Action '"+trigger+"' replaced.");
 	}
-	this->scripts[id] = filename;
+	this->actions[trigger] = script;
 }
 
-std::string * Server::getScript(std::string id) {
-	return(this->scripts[id]);
-}
-
-void Server::delScript(std::string id) {
-	if(this->scripts[id] != nullptr) {
-		delete(this->scripts[id]);
-		this->scripts.erase(id);
-	} else {
-		verbose_info("Script '"+id+"' doesn't exist.");
+const Script& Server::getAction(std::string trigger) {
+	try {
+		return(this->actions.at(trigger));
+	} catch (const std::out_of_range& oor) {
+		return(Script::noValue);
 	}
 }
 
-void Server::exeScript(std::string id, class Player * player, std::string arg) {
-	std::string * script = this->getScript(id);
-	if(script != nullptr) {
-		this->luawrapper->executeFile(*script, player, arg);
+void Server::delAction(std::string trigger) {
+	if(this->actions.count(trigger) == 0) {
+		verbose_info("Action '"+trigger+"' can't be deleted: doesn't exist.");
 	} else {
-		verbose_info("Script '"+id+"' doesn't exist.");
+		this->actions.erase(trigger);
+	}
+}
+
+void Server::doAction(std::string trigger, class Player& player, std::string arg) {
+	try {
+		this->actions.at(trigger).execute(*(this->luawrapper), &player, arg);
+	} catch (const std::out_of_range& oor) {
+		verbose_info("Action '"+trigger+"' doesn't exist.");
 	}
 }
 
@@ -280,4 +281,3 @@ class Luawrapper * Server::getLua() {
 void Server::waitForTerminaison() {
 	this->terminaisonLock.lock();
 }
-

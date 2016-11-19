@@ -6,6 +6,7 @@ class Luawrapper;
 class Player;
 
 #include "error.h"
+#include "script.h"
 
 #include <map>
 #include <thread>
@@ -33,10 +34,14 @@ public:
 	class Player * getPlayer(int id); // May return nullptr.
 	void delPlayer(int id);
 	void remPlayer(int id);
-	void addScript(std::string id, std::string * filename);
-	std::string * getScript(std::string id);
-	void delScript(std::string id);
-	void exeScript(std::string id, class Player * player = nullptr, std::string arg = "");
+
+	/* Player actions */
+// TODO: Stronger type: trigger.
+	void addAction(const Script& script, std::string trigger);
+	const Script& getAction(std::string trigger); // May return Script::noValue.
+	void delAction(std::string trigger);
+	void doAction(std::string trigger, class Player& player, std::string arg = "");
+
 	class Luawrapper * getLua();
 	void waitForTerminaison();
 
@@ -46,7 +51,7 @@ private:
 	std::map<std::string, class Tile *> tiles;
 	std::map<std::string, class Zone *> zones;
 	std::map<int, class Player *> players;
-	std::map<std::string, std::string *> scripts;
+	std::map<std::string, Script> actions;
 	std::thread * acceptThread;
 	class Luawrapper * luawrapper;
 	std::mutex terminaisonLock;
