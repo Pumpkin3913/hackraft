@@ -104,6 +104,7 @@ void Zone::event(std::string message) {
 	}
 }
 
+/* XXX //
 std::string Zone::getTag(int x, int y, std::string id) {
 	class Place * place = this->getPlace(x,y);
 	if(place) {
@@ -148,6 +149,7 @@ void Zone::delTag(int x, int y, std::string id) {
 		+ "is invalid.");
 	}
 }
+// XXX */
 
 /* Called by Player only */
 

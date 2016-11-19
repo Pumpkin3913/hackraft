@@ -36,10 +36,7 @@ public:
 	void setLandOn(int x, int y, std::string script);
 	void resetLandOn(int x, int y);
 	void event(std::string message); // Broadcast a message to all players.
-
-	std::string getTag(int x, int y, std::string id);
-	void setTag(int x, int y, std::string id, std::string value);
-	void delTag(int x, int y, std::string id);
+	class Place * getPlace(int x, int y);
 
 	/* Called by Player only */
 
@@ -64,6 +61,5 @@ private:
 	std::list<int> players;
 
 	class Player * getPlayer(int id); // Auto remove if invalid.
-	class Place * getPlace(int x, int y);
 	void updateTile(int x, int y);
 };

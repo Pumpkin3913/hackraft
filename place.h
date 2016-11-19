@@ -6,7 +6,7 @@
 class Tile;
 
 #include "aspect.h"
-#include "tagged.h"
+#include "tag.h"
 
 class Place : public Tagged {
 public:

@@ -1,11 +1,13 @@
 #include "luawrapper.h"
+
+#include "error.h"
+#include "gauge.h"
+#include "name.h"
+#include "place.h"
+#include "player.h"
 #include "server.h"
 #include "tile.h"
 #include "zone.h"
-#include "player.h"
-#include "gauge.h"
-#include "error.h"
-#include "name.h"
 
 #include <cstdlib> // srand(), rand()
 #include <ctime> // time()
@@ -561,8 +563,14 @@ int l_zone_gettag(lua_State * lua) {
 		if(zone != nullptr) {
 			int x = lua_tointeger(lua, 2);
 			int y = lua_tointeger(lua, 3);
-			std::string tag_id = lua_tostring(lua, 4);
-			lua_pushstring(lua, zone->getTag(x, y, tag_id).c_str());
+			Place * place = zone->getPlace(x, y);
+			if(place != nullptr) {
+				TagID tag_id = TagID { lua_tostring(lua, 4) };
+				lua_pushstring(lua, place->getTag(tag_id).toString().c_str());
+			} else {
+				warning("Place "+std::to_string(x)+"-"+std::to_string(y)+" doesn't exist in Zone '"+zone_id+"'.");
+				lua_pushnil(lua);
+			}
 		} else {
 			warning("Zone '"+zone_id+"' doesn't exist.");
 			lua_pushnil(lua);
@@ -584,9 +592,15 @@ int l_zone_settag(lua_State * lua) {
 		if(zone != nullptr) {
 			int x = lua_tointeger(lua, 2);
 			int y = lua_tointeger(lua, 3);
-			std::string tag_id = lua_tostring(lua, 4);
-			std::string value = lua_tostring(lua, 5);
-			zone->setTag(x, y, tag_id, value);
+			Place * place = zone->getPlace(x, y);
+			if(place != nullptr) {
+				TagID tag_id = TagID { lua_tostring(lua, 4) };
+				TagValue value = TagValue { lua_tostring(lua, 5) };
+				place->setTag(tag_id, value);
+			} else {
+				warning("Place "+std::to_string(x)+"-"+std::to_string(y)+" doesn't exist in Zone '"+zone_id+"'.");
+				lua_pushnil(lua);
+			}
 		} else {
 			warning("Zone '"+zone_id+"' doesn't exist.");
 		}
@@ -606,8 +620,14 @@ int l_zone_deltag(lua_State * lua) {
 		if(zone != nullptr) {
 			int x = lua_tointeger(lua, 2);
 			int y = lua_tointeger(lua, 3);
-			std::string tag_id = lua_tostring(lua, 4);
-			zone->delTag(x, y, tag_id);
+			Place * place = zone->getPlace(x, y);
+			if(place != nullptr) {
+				TagID tag_id = TagID { lua_tostring(lua, 4) };
+				place->delTag(tag_id);
+			} else {
+				warning("Place "+std::to_string(x)+"-"+std::to_string(y)+" doesn't exist in Zone '"+zone_id+"'.");
+				lua_pushnil(lua);
+			}
 		} else {
 			warning("Zone '"+zone_id+"' doesn't exist.");
 		}
@@ -942,8 +962,8 @@ int l_player_gettag(lua_State * lua) {
 		int player_id = lua_tointeger(lua, 1);
 		class Player * player = Luawrapper::server->getPlayer(player_id);
 		if(player != nullptr) {
-			std::string tag_id = lua_tostring(lua, 2);
-			lua_pushstring(lua, player->getTag(tag_id).c_str());
+			TagID tag_id = TagID { lua_tostring(lua, 2) };
+			lua_pushstring(lua, player->getTag(tag_id).toString().c_str());
 		} else {
 			warning("Player '"+std::to_string(player_id)+"' doesn't exist.");
 			lua_pushnil(lua);
@@ -961,8 +981,8 @@ int l_player_settag(lua_State * lua) {
 		int player_id = lua_tointeger(lua, 1);
 		class Player * player = Luawrapper::server->getPlayer(player_id);
 		if(player != nullptr) {
-			std::string tag_id = lua_tostring(lua, 2);
-			std::string value = lua_tostring(lua, 3);
+			TagID tag_id = TagID { lua_tostring(lua, 2) };
+			TagValue value = TagValue { lua_tostring(lua, 3) };
 			player->setTag(tag_id, value);
 		} else {
 			warning("Player '"+std::to_string(player_id)+"' doesn't exist.");
@@ -978,7 +998,7 @@ int l_player_deltag(lua_State * lua) {
 		int player_id = lua_tointeger(lua, 1);
 		class Player * player = Luawrapper::server->getPlayer(player_id);
 		if(player != nullptr) {
-			std::string tag_id = lua_tostring(lua, 2);
+			TagID tag_id = TagID { lua_tostring(lua, 2) };
 			player->delTag(tag_id);
 		} else {
 			warning("Player '"+std::to_string(player_id)+"' doesn't exist.");

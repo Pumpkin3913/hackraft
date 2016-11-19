@@ -5,8 +5,8 @@
 #include <map>
 
 #include "aspect.h"
-#include "tagged.h"
 #include "name.h"
+#include "tag.h"
 
 class Zone;
 class Gauge;
@@ -14,7 +14,7 @@ class Gauge;
 // TODO : Invisible.
 // TODO : Unmovable.
 
-class Player : public Tagged, public Named {
+class Player : public Named, public Tagged {
 public:
 	Player(int fd, Name name, Aspect aspect);
 	~Player();
