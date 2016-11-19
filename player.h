@@ -7,7 +7,7 @@
 #include "aspect.h"
 #include "tagged.h"
 
-class Screen;
+class Zone;
 class Gauge;
 
 // TODO : Invisible.
@@ -19,7 +19,7 @@ class Player : public Tagged {
 		int id;
 		std::string name;
 		Aspect aspect;
-		class Screen * screen;
+		class Zone * zone;
 		int x;
 		int y;
 		std::string onDeath;
@@ -42,18 +42,18 @@ class Player : public Tagged {
 	public:
 		Player(int fd, std::string name, Aspect aspect);
 		~Player();
-		void spawn(class Screen * screen, int x, int y); // Add itself to the screen and start the parsing loop. Do nothing if already running.
+		void spawn(class Zone * zone, int x, int y); // Add itself to the zone and start the parsing loop. Do nothing if already running.
 		int getId();
 		std::string getName();
 		void setName(std::string name);
 		Aspect getAspect();
 		void setAspect(Aspect aspect); // and broadcast it.
-		class Screen * getScreen(); // May return nullptr.
+		class Zone * getZone(); // May return nullptr.
 		unsigned int getX();
 		unsigned int getY();
 		void setXY(int x, int y); // dont check if canLand(); auto bcast new position.
 		void move(int xShift, int yShift); // check if canLand() and setXY() if yes.
-		void changeScreen(class Screen * newScreen, int x, int y); // exit this screen, enter the new one.
+		void changeZone(class Zone * newZone, int x, int y); // exit this zone, enter the new one.
 		std::string getOnDeath();
 		void setOnDeath(std::string script);
 		class Gauge * getGauge(std::string name); // May return nullptr.

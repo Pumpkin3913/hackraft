@@ -1,11 +1,11 @@
-#include "screen.h"
+#include "zone.h"
 
 #include "server.h"
 #include "tile.h"
 #include "place.h"
 #include "player.h"
 
-Screen::Screen(
+Zone::Zone(
 	class Server * server,
 	std::string id,
 	std::string name,
@@ -20,47 +20,47 @@ Screen::Screen(
 	height(height)
 {
 	this->places = std::vector<class Place>(width * height, Place(baseTile));
-	this->server->addScreen(id, this);
+	this->server->addZone(id, this);
 }
 
-Screen::~Screen() {
-	// For now, players in a screen are deleted with it.
+Zone::~Zone() {
+	// For now, players in a zone are deleted with it.
 	for(int id : this->players) {
 		this->server->delPlayer(id);
 	}
-	verbose_info("Screen '"+id+"' deleted.");
+	verbose_info("Zone '"+id+"' deleted.");
 }
 
-class Server * Screen::getServer() {
+class Server * Zone::getServer() {
 	return(this->server);
 }
 
-std::string Screen::getId() {
+std::string Zone::getId() {
 	return(this->id);
 }
 
-std::string Screen::getName() {
+std::string Zone::getName() {
 	return(this->name);
 }
 
-// TODO : Screen::setName() : broadcast new name.
-void Screen::setName(std::string name) {
+// TODO : Zone::setName() : broadcast new name.
+void Zone::setName(std::string name) {
 	this->name = name;
 }
 
-unsigned int Screen::getWidth() {
+unsigned int Zone::getWidth() {
 	return(this->width);
 }
 
-unsigned int Screen::getHeight() {
+unsigned int Zone::getHeight() {
 	return(this->height);
 }
 
-bool Screen::isPlaceValid(int x, int y) {
+bool Zone::isPlaceValid(int x, int y) {
 	return(x >= 0 && x < this->width && y >= 0 && y < this->height);
 }
 
-class Tile * Screen::getTile(int x, int y) {
+class Tile * Zone::getTile(int x, int y) {
 	class Place * place = this->getPlace(x,y);
 	if(place) {
 		return(place->getTile());
@@ -69,7 +69,7 @@ class Tile * Screen::getTile(int x, int y) {
 	}
 }
 
-void Screen::setTile(int x, int y, class Tile * tile) {
+void Zone::setTile(int x, int y, class Tile * tile) {
 	class Place * place = this->getPlace(x,y);
 	if(place) {
 		place->setTile(tile);
@@ -77,7 +77,7 @@ void Screen::setTile(int x, int y, class Tile * tile) {
 	}
 }
 
-std::string * Screen::getLandOn(int x, int y) {
+std::string * Zone::getLandOn(int x, int y) {
 	class Place * place = this->getPlace(x,y);
 	if(place) {
 		return(place->getLandOn());
@@ -86,32 +86,32 @@ std::string * Screen::getLandOn(int x, int y) {
 	}
 }
 
-void Screen::setLandOn(int x, int y, std::string script) {
+void Zone::setLandOn(int x, int y, std::string script) {
 	class Place * place = this->getPlace(x,y);
 	if(place) {
 		place->setLandOn(script);
 	} else {
-		// Warning already done by Screen::getPlace();
+		// Warning already done by Zone::getPlace();
 	}
 }
 
-void Screen::resetLandOn(int x, int y) {
+void Zone::resetLandOn(int x, int y) {
 	class Place * place = this->getPlace(x,y);
 	if(place) {
 		place->resetLandOn();
 	} else {
-		// Warning already done by Screen::getPlace();
+		// Warning already done by Zone::getPlace();
 	}
 }
 
-void Screen::event(std::string message) {
+void Zone::event(std::string message) {
 	for(int id : this->players) {
 		class Player * player = this->getPlayer(id);
 		if(player) player->message(message);
 	}
 }
 
-std::string Screen::getTag(int x, int y, std::string id) {
+std::string Zone::getTag(int x, int y, std::string id) {
 	class Place * place = this->getPlace(x,y);
 	if(place) {
 		return(place->getTag(id));
@@ -120,12 +120,12 @@ std::string Screen::getTag(int x, int y, std::string id) {
 	}
 }
 
-void Screen::setTag(int x, int y, std::string id, std::string value) {
+void Zone::setTag(int x, int y, std::string id, std::string value) {
 	class Place * place = this->getPlace(x,y);
 	if(place) {
 		place->setTag(id, value);
 	} else {
-		warning("In screen "
+		warning("In zone "
 		+ this->name
 		+ ": unable to set tag "
 		+ id
@@ -139,12 +139,12 @@ void Screen::setTag(int x, int y, std::string id, std::string value) {
 	}
 }
 
-void Screen::delTag(int x, int y, std::string id) {
+void Zone::delTag(int x, int y, std::string id) {
 	class Place * place = this->getPlace(x,y);
 	if(place) {
 		place->delTag(id);
 	} else {
-		warning("In screen "
+		warning("In zone "
 		+ this->name
 		+ ": unable to remove tag "
 		+ id
@@ -158,7 +158,7 @@ void Screen::delTag(int x, int y, std::string id) {
 
 /* Called by Player only */
 
-bool Screen::canLandPlayer(class Player * player, int x, int y) {
+bool Zone::canLandPlayer(class Player * player, int x, int y) {
 	class Place * place;
 	if(this->isPlaceValid(x,y) && (place = this->getPlace(x,y)) != nullptr) {
 		return(place->canLand());
@@ -167,7 +167,7 @@ bool Screen::canLandPlayer(class Player * player, int x, int y) {
 	}
 }
 
-void Screen::enterPlayer(class Player * player, int x, int y) {
+void Zone::enterPlayer(class Player * player, int x, int y) {
 	this->players.push_front(player->getId());
 	player->setXY(x, y);
 	player->updateFloor();
@@ -180,7 +180,7 @@ void Screen::enterPlayer(class Player * player, int x, int y) {
 	}
 }
 
-void Screen::exitPlayer(class Player * player) {
+void Zone::exitPlayer(class Player * player) {
 	this->players.remove(player->getId());
 	for(int id : this->players) {
 		class Player * p = this->getPlayer(id);
@@ -188,7 +188,7 @@ void Screen::exitPlayer(class Player * player) {
 	}
 }
 
-void Screen::updatePlayer(class Player * player) {
+void Zone::updatePlayer(class Player * player) {
 	for(int id : this->players) {
 		class Player * p = this->getPlayer(id);
 		if(p) p->updatePlayer(player);
@@ -197,7 +197,7 @@ void Screen::updatePlayer(class Player * player) {
 
 /* Private */
 
-class Player * Screen::getPlayer(int id) {
+class Player * Zone::getPlayer(int id) {
 	class Player * player = this->server->getPlayer(id);
 	if(player != nullptr) {
 		return(player);
@@ -207,12 +207,12 @@ class Player * Screen::getPlayer(int id) {
 	}
 }
 
-class Place * Screen::getPlace(int x, int y) {
+class Place * Zone::getPlace(int x, int y) {
 	if(this->isPlaceValid(x,y)) {
 		return(&(this->places[y*this->width+x]));
 	} else {
 		warning(
-			"In screen "
+			"In zone "
 			+ this->name
 			+ ": invalid place "
 			+ std::to_string(x)
@@ -224,7 +224,7 @@ class Place * Screen::getPlace(int x, int y) {
 	}
 }
 
-void Screen::updateTile(int x, int y) {
+void Zone::updateTile(int x, int y) {
 	class Place * place = this->getPlace(x,y);
 	if(place) {
 		Aspect aspect = place->getAspect();

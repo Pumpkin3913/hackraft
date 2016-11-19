@@ -1,7 +1,7 @@
 #include "luawrapper.h"
 #include "server.h"
 #include "tile.h"
-#include "screen.h"
+#include "zone.h"
 #include "player.h"
 #include "gauge.h"
 #include "error.h"
@@ -131,12 +131,12 @@ int l_get_port(lua_State * lua) {
 	return(1);
 }
 
-int l_delete_screen(lua_State * lua) {
+int l_delete_zone(lua_State * lua) {
 	if(not lua_isstring(lua, 1)) {
-		lua_arg_error("delete_screen(screen_id)");
+		lua_arg_error("delete_zone(zone_id)");
 	} else {
 		std::string id = lua_tostring(lua, 1);
-		Luawrapper::server->delScreen(id);
+		Luawrapper::server->delZone(id);
 	}
 	return(0);
 }
@@ -317,25 +317,25 @@ int l_tile_setcanland(lua_State * lua) {
 	return(0);
 }
 
-/* Screen */
+/* Zone */
 
-int l_new_screen(lua_State * lua) {
+int l_new_zone(lua_State * lua) {
 	if(not lua_isstring(lua, 1)
 			or not lua_isstring(lua, 2)
 			or not lua_isnumber(lua, 3)
 			or not lua_isnumber(lua, 4)
 			or not lua_isstring(lua, 5)) {
-		lua_arg_error("new_screen(screen_id, name, width, height, tile_id)");
+		lua_arg_error("new_zone(zone_id, name, width, height, tile_id)");
 	} else {
-		std::string screen_id = lua_tostring(lua, 1);
+		std::string zone_id = lua_tostring(lua, 1);
 		std::string name = lua_tostring(lua, 2);
 		unsigned int width = lua_tointeger(lua, 3);
 		unsigned int height = lua_tointeger(lua, 4);
 		std::string tile_id = lua_tostring(lua, 5);
 		class Tile * tile = Luawrapper::server->getTile(tile_id);
 		if(tile != nullptr) {
-			new Screen(Luawrapper::server,
-					screen_id, name, width, height, tile);
+			new Zone(Luawrapper::server,
+					zone_id, name, width, height, tile);
 		} else {
 			warning("Tile '"+tile_id+"' doesn't exist.");
 		}
@@ -343,14 +343,14 @@ int l_new_screen(lua_State * lua) {
 	return(0);
 }
 
-int l_assert_screen(lua_State * lua) {
+int l_assert_zone(lua_State * lua) {
 	if(not lua_isstring(lua, 1)) {
-		lua_arg_error("assert_screen(screen_id)");
+		lua_arg_error("assert_zone(zone_id)");
 		lua_pushnil(lua);
 	} else {
-		std::string screen_id = lua_tostring(lua, 1);
-		class Screen * screen = Luawrapper::server->getScreen(screen_id);
-		if(screen == nullptr) {
+		std::string zone_id = lua_tostring(lua, 1);
+		class Zone * zone = Luawrapper::server->getZone(zone_id);
+		if(zone == nullptr) {
 			lua_pushboolean(lua, false);
 		} else {
 			lua_pushboolean(lua, true);
@@ -359,272 +359,272 @@ int l_assert_screen(lua_State * lua) {
 	return(1);
 }
 
-int l_screen_getname(lua_State * lua) {
+int l_zone_getname(lua_State * lua) {
 	if(not lua_isstring(lua, 1)) {
-		lua_arg_error("screen_getname(screen_id)");
+		lua_arg_error("zone_getname(zone_id)");
 		lua_pushnil(lua);
 	} else {
-		std::string screen_id = lua_tostring(lua, 1);
-		class Screen * screen = Luawrapper::server->getScreen(screen_id);
-		if(screen != nullptr) {
-			lua_pushstring(lua, screen->getName().c_str());
+		std::string zone_id = lua_tostring(lua, 1);
+		class Zone * zone = Luawrapper::server->getZone(zone_id);
+		if(zone != nullptr) {
+			lua_pushstring(lua, zone->getName().c_str());
 		} else {
-			warning("Screen '"+screen_id+"' doesn't exist.");
+			warning("Zone '"+zone_id+"' doesn't exist.");
 			lua_pushnil(lua);
 		}
 	}
 	return(1);
 }
 
-int l_screen_setname(lua_State * lua) {
+int l_zone_setname(lua_State * lua) {
 	if(not lua_isstring(lua, 1) or not lua_isstring(lua, 2)) {
-		lua_arg_error("screen_setname(screen_id, name)");
+		lua_arg_error("zone_setname(zone_id, name)");
 	} else {
-		std::string screen_id = lua_tostring(lua, 1);
-		class Screen * screen = Luawrapper::server->getScreen(screen_id);
-		if(screen != nullptr) {
+		std::string zone_id = lua_tostring(lua, 1);
+		class Zone * zone = Luawrapper::server->getZone(zone_id);
+		if(zone != nullptr) {
 			std::string name = lua_tostring(lua, 2);
-			screen->setName(name);
+			zone->setName(name);
 		} else {
-			warning("Screen '"+screen_id+"' doesn't exist.");
+			warning("Zone '"+zone_id+"' doesn't exist.");
 		}
 	}
 	return(0);
 }
 
-int l_screen_getwidth(lua_State * lua) {
+int l_zone_getwidth(lua_State * lua) {
 	if(not lua_isstring(lua, 1)) {
-		lua_arg_error("screen_getwidth(screen_id)");
+		lua_arg_error("zone_getwidth(zone_id)");
 		lua_pushnil(lua);
 	} else {
-		std::string screen_id = lua_tostring(lua, 1);
-		class Screen * screen = Luawrapper::server->getScreen(screen_id);
-		if(screen != nullptr) {
-			lua_pushinteger(lua, screen->getWidth());
+		std::string zone_id = lua_tostring(lua, 1);
+		class Zone * zone = Luawrapper::server->getZone(zone_id);
+		if(zone != nullptr) {
+			lua_pushinteger(lua, zone->getWidth());
 		} else {
-			warning("Screen '"+screen_id+"' doesn't exist.");
+			warning("Zone '"+zone_id+"' doesn't exist.");
 			lua_pushnil(lua);
 		}
 	}
 	return(1);
 }
 
-int l_screen_getheight(lua_State * lua) {
+int l_zone_getheight(lua_State * lua) {
 	if(not lua_isstring(lua, 1)) {
-		lua_arg_error("screen_getheight(screen_id)");
+		lua_arg_error("zone_getheight(zone_id)");
 		lua_pushnil(lua);
 	} else {
-		std::string screen_id = lua_tostring(lua, 1);
-		class Screen * screen = Luawrapper::server->getScreen(screen_id);
-		if(screen != nullptr) {
-			lua_pushinteger(lua, screen->getHeight());
+		std::string zone_id = lua_tostring(lua, 1);
+		class Zone * zone = Luawrapper::server->getZone(zone_id);
+		if(zone != nullptr) {
+			lua_pushinteger(lua, zone->getHeight());
 		} else {
-			warning("Screen '"+screen_id+"' doesn't exist.");
+			warning("Zone '"+zone_id+"' doesn't exist.");
 			lua_pushnil(lua);
 		}
 	}
 	return(1);
 }
 
-int l_screen_gettile(lua_State * lua) {
+int l_zone_gettile(lua_State * lua) {
 	if(not lua_isstring(lua, 1)
 			or not lua_isnumber(lua, 2)
 			or not lua_isnumber(lua, 3)) {
-		lua_arg_error("screen_gettile(screen_id, x, y)");
+		lua_arg_error("zone_gettile(zone_id, x, y)");
 		lua_pushnil(lua);
 	} else {
-		std::string screen_id = lua_tostring(lua, 1);
-		class Screen * screen = Luawrapper::server->getScreen(screen_id);
-		if(screen != nullptr) {
+		std::string zone_id = lua_tostring(lua, 1);
+		class Zone * zone = Luawrapper::server->getZone(zone_id);
+		if(zone != nullptr) {
 			unsigned int x = lua_tointeger(lua, 2);
 			unsigned int y = lua_tointeger(lua, 3);
-			class Tile * tile = screen->getTile(x, y);
+			class Tile * tile = zone->getTile(x, y);
 			if(tile != nullptr) {
 				lua_pushstring(lua, tile->getId().c_str());
 			} else {
 				warning("Invalid place "
 					+ std::to_string(x) + "-" + std::to_string(y)
-					+ " in screen '" + screen_id + "'.");
+					+ " in zone '" + zone_id + "'.");
 				lua_pushnil(lua);
 			}
 		} else {
-			warning("Screen '"+screen_id+"' doesn't exist.");
+			warning("Zone '"+zone_id+"' doesn't exist.");
 			lua_pushnil(lua);
 		}
 	}
 	return(1);
 }
 
-int l_screen_settile(lua_State * lua) {
+int l_zone_settile(lua_State * lua) {
 	if(not lua_isstring(lua, 1)
 			or not lua_isnumber(lua, 2)
 			or not lua_isnumber(lua, 3)
 			or not lua_isstring(lua, 4)) {
-		lua_arg_error("screen_settile(screen_id, x, y, tile_id)");
+		lua_arg_error("zone_settile(zone_id, x, y, tile_id)");
 	} else {
-		std::string screen_id = lua_tostring(lua, 1);
-		class Screen * screen = Luawrapper::server->getScreen(screen_id);
-		if(screen != nullptr) {
+		std::string zone_id = lua_tostring(lua, 1);
+		class Zone * zone = Luawrapper::server->getZone(zone_id);
+		if(zone != nullptr) {
 			std::string tile_id = lua_tostring(lua, 4);
 			class Tile * tile = Luawrapper::server->getTile(tile_id);
 			if(tile != nullptr) {
 				unsigned int x = lua_tointeger(lua, 2);
 				unsigned int y = lua_tointeger(lua, 3);
-				screen->setTile(x, y, tile);
+				zone->setTile(x, y, tile);
 			} else {
 				warning("Tile '"+tile_id+"' doesn't exist.");
 			}
 		} else {
-			warning("Screen '"+screen_id+"' doesn't exist.");
+			warning("Zone '"+zone_id+"' doesn't exist.");
 		}
 	}
 	return(0);
 }
 
-int l_screen_getlandon(lua_State * lua) {
+int l_zone_getlandon(lua_State * lua) {
 	if(not lua_isstring(lua, 1)
 			or not lua_isnumber(lua, 2)
 			or not lua_isnumber(lua, 3)) {
-		lua_arg_error("screen_getlandon(screen_id, x, y)");
+		lua_arg_error("zone_getlandon(zone_id, x, y)");
 		lua_pushnil(lua);
 	} else {
-		std::string screen_id = lua_tostring(lua, 1);
-		class Screen * screen = Luawrapper::server->getScreen(screen_id);
-		if(screen != nullptr) {
+		std::string zone_id = lua_tostring(lua, 1);
+		class Zone * zone = Luawrapper::server->getZone(zone_id);
+		if(zone != nullptr) {
 			unsigned int x = lua_tointeger(lua, 2);
 			unsigned int y = lua_tointeger(lua, 3);
-			std::string * script = screen->getLandOn(x, y);
+			std::string * script = zone->getLandOn(x, y);
 			if(script != nullptr) {
 				lua_pushstring(lua, script->c_str());
 			} else {
 				lua_pushnil(lua);
 			}
 		} else {
-			warning("Screen '"+screen_id+"' doesn't exist.");
+			warning("Zone '"+zone_id+"' doesn't exist.");
 			lua_pushnil(lua);
 		}
 	}
 	return(1);
 }
 
-int l_screen_setlandon(lua_State * lua) {
+int l_zone_setlandon(lua_State * lua) {
 	if(not lua_isstring(lua, 1)
 			or not lua_isnumber(lua, 2)
 			or not lua_isnumber(lua, 3)
 			or not lua_isstring(lua, 4)) {
-		lua_arg_error("screen_setlandon(screen_id, x, y, script)");
+		lua_arg_error("zone_setlandon(zone_id, x, y, script)");
 	} else {
-		std::string screen_id = lua_tostring(lua, 1);
-		class Screen * screen = Luawrapper::server->getScreen(screen_id);
-		if(screen != nullptr) {
+		std::string zone_id = lua_tostring(lua, 1);
+		class Zone * zone = Luawrapper::server->getZone(zone_id);
+		if(zone != nullptr) {
 			unsigned int x = lua_tointeger(lua, 2);
 			unsigned int y = lua_tointeger(lua, 3);
 			std::string script = lua_tostring(lua, 4);
-			screen->setLandOn(x, y, script);
+			zone->setLandOn(x, y, script);
 		} else {
-			warning("Screen '"+screen_id+"' doesn't exist.");
+			warning("Zone '"+zone_id+"' doesn't exist.");
 		}
 	}
 	return(0);
 }
 
-int l_screen_resetlandon(lua_State * lua) {
+int l_zone_resetlandon(lua_State * lua) {
 	if(not lua_isstring(lua, 1)
 			or not lua_isnumber(lua, 2)
 			or not lua_isnumber(lua, 3)) {
-		lua_arg_error("screen_resetlandon(screen_id, x, y)");
+		lua_arg_error("zone_resetlandon(zone_id, x, y)");
 	} else {
-		std::string screen_id = lua_tostring(lua, 1);
-		class Screen * screen = Luawrapper::server->getScreen(screen_id);
-		if(screen != nullptr) {
+		std::string zone_id = lua_tostring(lua, 1);
+		class Zone * zone = Luawrapper::server->getZone(zone_id);
+		if(zone != nullptr) {
 			unsigned int x = lua_tointeger(lua, 2);
 			unsigned int y = lua_tointeger(lua, 3);
-			screen->resetLandOn(x, y);
+			zone->resetLandOn(x, y);
 		} else {
-			warning("Screen '"+screen_id+"' doesn't exist.");
+			warning("Zone '"+zone_id+"' doesn't exist.");
 		}
 	}
 	return(0);
 }
 
-int l_screen_gettag(lua_State * lua) {
+int l_zone_gettag(lua_State * lua) {
 	if(not lua_isstring(lua, 1)
 			or not lua_isnumber(lua, 2)
 			or not lua_isnumber(lua, 3)
 			or not lua_isstring(lua, 3)) {
-		lua_arg_error("screen_gettag(screen_id, x, y, tag_id)");
+		lua_arg_error("zone_gettag(zone_id, x, y, tag_id)");
 		lua_pushnil(lua);
 	} else {
-		std::string screen_id = lua_tostring(lua, 1);
-		class Screen * screen = Luawrapper::server->getScreen(screen_id);
-		if(screen != nullptr) {
+		std::string zone_id = lua_tostring(lua, 1);
+		class Zone * zone = Luawrapper::server->getZone(zone_id);
+		if(zone != nullptr) {
 			int x = lua_tointeger(lua, 2);
 			int y = lua_tointeger(lua, 3);
 			std::string tag_id = lua_tostring(lua, 4);
-			lua_pushstring(lua, screen->getTag(x, y, tag_id).c_str());
+			lua_pushstring(lua, zone->getTag(x, y, tag_id).c_str());
 		} else {
-			warning("Screen '"+screen_id+"' doesn't exist.");
+			warning("Zone '"+zone_id+"' doesn't exist.");
 			lua_pushnil(lua);
 		}
 	}
 	return(1);
 }
 
-int l_screen_settag(lua_State * lua) {
+int l_zone_settag(lua_State * lua) {
 	if(not lua_isstring(lua, 1)
 			or not lua_isnumber(lua, 2)
 			or not lua_isnumber(lua, 3)
 			or not lua_isstring(lua, 4)
 			or not lua_isstring(lua, 5)) {
-		lua_arg_error("screen_settag(screen_id, x, y, tag_id, value)");
+		lua_arg_error("zone_settag(zone_id, x, y, tag_id, value)");
 	} else {
-		std::string screen_id = lua_tostring(lua, 1);
-		class Screen * screen = Luawrapper::server->getScreen(screen_id);
-		if(screen != nullptr) {
+		std::string zone_id = lua_tostring(lua, 1);
+		class Zone * zone = Luawrapper::server->getZone(zone_id);
+		if(zone != nullptr) {
 			int x = lua_tointeger(lua, 2);
 			int y = lua_tointeger(lua, 3);
 			std::string tag_id = lua_tostring(lua, 4);
 			std::string value = lua_tostring(lua, 5);
-			screen->setTag(x, y, tag_id, value);
+			zone->setTag(x, y, tag_id, value);
 		} else {
-			warning("Screen '"+screen_id+"' doesn't exist.");
+			warning("Zone '"+zone_id+"' doesn't exist.");
 		}
 	}
 	return(0);
 }
 
-int l_screen_deltag(lua_State * lua) {
+int l_zone_deltag(lua_State * lua) {
 	if(not lua_isstring(lua, 1)
 			or not lua_isnumber(lua, 2)
 			or not lua_isnumber(lua, 3)
 			or not lua_isstring(lua, 4)) {
-		lua_arg_error("screen_deltag(screen_id, x, y, tag_id)");
+		lua_arg_error("zone_deltag(zone_id, x, y, tag_id)");
 	} else {
-		std::string screen_id = lua_tostring(lua, 1);
-		class Screen * screen = Luawrapper::server->getScreen(screen_id);
-		if(screen != nullptr) {
+		std::string zone_id = lua_tostring(lua, 1);
+		class Zone * zone = Luawrapper::server->getZone(zone_id);
+		if(zone != nullptr) {
 			int x = lua_tointeger(lua, 2);
 			int y = lua_tointeger(lua, 3);
 			std::string tag_id = lua_tostring(lua, 4);
-			screen->delTag(x, y, tag_id);
+			zone->delTag(x, y, tag_id);
 		} else {
-			warning("Screen '"+screen_id+"' doesn't exist.");
+			warning("Zone '"+zone_id+"' doesn't exist.");
 		}
 	}
 	return(0);
 }
 
-int l_screen_event(lua_State * lua) {
+int l_zone_event(lua_State * lua) {
 	if(not lua_isstring(lua, 1) or not lua_isstring(lua, 2)) {
-		lua_arg_error("screen_event(screen_id, message)");
+		lua_arg_error("zone_event(zone_id, message)");
 	} else {
-		std::string screen_id = lua_tostring(lua, 1);
-		class Screen * screen = Luawrapper::server->getScreen(screen_id);
-		if(screen != nullptr) {
+		std::string zone_id = lua_tostring(lua, 1);
+		class Zone * zone = Luawrapper::server->getZone(zone_id);
+		if(zone != nullptr) {
 			std::string message = lua_tostring(lua, 2);
-			screen->event(message);
+			zone->event(message);
 		} else {
-			warning("Screen '"+screen_id+"' doesn't exist.");
+			warning("Zone '"+zone_id+"' doesn't exist.");
 		}
 	}
 	return(0);
@@ -668,19 +668,19 @@ int l_player_spawn(lua_State * lua) {
 			or not lua_isstring(lua, 2)
 			or not lua_isnumber(lua, 3)
 			or not lua_isnumber(lua, 4)) {
-		lua_arg_error("player_spawn(player_id, screen_id, x, y)");
+		lua_arg_error("player_spawn(player_id, zone_id, x, y)");
 	} else {
 		int player_id = lua_tointeger(lua, 1);
 		class Player * player = Luawrapper::server->getPlayer(player_id);
 		if(player != nullptr) {
-			std::string screen_id = lua_tostring(lua, 2);
-			class Screen * screen = Luawrapper::server->getScreen(screen_id);
-			if(screen != nullptr) {
+			std::string zone_id = lua_tostring(lua, 2);
+			class Zone * zone = Luawrapper::server->getZone(zone_id);
+			if(zone != nullptr) {
 				int x = lua_tointeger(lua, 3);
 				int y = lua_tointeger(lua, 4);
-				player->spawn(screen, x, y);
+				player->spawn(zone, x, y);
 			} else {
-				warning("Screen '"+screen_id+"' doesn't exist.");
+				warning("Zone '"+zone_id+"' doesn't exist.");
 			}
 		} else {
 			warning("Player '"+std::to_string(player_id)+"' doesn't exist.");
@@ -755,15 +755,15 @@ int l_player_setaspect(lua_State * lua) {
 	return(0);
 }
 
-int l_player_getscreen(lua_State * lua) {
+int l_player_getzone(lua_State * lua) {
 	if(not lua_isnumber(lua, 1)) {
-		lua_arg_error("player_getscreen(player_id)");
+		lua_arg_error("player_getzone(player_id)");
 		lua_pushnil(lua);
 	} else {
 		int player_id = lua_tointeger(lua, 1);
 		class Player * player = Luawrapper::server->getPlayer(player_id);
 		if(player != nullptr) {
-			lua_pushstring(lua, player->getScreen()->getId().c_str());
+			lua_pushstring(lua, player->getZone()->getId().c_str());
 		} else {
 			warning("Player '"+std::to_string(player_id)+"' doesn't exist.");
 			lua_pushnil(lua);
@@ -844,24 +844,24 @@ int l_player_move(lua_State * lua) {
 	return(0);
 }
 
-int l_player_changescreen(lua_State * lua) {
+int l_player_changezone(lua_State * lua) {
 	if(not lua_isnumber(lua, 1)
 			or not lua_isstring(lua, 2)
 			or not lua_isnumber(lua, 3)
 			or not lua_isnumber(lua, 4)) {
-		lua_arg_error("player_changescreen(player_id, screen_id, x, y)");
+		lua_arg_error("player_changezone(player_id, zone_id, x, y)");
 	} else {
 		int player_id = lua_tointeger(lua, 1);
 		class Player * player = Luawrapper::server->getPlayer(player_id);
 		if(player != nullptr) {
-			std::string screen_id = lua_tostring(lua, 2);
-			class Screen * screen = Luawrapper::server->getScreen(screen_id);
-			if(screen != nullptr) {
+			std::string zone_id = lua_tostring(lua, 2);
+			class Zone * zone = Luawrapper::server->getZone(zone_id);
+			if(zone != nullptr) {
 				int x = lua_tointeger(lua, 3);
 				int y = lua_tointeger(lua, 4);
-				player->changeScreen(screen, x, y);
+				player->changeZone(zone, x, y);
 			} else {
-				warning("Screen '"+screen_id+"' doesn't exist.");
+				warning("Zone '"+zone_id+"' doesn't exist.");
 			}
 		} else {
 			warning("Player '"+std::to_string(player_id)+"' doesn't exist.");
@@ -1542,7 +1542,7 @@ Luawrapper::Luawrapper(class Server * server) :
 	lua_register(this->lua_state, "close", l_close);
 	lua_register(this->lua_state, "is_open", l_is_open);
 	lua_register(this->lua_state, "get_port", l_get_port);
-	lua_register(this->lua_state, "delete_screen", l_delete_screen);
+	lua_register(this->lua_state, "delete_zone", l_delete_zone);
 	lua_register(this->lua_state, "add_script", l_add_script);
 	lua_register(this->lua_state, "get_script", l_get_script);
 	lua_register(this->lua_state, "delete_script", l_delete_script);
@@ -1556,22 +1556,22 @@ Luawrapper::Luawrapper(class Server * server) :
 	lua_register(this->lua_state, "tile_canland", l_tile_canland);
 	lua_register(this->lua_state, "tile_setcanland", l_tile_setcanland);
 
-	lua_register(this->lua_state, "new_screen", l_new_screen);
-	lua_register(this->lua_state, "assert_screen", l_assert_screen);
-	lua_register(this->lua_state, "screen_getname", l_screen_getname);
-	lua_register(this->lua_state, "screen_setname", l_screen_setname);
-	lua_register(this->lua_state, "screen_getwidth", l_screen_getwidth);
-	lua_register(this->lua_state, "screen_getheight", l_screen_getheight);
-	lua_register(this->lua_state, "screen_gettile", l_screen_gettile);
-	lua_register(this->lua_state, "screen_settile", l_screen_settile);
+	lua_register(this->lua_state, "new_zone", l_new_zone);
+	lua_register(this->lua_state, "assert_zone", l_assert_zone);
+	lua_register(this->lua_state, "zone_getname", l_zone_getname);
+	lua_register(this->lua_state, "zone_setname", l_zone_setname);
+	lua_register(this->lua_state, "zone_getwidth", l_zone_getwidth);
+	lua_register(this->lua_state, "zone_getheight", l_zone_getheight);
+	lua_register(this->lua_state, "zone_gettile", l_zone_gettile);
+	lua_register(this->lua_state, "zone_settile", l_zone_settile);
 
-	lua_register(this->lua_state, "screen_getlandon", l_screen_getlandon);
-	lua_register(this->lua_state, "screen_setlandon", l_screen_setlandon);
-	lua_register(this->lua_state, "screen_resetlandon", l_screen_resetlandon);
-	lua_register(this->lua_state, "screen_gettag", l_screen_gettag);
-	lua_register(this->lua_state, "screen_settag", l_screen_settag);
-	lua_register(this->lua_state, "screen_deltag", l_screen_deltag);
-	lua_register(this->lua_state, "screen_event", l_screen_event);
+	lua_register(this->lua_state, "zone_getlandon", l_zone_getlandon);
+	lua_register(this->lua_state, "zone_setlandon", l_zone_setlandon);
+	lua_register(this->lua_state, "zone_resetlandon", l_zone_resetlandon);
+	lua_register(this->lua_state, "zone_gettag", l_zone_gettag);
+	lua_register(this->lua_state, "zone_settag", l_zone_settag);
+	lua_register(this->lua_state, "zone_deltag", l_zone_deltag);
+	lua_register(this->lua_state, "zone_event", l_zone_event);
 
 	lua_register(this->lua_state, "delete_player", l_delete_player);
 	lua_register(this->lua_state, "assert_player", l_assert_player);
@@ -1580,12 +1580,12 @@ Luawrapper::Luawrapper(class Server * server) :
 	lua_register(this->lua_state, "player_setname", l_player_setname);
 	lua_register(this->lua_state, "player_getaspect", l_player_getaspect);
 	lua_register(this->lua_state, "player_setaspect", l_player_setaspect);
-	lua_register(this->lua_state, "player_getscreen", l_player_getscreen);
+	lua_register(this->lua_state, "player_getzone", l_player_getzone);
 	lua_register(this->lua_state, "player_getx", l_player_getx);
 	lua_register(this->lua_state, "player_gety", l_player_gety);
 	lua_register(this->lua_state, "player_setxy", l_player_setxy);
 	lua_register(this->lua_state, "player_move", l_player_move);
-	lua_register(this->lua_state, "player_changescreen", l_player_changescreen);
+	lua_register(this->lua_state, "player_changezone", l_player_changezone);
 	lua_register(this->lua_state, "player_getondeath", l_player_getondeath);
 	lua_register(this->lua_state, "player_setondeath", l_player_setondeath);
 	// lua_register(this->lua_state, "player_getgauge", l_player_getgauge);

@@ -13,7 +13,7 @@ open(port)
 close()
 is_open() -> bool
 get_port() -> int
-delete_screen(screen_id)
+delete_zone(zone_id)
 
 add_script(command, filename)
 get_script(command) -> string | nil
@@ -30,36 +30,36 @@ tile_canland(tile_id) -> bool | nil
 tile_setcanland(tile_id, bool)
 -- list_tiles()
 
-new_screen(id, name, width, height, tile_id)
-assert_screen(screen_id) -> bool
-screen_getname(screen_id) -> string | nil
-screen_setname(screen_id, name)
-screen_getwidth(screen_id) -> int | nil
-screen_getheight(screen_id) -> int | nil
-screen_gettile(screen_id, x, y) -> string | nil
-screen_settile(screen_id, x, y, tile_id)
--- screen_getplayer(screen, id)
-screen_getlandon(screen_id, x, y) -> string | nil
-screen_setlandon(screen_id, x, y, script)
-screen_resetlandon(screen_id, x, y)
-screen_gettag(screen_id, x, y, tag_id)
-screen_settag(screen_id, x, y, tag_id, value)
-screen_deltag(screen_id, x, y, tag_id)
-screen_event(screen_id, message)
+new_zone(id, name, width, height, tile_id)
+assert_zone(zone_id) -> bool
+zone_getname(zone_id) -> string | nil
+zone_setname(zone_id, name)
+zone_getwidth(zone_id) -> int | nil
+zone_getheight(zone_id) -> int | nil
+zone_gettile(zone_id, x, y) -> string | nil
+zone_settile(zone_id, x, y, tile_id)
+-- zone_getplayer(zone, id)
+zone_getlandon(zone_id, x, y) -> string | nil
+zone_setlandon(zone_id, x, y, script)
+zone_resetlandon(zone_id, x, y)
+zone_gettag(zone_id, x, y, tag_id)
+zone_settag(zone_id, x, y, tag_id, value)
+zone_deltag(zone_id, x, y, tag_id)
+zone_event(zone_id, message)
 
 delete_player(player_id)
 assert_player(player_id) -> bool | nil
-player_spawn(player_id, screen_id, x, y)
+player_spawn(player_id, zone_id, x, y)
 player_getname(player_id) -> string | nil
 player_setname(player_id, name)
 player_getaspect(player_id) -> int | nil
 player_setaspect(player_id, aspect)
-player_getscreen(player_id) -> string | nil
+player_getzone(player_id) -> string | nil
 player_getx(player_id) -> int | nil
 player_gety(player_id) -> int | nil
 player_setxy(player_id, x, y)
 player_move(player_id, x_shift, y_shift)
-player_changescreen(player_id, screen_id, x, y)
+player_changezone(player_id, zone_id, x, y)
 player_getondeath(player_id) -> string | nil
 player_setondeath(player_id, script)
 -- player_getgauge(player_id, gauge_id)

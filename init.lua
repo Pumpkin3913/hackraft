@@ -17,25 +17,25 @@ new_tile("spikes", "iron spikes", string.byte('"'))
 verbose("Tiles created...")
 
 -- Entrance
-new_screen("entrance", "Entrance", 11, 11, "floor")
-screen_settile("entrance", 5, 3, "portal")
-screen_settile("entrance", 5, 7, "portal")
-screen_setlandon("entrance", 5, 7, "scripts/plop.lua")
+new_zone("entrance", "Entrance", 11, 11, "floor")
+zone_settile("entrance", 5, 3, "portal")
+zone_settile("entrance", 5, 7, "portal")
+zone_setlandon("entrance", 5, 7, "scripts/plop.lua")
 
 -- Test Room
 local testroom_height = 11;
-new_screen("testroom", "Test Room", 20, testroom_height, "floor")
-screen_settile("testroom", 3, 3, "portal")
-screen_setlandon("testroom", 3, 3, "scripts/plop.lua")
+new_zone("testroom", "Test Room", 20, testroom_height, "floor")
+zone_settile("testroom", 3, 3, "portal")
+zone_setlandon("testroom", 3, 3, "scripts/plop.lua")
 for i=0, testroom_height-1, 1 do
-	screen_settile("testroom", 7, i, "wall")
+	zone_settile("testroom", 7, i, "wall")
 end
-screen_settile("testroom", 7, testroom_height/2, "door")
-screen_settile("testroom", 13, 5, "spikes")
-screen_setlandon("testroom", 13, 5, "scripts/spikes.lua")
+zone_settile("testroom", 7, testroom_height/2, "door")
+zone_settile("testroom", 13, 5, "spikes")
+zone_setlandon("testroom", 13, 5, "scripts/spikes.lua")
 
 -- Graveyard
-new_screen("graveyard", "Graveyard", 30, 30, "floor")
+new_zone("graveyard", "Graveyard", 30, 30, "floor")
 
 verbose("PLOP")
 

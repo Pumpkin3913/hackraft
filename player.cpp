@@ -1,6 +1,6 @@
 #include "player.h"
 
-#include "screen.h"
+#include "zone.h"
 #include "tile.h"
 #include "server.h"
 #include "gauge.h"
@@ -85,8 +85,8 @@ void Player::parse() {
 		}
 
 		if(cmd[0] == '/') {
-			if(this->screen) {
-				this->screen->getServer()->exeScript(cmd.substr(1), this, arg);
+			if(this->zone) {
+				this->zone->getServer()->exeScript(cmd.substr(1), this, arg);
 			}
 		} else if(cmd == "move") {
 			signed int xShift = 0;
@@ -107,8 +107,8 @@ void Player::parse() {
 				this->move(xShift, yShift);
 			}
 		} else if(cmd == "say") {
-			if(this->screen) {
-				this->screen->event(this->name+" say "+arg);
+			if(this->zone) {
+				this->zone->event(this->name+" say "+arg);
 			}
 		} else if(cmd == "quit") {
 			this->stop = true;
@@ -127,7 +127,7 @@ Player::Player(
 	id(fd),
 	name(name),
 	aspect(aspect),
-	screen(nullptr),
+	zone(nullptr),
 	x(0),
 	y(0),
 	onDeath(""),
@@ -143,14 +143,14 @@ Player::Player(
 
 Player::~Player() {
 	verbose_info("Player "+std::to_string(this->getId())+" deleted.");
-	if(this->screen) {
+	if(this->zone) {
 		if(this->onDeath != "") {
 			std::string script = this->onDeath;
 			this->onDeath = "";
-			this->screen->getServer()->getLua()->executeFile(script, this);
+			this->zone->getServer()->getLua()->executeFile(script, this);
 		}
-		this->screen->exitPlayer(this);
-		this->screen->getServer()->remPlayer(id);
+		this->zone->exitPlayer(this);
+		this->zone->getServer()->remPlayer(id);
 	}
 	for(auto it : this->gauges) {
 		delete(it.second);
@@ -164,10 +164,10 @@ Player::~Player() {
 	}
 }
 
-void Player::spawn(class Screen * screen, int x, int y) {
+void Player::spawn(class Zone * zone, int x, int y) {
 	if(!this->loopThread) {
-		this->screen = screen;
-		this->screen->enterPlayer(this, x, y);
+		this->zone = zone;
+		this->zone->enterPlayer(this, x, y);
 		this->loopThread = new std::thread(&Player::loopFunction, this);
 		this->follow(this);
 		verbose_info("Player "+std::to_string(this->getId())
@@ -193,13 +193,13 @@ Aspect Player::getAspect() {
 
 void Player::setAspect(Aspect aspect) {
 	this->aspect = aspect;
-	if(this->screen) {
-		this->screen->updatePlayer(this);
+	if(this->zone) {
+		this->zone->updatePlayer(this);
 	}
 }
 
-class Screen * Player::getScreen() {
-	return(this->screen);
+class Zone * Player::getZone() {
+	return(this->zone);
 }
 
 unsigned int Player::getX() {
@@ -213,33 +213,33 @@ unsigned int Player::getY() {
 void Player::setXY(int x, int y) {
 	this->x = x;
 	this->y = y;
-	if(this->screen) {
-		this->screen->updatePlayer(this);
+	if(this->zone) {
+		this->zone->updatePlayer(this);
 	}
 }
 
 void Player::move(int xShift, int yShift) {
 	int new_x = this->x + xShift;
 	int new_y = this->y + yShift;
-	if(this->screen and new_x >= 0 and new_y >= 0
-			and this->screen->isPlaceValid((unsigned) new_x, (unsigned) new_y)) {
-		if(this->ghost or this->screen->canLandPlayer(this, new_x, new_y)) {
+	if(this->zone and new_x >= 0 and new_y >= 0
+			and this->zone->isPlaceValid((unsigned) new_x, (unsigned) new_y)) {
+		if(this->ghost or this->zone->canLandPlayer(this, new_x, new_y)) {
 			this->setXY(new_x, new_y);
 			// Trigger landon script.
 			std::string * script =
-				this->screen->getLandOn(new_x, new_y);
+				this->zone->getLandOn(new_x, new_y);
 			if(script != nullptr) {
-				this->screen->getServer()->getLua()->executeCode(*script, this);
+				this->zone->getServer()->getLua()->executeCode(*script, this);
 			}
 		}
 	}
 }
 
-void Player::changeScreen(class Screen * newScreen, int x, int y) {
-	if(this->screen) {
-		this->screen->exitPlayer(this);
-		this->screen = newScreen;
-		this->screen->enterPlayer(this, x, y);
+void Player::changeZone(class Zone * newZone, int x, int y) {
+	if(this->zone) {
+		this->zone->exitPlayer(this);
+		this->zone = newZone;
+		this->zone->enterPlayer(this, x, y);
 	}
 }
 
@@ -357,18 +357,18 @@ void Player::updateFloor() {
 	// floor <W> <H> <name>
 	this->send(
 			"floor "
-			+ std::to_string(this->screen->getWidth())
+			+ std::to_string(this->zone->getWidth())
 			+ " "
-			+ std::to_string(this->screen->getHeight())
+			+ std::to_string(this->zone->getHeight())
 			+ " "
-			+ this->screen->getName()
+			+ this->zone->getName()
 		  );
 
 	// Send tiles.
 	std::string toSend = "";
-	for(unsigned int y=0; y<this->screen->getHeight(); y++) {
-		for(unsigned int x=0; x<this->screen->getWidth(); x++) {
-			toSend += std::to_string(this->screen->getTile(x, y)->getAspect());
+	for(unsigned int y=0; y<this->zone->getHeight(); y++) {
+		for(unsigned int x=0; x<this->zone->getWidth(); x++) {
+			toSend += std::to_string(this->zone->getTile(x, y)->getAspect());
 			toSend += ",";
 		}
 	}

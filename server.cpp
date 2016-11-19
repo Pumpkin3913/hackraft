@@ -1,7 +1,7 @@
 #include "server.h"
 
 #include "player.h"
-#include "screen.h"
+#include "zone.h"
 #include "aspect.h"
 #include "tile.h"
 #include "luawrapper.h"
@@ -46,7 +46,7 @@ void Server::acceptLoop() {
 					Tile::defaultTile.getAspect());
 			this->addPlayer(player);
 			this->luawrapper->spawnScript(player);
-			if(player->getScreen() == nullptr) {
+			if(player->getZone() == nullptr) {
 				warning("Spawn script didn't call spawn().");
 				this->delPlayer(player->getId());
 			}
@@ -76,7 +76,7 @@ Server::~Server() {
 		this->_close();
 	}
 
-	for(std::pair<std::string, Screen*> it : this->screens) {
+	for(std::pair<std::string, Zone*> it : this->zones) {
 		delete(it.second);
 	}
 
@@ -170,23 +170,23 @@ unsigned short Server::getPort() {
 	}
 }
 
-// Automatically done by new Screen().
-void Server::addScreen(std::string id, class Screen * screen) {
-	if(this->getScreen(id) != nullptr) {
-		this->delScreen(id);
-		verbose_info("Screen '"+id+"' replaced.");
+// Automatically done by new Zone().
+void Server::addZone(std::string id, class Zone * zone) {
+	if(this->getZone(id) != nullptr) {
+		this->delZone(id);
+		verbose_info("Zone '"+id+"' replaced.");
 	}
-	this->screens[id] = screen;
+	this->zones[id] = zone;
 }
 
-class Screen * Server::getScreen(std::string id) {
-	return(this->screens[id]);
+class Zone * Server::getZone(std::string id) {
+	return(this->zones[id]);
 }
 
-void Server::delScreen(std::string id) {
-	if(this->screens[id] != nullptr) {
-		delete(this->screens[id]);
-		this->screens.erase(id);
+void Server::delZone(std::string id) {
+	if(this->zones[id] != nullptr) {
+		delete(this->zones[id]);
+		this->zones.erase(id);
 	}
 }
 

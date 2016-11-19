@@ -13,7 +13,7 @@ class Player;
 #include <vector>
 #include <list>
 
-class Screen {
+class Zone {
 	private:
 		class Server * server;
 		std::string id;
@@ -28,7 +28,7 @@ class Screen {
 		void updateTile(int x, int y);
 
 	public:
-		Screen(
+		Zone(
 			class Server * server,
 			std::string id,
 			std::string name,
@@ -36,7 +36,7 @@ class Screen {
 			unsigned int height,
 			class Tile * baseTile
 		);
-		~Screen();
+		~Zone();
 		class Server * getServer();
 		std::string getId();
 		std::string getName();
@@ -59,11 +59,11 @@ class Screen {
 
 		bool canLandPlayer(class Player * player, int x, int y);
 
-		// Add the player to the screen,
+		// Add the player to the zone,
 		// send him the floor and broadcast its position.
 		void enterPlayer(class Player * player, int x, int y);
 
-		// Remove the player from the screen and broadcast it.
+		// Remove the player from the zone and broadcast it.
 		void exitPlayer(class Player * player);
 
 		// Broadcast the new position and aspect of the player.

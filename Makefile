@@ -13,7 +13,7 @@ CXXFLAGS = $(DEBUG) $(ERROR) -std=c++14
 LDLIBS = -lstdc++ -lpthread -llua
 $(RM) = rm -f
 
-SRCS = main.cpp player.cpp screen.cpp server.cpp tile.cpp place.cpp error.cpp luawrapper.cpp gauge.cpp tagged.cpp
+SRCS = error.cpp gauge.cpp luawrapper.cpp main.cpp place.cpp player.cpp server.cpp tagged.cpp tile.cpp zone.cpp
 OBJS = $(SRCS:.cpp=.o)
 EXE = server
 

@@ -1,6 +1,6 @@
 #pragma once
 
-class Screen;
+class Zone;
 class Tile;
 class Luawrapper;
 class Player;
@@ -20,7 +20,7 @@ class Server {
 		int connexion_fd;
 		unsigned short port;
 		std::map<std::string, class Tile *> tiles;
-		std::map<std::string, class Screen *> screens;
+		std::map<std::string, class Zone *> zones;
 		std::map<int, class Player *> players;
 		std::map<std::string, std::string *> scripts;
 		std::thread * acceptThread;
@@ -36,9 +36,9 @@ class Server {
 		void _close();
 		bool isOpen();
 		unsigned short getPort();
-		void addScreen(std::string id, class Screen * screen); // Automatically done by new Screen().
-		class Screen * getScreen(std::string id);
-		void delScreen(std::string id);
+		void addZone(std::string id, class Zone * zone); // Automatically done by new Zone().
+		class Zone * getZone(std::string id);
+		void delZone(std::string id);
 		void addTile(class Tile * tile);
 		class Tile * getTile(std::string id); // May return nullptr.
 		// A Tile must never be removed before the destruction of the server.

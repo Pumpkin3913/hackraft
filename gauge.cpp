@@ -1,6 +1,6 @@
 #include "gauge.h"
 #include "player.h"
-#include "screen.h"
+#include "zone.h"
 #include "server.h"
 #include "luawrapper.h"
 
@@ -152,18 +152,18 @@ void Gauge::disapear() {
 
 void Gauge::exeFull() {
 	if(this->onFull != "") {
-		class Screen * screen = this->player->getScreen();
-		if(screen != nullptr) {
-			screen->getServer()->getLua()->executeFile(this->onFull, this->player);
+		class Zone * zone = this->player->getZone();
+		if(zone != nullptr) {
+			zone->getServer()->getLua()->executeFile(this->onFull, this->player);
 		}
 	}
 }
 
 void Gauge::exeEmpty() {
 	if(this->onEmpty != "") {
-		class Screen * screen = this->player->getScreen();
-		if(screen != nullptr) {
-			screen->getServer()->getLua()->executeFile(this->onEmpty, this->player);
+		class Zone * zone = this->player->getZone();
+		if(zone != nullptr) {
+			zone->getServer()->getLua()->executeFile(this->onEmpty, this->player);
 		}
 	}
 }
