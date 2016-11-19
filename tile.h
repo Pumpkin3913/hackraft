@@ -1,5 +1,4 @@
-#ifndef TILE_H
-#define TILE_H
+#pragma once
 
 #include <string>
 
@@ -26,5 +25,3 @@ class Tile {
 		static class Tile defaultTile;
 
 };
-
-#endif

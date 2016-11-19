@@ -1,5 +1,4 @@
-#ifndef TAGGED_H
-#define TAGGED_H
+#pragma once
 
 #include <string>
 #include <map>
@@ -12,5 +11,3 @@ class Tagged {
 		void setTag(std::string name, std::string value);
 		void delTag(std::string name);
 };
-
-#endif

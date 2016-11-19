@@ -1,8 +1,5 @@
-#ifndef ASPECT_H
-#define ASPECT_H
+#pragma once
 
 typedef unsigned int Aspect;
 
 const Aspect noAspect = 0;
-
-#endif

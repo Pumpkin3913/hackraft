@@ -1,5 +1,4 @@
-#ifndef SERVER_H
-#define SERVER_H
+#pragma once
 
 class Screen;
 class Tile;
@@ -54,5 +53,3 @@ class Server {
 		class Luawrapper * getLua();
 		void waitForTerminaison();
 };
-
-#endif

@@ -1,5 +1,4 @@
-#ifndef PLACE_H
-#define PLACE_H
+#pragma once
 
 #include <string>
 #include <list>
@@ -38,5 +37,3 @@ class Place : public Tagged {
 		void setLandOn(std::string script);
 		void resetLandOn();
 };
-
-#endif

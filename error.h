@@ -1,5 +1,4 @@
-#ifndef ERROR_H
-#define ERROR_H
+#pragma once
 
 #include <iostream>
 #include <string>
@@ -16,5 +15,3 @@ void fatal(std::string msg);
 void not_enough_memory();
 void info(std::string msg);
 void verbose_info(std::string msg);
-
-#endif

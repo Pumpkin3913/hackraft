@@ -1,5 +1,4 @@
-#ifndef PLAYER_H
-#define PLAYER_H
+#pragma once
 
 #include <string>
 #include <thread>
@@ -102,5 +101,3 @@ class Player : public Tagged {
 		void remPickupList(unsigned long int id);
 		void follow(class Player * player);
 };
-
-#endif

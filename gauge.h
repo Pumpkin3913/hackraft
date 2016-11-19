@@ -1,5 +1,4 @@
-#ifndef GAUGE_H
-#define GAUGE_H
+#pragma once
 
 #include <string>
 
@@ -52,5 +51,3 @@ class Gauge {
 		void setVisible();
 		void setNotVisible();
 };
-
-#endif

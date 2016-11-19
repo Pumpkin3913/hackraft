@@ -1,5 +1,4 @@
-#ifndef OBJECT_H
-#define OBJECT_H
+#pragma once
 
 #include "aspect.h"
 #include "tagged.h"
@@ -19,5 +18,3 @@ class Object : public Tagged {
 		Aspect getAspect();
 		void setAspect(Aspect aspect);
 };
-
-#endif

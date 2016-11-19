@@ -1,5 +1,4 @@
-#ifndef SCREEN_H
-#define SCREEN_H
+#pragma once
 
 class Place;
 class Server;
@@ -77,5 +76,3 @@ class Screen {
 		// Broadcast the new position and aspect of the player.
 		void updatePlayer(class Player * player);
 };
-
-#endif

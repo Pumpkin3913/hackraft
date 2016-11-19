@@ -1,5 +1,4 @@
-#ifndef LUAWRAPPER_H
-#define LUAWRAPPER_H
+#pragma once
 
 class Server;
 class Player;
@@ -27,5 +26,3 @@ class Luawrapper {
 		void executeCode(std::string code, class Player * player = nullptr);
 		void spawnScript(class Player * player);
 };
-
-#endif
