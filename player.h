@@ -9,7 +9,6 @@
 
 class Screen;
 class Gauge;
-class Object;
 
 // TODO : Invisible.
 // TODO : Unmovable.
@@ -25,7 +24,6 @@ class Player : public Tagged {
 		int y;
 		std::string onDeath;
 		std::map<std::string, class Gauge *> gauges;
-		std::map<unsigned long int, class Object *> objects;
 		bool ghost;
 /*
 		unsigned int movepoints;
@@ -61,9 +59,6 @@ class Player : public Tagged {
 		class Gauge * getGauge(std::string name); // May return nullptr.
 		void addGauge(class Gauge * gauge); // Only a new gauge can call it.
 		void delGauge(std::string name);
-		class Object * getObject(unsigned long int id); // Maux return nullptr.
-		void addObject(class Object * object);
-		void remObject(unsigned long int id); // Don't delete, remove only.
 
 		bool isGhost();
 		void setGhost();
@@ -86,8 +81,6 @@ class Player : public Tagged {
 		void updatePlayerExit(class Player * player);
 		void updateFloor();
 		void updateTile(unsigned int x, unsigned int y, Aspect aspect);
-		void updateObject(unsigned int x, unsigned int y, Aspect aspect);
-		void updateNoObject(unsigned int x, unsigned int y);
 		void updateGauge(
 			std::string name,
 			unsigned int val,

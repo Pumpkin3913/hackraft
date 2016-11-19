@@ -4,7 +4,6 @@
 #include "screen.h"
 #include "player.h"
 #include "gauge.h"
-#include "object.h"
 #include "error.h"
 
 #include <cstdlib> // srand(), rand()
@@ -481,95 +480,6 @@ int l_screen_settile(lua_State * lua) {
 	}
 	return(0);
 }
-
-/* XXX //
-
-int l_screen_getplayer(lua_State * lua) {
-	class Screen * screen = (class Screen *) lua_touserdata(lua, 1);
-	if(screen == nullptr or not lua_isnumber(lua, 2)) {
-		lua_arg_error("screen_getplayer(screen, id)");
-	} else {
-		int id = lua_tointeger(lua, 2);
-		class Player * player = screen->getPlayer(id);
-		lua_pushlightuserdata(lua, player);
-		return(1);
-	}
-	return(0);
-}
-
-int l_screen_gettopobject(lua_State * lua) {
-	class Screen * screen = (class Screen *) lua_touserdata(lua, 1);
-	if(
-		screen == nullptr
-		or not lua_isnumber(lua, 2)
-		or not lua_isnumber(lua, 3)
-	) {
-		lua_arg_error("screen_gettopobject(screen, x, y)");
-	} else {
-		int x = lua_tointeger(lua, 2);
-		int y = lua_tointeger(lua, 3);
-		lua_pushlightuserdata(lua, screen->getTopObject(x, y));
-		return(1);
-	}
-	return(0);
-}
-
-int l_screen_getobject(lua_State * lua) {
-	class Screen * screen = (class Screen *) lua_touserdata(lua, 1);
-	if(
-		screen == nullptr
-		or not lua_isnumber(lua, 2)
-		or not lua_isnumber(lua, 3)
-		or not lua_isnumber(lua, 4)
-	) {
-		lua_arg_error("screen_getobject(screen, x, y, id)");
-	} else {
-		int x = lua_tointeger(lua, 2);
-		int y = lua_tointeger(lua, 3);
-		unsigned long int id = lua_tointeger(lua, 4);
-		lua_pushlightuserdata(lua, screen->getObject(x, y, id));
-		return(1);
-	}
-	return(0);
-}
-
-int l_screen_addobject(lua_State * lua) {
-	class Screen * screen = (class Screen *) lua_touserdata(lua, 1);
-	class Object * object = (class Object *) lua_touserdata(lua, 4);
-	if(
-		screen == nullptr
-		or not lua_isnumber(lua, 2)
-		or not lua_isnumber(lua, 3)
-		or object == nullptr
-	) {
-		lua_arg_error("screen_addobject(screen, x, y, object)");
-	} else {
-		int x = lua_tointeger(lua, 2);
-		int y = lua_tointeger(lua, 3);
-		screen->addObject(x, y, object);
-	}
-	return(0);
-}
-
-int l_screen_remobject(lua_State * lua) {
-	class Screen * screen = (class Screen *) lua_touserdata(lua, 1);
-	if(
-		screen == nullptr
-		or not lua_isnumber(lua, 2)
-		or not lua_isnumber(lua, 3)
-		or not lua_isnumber(lua, 4)
-	) {
-		lua_arg_error("screen_remobject(screen, x, y, id)");
-	} else {
-		int x = lua_tointeger(lua, 2);
-		int y = lua_tointeger(lua, 3);
-		unsigned long int id = lua_tointeger(lua, 4);
-		screen->remObject(x, y, id);
-	}
-	return(0);
-}
-
-// XXX */
 
 int l_screen_getlandon(lua_State * lua) {
 	if(not lua_isstring(lua, 1)
@@ -1075,44 +985,6 @@ int l_player_deltag(lua_State * lua) {
 	}
 	return(0);
 }
-
-/* XXX //
-
-int l_player_getobject(lua_State * lua) {
-	class Player * player = (class Player *) lua_touserdata(lua, 1);
-	if(player == nullptr or not lua_isnumber(lua, 2)) {
-		lua_arg_error("player_getobject(player, id)");
-	} else {
-		unsigned long int id = lua_tointeger(lua, 2);
-		lua_pushlightuserdata(lua, player->getObject(id));
-		return(1);
-	}
-	return(0);
-}
-
-int l_player_addobject(lua_State * lua) {
-	class Player * player = (class Player *) lua_touserdata(lua, 1);
-	class Object * object = (class Object *) lua_touserdata(lua, 2);
-	if(player == nullptr or object == nullptr) {
-		lua_arg_error("player_addobject(player, object)");
-	} else {
-		player->addObject(object);
-	}
-	return(0);
-}
-
-int l_player_remobject(lua_State * lua) {
-	class Player * player = (class Player *) lua_touserdata(lua, 1);
-	if(player == nullptr or not lua_isnumber(lua, 2)) {
-		lua_arg_error("player_remobject(player, id)");
-	} else {
-		unsigned long int id = lua_tointeger(lua, 2);
-		player->remObject(id);
-	}
-	return(0);
-}
-
-// XXX */
 
 int l_player_isghost(lua_State * lua) {
 	if(not lua_isnumber(lua, 1)) {
@@ -1638,125 +1510,6 @@ int l_gauge_setvisible(lua_State * lua) {
 	return(0);
 }
 
-/* Object */
-
-/* XXX //
-
-int l_new_object(lua_State * lua) {
-	if(not lua_isstring(lua, 1) or not lua_isnumber(lua, 2)) {
-		lua_arg_error("new_object(name, aspect)");
-	} else {
-		std::string name = lua_tostring(lua, 1);
-		Aspect aspect = lua_tointeger(lua, 2);
-		class Object * object = new Object(name, aspect);
-		lua_pushlightuserdata(lua, object);
-		return(1);
-	}
-	return(0);
-}
-
-int l_delete_object(lua_State * lua) {
-	class Object * object = (class Object *) lua_touserdata(lua, 1);
-	if(object == nullptr) {
-		lua_arg_error("delete_object(object)");
-	} else {
-		delete(object);
-	}
-	return(0);
-}
-
-int l_object_getid(lua_State * lua) {
-	class Object * object = (class Object *) lua_touserdata(lua, 1);
-	if(object == nullptr) {
-		lua_arg_error("object_getid(object)");
-	} else {
-		lua_pushinteger(lua, object->getId());
-		return(1);
-	}
-	return(0);
-}
-
-int l_object_getname(lua_State * lua) {
-	class Object * object = (class Object *) lua_touserdata(lua, 1);
-	if(object == nullptr) {
-		lua_arg_error("object_getname(object)");
-	} else {
-		lua_pushstring(lua, object->getName().c_str());
-		return(1);
-	}
-	return(0);
-}
-
-int l_object_setname(lua_State * lua) {
-	class Object * object = (class Object *) lua_touserdata(lua, 1);
-	if(object == nullptr or not lua_isstring(lua, 2)) {
-		lua_arg_error("object_setname(object, name)");
-	} else {
-		std::string name = lua_tostring(lua, 2);
-		object->setName(name);
-	}
-	return(0);
-}
-
-int l_object_getaspect(lua_State * lua) {
-	class Object * object = (class Object *) lua_touserdata(lua, 1);
-	if(object == nullptr) {
-		lua_arg_error("object_getaspect(object)");
-	} else {
-		lua_pushinteger(lua, object->getAspect());
-		return(1);
-	}
-	return(0);
-}
-
-int l_object_setaspect(lua_State * lua) {
-	class Object * object = (class Object *) lua_touserdata(lua, 1);
-	if(object == nullptr or not lua_isnumber(lua, 2)) {
-		lua_arg_error("object_setaspect(object, aspect)");
-	} else {
-		Aspect aspect = lua_tointeger(lua, 2);
-		object->setAspect(aspect);
-	}
-	return(0);
-}
-
-int l_object_gettag(lua_State * lua) {
-	class Object * object = (class Object *) lua_touserdata(lua, 1);
-	if(object == nullptr or not lua_isstring(lua, 2)) {
-		lua_arg_error("object_gettag(object, name)");
-	} else {
-		std::string name = lua_tostring(lua, 2);
-		lua_pushstring(lua, object->getTag(name).c_str());
-		return(1);
-	}
-	return(0);
-}
-
-int l_object_settag(lua_State * lua) {
-	class Object * object = (class Object *) lua_touserdata(lua, 1);
-	if(object == nullptr or not lua_isstring(lua, 2) or not lua_isstring(lua, 3)) {
-		lua_arg_error("object_settag(object, name, value)");
-	} else {
-		std::string name = lua_tostring(lua, 2);
-		std::string value = lua_tostring(lua, 3);
-		object->setTag(name, value);
-	}
-	return(0);
-}
-
-int l_object_deltag(lua_State * lua) {
-	class Object * object = (class Object *) lua_touserdata(lua, 1);
-	if(object == nullptr or not lua_isstring(lua, 2)) {
-		lua_arg_error("object_deltag(object, name)");
-	} else {
-		std::string name = lua_tostring(lua, 2);
-		object->delTag(name);
-	}
-	return(0);
-}
-
-// XXX */
-
 /* Wraper class */
 
 Luawrapper::Luawrapper(class Server * server) :
@@ -1811,13 +1564,7 @@ Luawrapper::Luawrapper(class Server * server) :
 	lua_register(this->lua_state, "screen_getheight", l_screen_getheight);
 	lua_register(this->lua_state, "screen_gettile", l_screen_gettile);
 	lua_register(this->lua_state, "screen_settile", l_screen_settile);
-/* XXX //
-	lua_register(this->lua_state, "screen_getplayer", l_screen_getplayer);
-	lua_register(this->lua_state, "screen_gettopobject", l_screen_gettopobject);
-	lua_register(this->lua_state, "screen_getobject", l_screen_getobject);
-	lua_register(this->lua_state, "screen_addobject", l_screen_addobject);
-	lua_register(this->lua_state, "screen_remobject", l_screen_remobject);
-// XXX */
+
 	lua_register(this->lua_state, "screen_getlandon", l_screen_getlandon);
 	lua_register(this->lua_state, "screen_setlandon", l_screen_setlandon);
 	lua_register(this->lua_state, "screen_resetlandon", l_screen_resetlandon);
@@ -1846,11 +1593,7 @@ Luawrapper::Luawrapper(class Server * server) :
 	lua_register(this->lua_state, "player_gettag", l_player_gettag);
 	lua_register(this->lua_state, "player_settag", l_player_settag);
 	lua_register(this->lua_state, "player_deltag", l_player_deltag);
-/* XXX //
-	lua_register(this->lua_state, "player_getobject", l_player_getobject);
-	lua_register(this->lua_state, "player_addobject", l_player_addobject);
-	lua_register(this->lua_state, "player_remobject", l_player_remobject);
-// XXX */
+
 	lua_register(this->lua_state, "player_isghost", l_player_isghost);
 	lua_register(this->lua_state, "player_setghost", l_player_setghost);
 	lua_register(this->lua_state, "player_message", l_player_message);
@@ -1874,19 +1617,6 @@ Luawrapper::Luawrapper(class Server * server) :
 	lua_register(this->lua_state, "gauge_resetonempty", l_gauge_resetonempty);
 	lua_register(this->lua_state, "gauge_isvisible", l_gauge_isvisible);
 	lua_register(this->lua_state, "gauge_setvisible", l_gauge_setvisible);
-
-/* XXX //
-	lua_register(this->lua_state, "new_object", l_new_object);
-	lua_register(this->lua_state, "delete_object", l_delete_object);
-	lua_register(this->lua_state, "object_getid", l_object_getid);
-	lua_register(this->lua_state, "object_getname", l_object_getname);
-	lua_register(this->lua_state, "object_setname", l_object_setname);
-	lua_register(this->lua_state, "object_getaspect", l_object_getaspect);
-	lua_register(this->lua_state, "object_setaspect", l_object_setaspect);
-	lua_register(this->lua_state, "object_gettag", l_object_gettag);
-	lua_register(this->lua_state, "object_settag", l_object_settag);
-	lua_register(this->lua_state, "object_deltag", l_object_deltag);
-// XXX */
 
 	this->executeFile(LUA_INIT_SCRIPT);
 }

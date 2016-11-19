@@ -22,12 +22,6 @@ screen_settile("entrance", 5, 3, "portal")
 screen_settile("entrance", 5, 7, "portal")
 screen_setlandon("entrance", 5, 7, "scripts/plop.lua")
 
--- local chalk = new_object("piece of chalk", string.byte('-'))
--- object_settag(chalk, "draw", "true")
--- object_settag(chalk, "charges", "10")
--- screen_addobject(screen_entrance, 8, 7, chalk)
--- screen_addobject(screen_entrance, 2, 2, new_object("gem", string.byte('*')))
-
 -- Test Room
 local testroom_height = 11;
 new_screen("testroom", "Test Room", 20, testroom_height, "floor")

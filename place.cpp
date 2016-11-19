@@ -76,10 +76,6 @@ void Place::resetCanLand() {
 	this->useLocalCanLand = false;
 }
 
-std::list<class Object *> * Place::getObjects() {
-	return(&(this->objects));
-}
-
 std::string * Place::getLandOn() {
 	return(this->landon);
 }

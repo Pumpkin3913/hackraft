@@ -4,7 +4,6 @@
 #include "tile.h"
 #include "place.h"
 #include "player.h"
-#include "object.h"
 
 Screen::Screen(
 	class Server * server,
@@ -75,73 +74,6 @@ void Screen::setTile(int x, int y, class Tile * tile) {
 	if(place) {
 		place->setTile(tile);
 		this->updateTile(x, y);
-	}
-}
-
-class Object * Screen::getTopObject(int x, int y) {
-	class Place * place = this->getPlace(x,y);
-	if(place && place->getObjects()->size() > 0) {
-		return(place->getObjects()->front());
-	} else {
-		return(nullptr);
-	}
-}
-
-class Object * Screen::getObject(int x, int y, unsigned long int id) {
-	class Place * place = this->getPlace(x,y);
-	if(place) {
-		for(class Object * object : *(place->getObjects())) {
-			if(object->getId() == id) {
-				return(object);
-			}
-		}
-		return(nullptr);
-	} else {
-		return(nullptr);
-	}
-}
-
-// Only called by Player.
-const std::list<class Object *> * Screen::getObjectList(int x, int y) {
-	class Place * place = this->getPlace(x,y);
-	if(place) {
-		return(place->getObjects());
-	} else {
-		return(nullptr);
-	}
-}
-
-void Screen::addObject(int x, int y, class Object * object) {
-	class Place * place = this->getPlace(x,y);
-	if(place) {
-		place->getObjects()->push_front(object);
-		this->updateObject(x, y);
-		for(int id : this->players) {
-			class Player * player = this->getPlayer(id);
-			if(player && player->getX() == x && player->getY() == y) {
-				player->addPickupList(object->getId(), object->getAspect());
-			}
-		}
-	}
-}
-
-void Screen::remObject(int x, int y, unsigned long int id) {
-	class Place * place = this->getPlace(x,y);
-	if(place) {
-		std::list<class Object *> * lst = place->getObjects();
-		for(auto it = lst->begin(); it != lst->end(); it++) {
-			if((*it)->getId() == id) {
-				lst->erase(it);
-				this->updateObject(x, y); // FIXME: only if top changed.
-				for(int player_id : this->players) {
-					class Player * player = this->getPlayer(player_id);
-					if(player && player->getX() == x && player->getY() == y) {
-						player->remPickupList(id);
-					}
-				}
-				break;
-			}
-		}
 	}
 }
 
@@ -246,18 +178,6 @@ void Screen::enterPlayer(class Player * player, int x, int y) {
 			if(p) player->updatePlayer(p);
 		}
 	}
-	for(unsigned int x=0; x<this->width; x++) {
-		for(unsigned int y=0; y<this->height; y++) {
-			class Object * object = this->getTopObject(x, y);
-			if(object) {
-				player->updateObject(x, y, object->getAspect());
-			}
-		}
-	}
-	for(class Object * object :
-			*(this->getObjectList(player->getX(), player->getY()))) {
-		player->addPickupList(object->getId(), object->getAspect());
-	}
 }
 
 void Screen::exitPlayer(class Player * player) {
@@ -301,21 +221,6 @@ class Place * Screen::getPlace(int x, int y) {
 			+ "."
 		);
 		return(nullptr);
-	}
-}
-
-void Screen::updateObject(int x, int y) {
-	class Object * object = this->getTopObject(x, y);
-	if(object) {
-		for(int id : this->players) {
-			class Player * player = this->getPlayer(id);
-			if(player) player->updateObject(x, y, object->getAspect());
-		}
-	} else {
-		for(int id : this->players) {
-			class Player * player = this->getPlayer(id);
-			if(player) player->updateNoObject(x, y);
-		}
 	}
 }
 

@@ -4,7 +4,6 @@
 #include "tile.h"
 #include "server.h"
 #include "gauge.h"
-#include "object.h"
 #include "luawrapper.h"
 
 #ifdef __linux__
@@ -111,25 +110,6 @@ void Player::parse() {
 			if(this->screen) {
 				this->screen->event(this->name+" say "+arg);
 			}
-		} else if(cmd == "pickup") {
-			if(this->screen and arg != "") {
-				unsigned long int id = std::stoi(arg);
-				class Object * object =
-						this->screen->getObject(this->x, this->y, id);
-				if(object) {
-					this->screen->remObject(this->x, this->y, id);
-					this->addObject(object);
-				}
-			}
-		} else if(cmd == "drop") {
-			if(this->screen and arg != "") {
-				unsigned long int id = std::stoi(arg);
-				class Object * object = this->getObject(id);
-				if(object) {
-					this->remObject(id);
-					this->screen->addObject(this->x, this->y, object);
-				}
-			}
 		} else if(cmd == "quit") {
 			this->stop = true;
 		}
@@ -173,9 +153,6 @@ Player::~Player() {
 		this->screen->getServer()->remPlayer(id);
 	}
 	for(auto it : this->gauges) {
-		delete(it.second);
-	}
-	for(auto it : this->objects) {
 		delete(it.second);
 	}
 	this->_close();
@@ -248,14 +225,6 @@ void Player::move(int xShift, int yShift) {
 			and this->screen->isPlaceValid((unsigned) new_x, (unsigned) new_y)) {
 		if(this->ghost or this->screen->canLandPlayer(this, new_x, new_y)) {
 			this->setXY(new_x, new_y);
-			// Send floor objects list.
-			const std::list<class Object *> * lst =
-					this->screen->getObjectList(this->x, this->y);
-			if(lst) {
-				for(class Object * object : *lst) {
-					this->addPickupList(object->getId(), object->getAspect());
-				}
-			}
 			// Trigger landon script.
 			std::string * script =
 				this->screen->getLandOn(new_x, new_y);
@@ -306,24 +275,6 @@ void Player::delGauge(std::string id) {
 	} else {
 		verbose_info("Gauge '"+id+"' doesn't exist: can't be deleted.");
 	}
-}
-
-class Object * Player::getObject(unsigned long int id) {
-	try {
-		return(this->objects.at(id));
-	} catch(...) {
-		return(nullptr);
-	}
-}
-
-void Player::addObject(class Object * object) {
-	this->objects[object->getId()] = object;
-	this->updateInventory(object->getId(), object->getAspect());
-}
-
-void Player::remObject(unsigned long int id) {
-	this->objects.erase(id);
-	this->updateNoInventory(id);
 }
 
 bool Player::isGhost() {
@@ -435,28 +386,6 @@ void Player::updateTile(unsigned int x, unsigned int y, Aspect aspect) {
 			+ " "
 			+ std::to_string(y)
 		  );
-}
-
-void Player::updateObject(unsigned int x, unsigned int y, Aspect aspect) {
-	// obj <aspect> <X> <Y>
-	this->send(
-			"obj "
-			+ std::to_string(aspect)
-			+ " "
-			+ std::to_string(x)
-			+ " "
-			+ std::to_string(y)
-		  );
-}
-
-void Player::updateNoObject(unsigned int x, unsigned int y) {
-	// noobj <X> <Y>
-	this->send(
-			"noobj "
-			+ std::to_string(x)
-			+ " "
-			+ std::to_string(y)
-	);
 }
 
 void Player::updateGauge(

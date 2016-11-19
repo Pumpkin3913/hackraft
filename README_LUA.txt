@@ -39,10 +39,6 @@ screen_getheight(screen_id) -> int | nil
 screen_gettile(screen_id, x, y) -> string | nil
 screen_settile(screen_id, x, y, tile_id)
 -- screen_getplayer(screen, id)
--- screen_gettopobject(screen_id, x, y)
--- screen_getobject(screen_id, x, y, object_id)
--- screen_addobject(screen, x, y, object)
--- screen_remobject(screen, x, y, id)
 screen_getlandon(screen_id, x, y) -> string | nil
 screen_setlandon(screen_id, x, y, script)
 screen_resetlandon(screen_id, x, y)
@@ -72,10 +68,6 @@ player_delgauge(player_id, gauge_id)
 player_gettag(player_id, tag_id) -> string | tag
 player_settag(player_id, tag_id, value)
 player_deltag(player_id, tag_id)
--- player_getobject(player, id)
--- player_give(player_id, object_name, object_aspect) -- TODO : improve.
--- player_addobject(player, object)
--- player_remobject(player_id, object_id)
 player_isghost(player_id) -> bool | nil
 player_setghost(player_id, bool)
 player_message(player_id, message)
@@ -100,13 +92,3 @@ gauge_resetonempty(player_id, gauge_id)
 gauge_isvisible(player_id, gauge_id) -> bool | nil
 gauge_setvisible(player_id, gauge_id, bool)
 
--- new_object(name, aspect)
--- delete_object(object)
--- object_getid(object)
--- object_getname(object)
--- object_setname(object, name)
--- object_getaspect(object)
--- object_setaspect(object, aspect)
--- object_gettag(object, name)
--- object_settag(object, name, value)
--- object_deltag(object, name)
