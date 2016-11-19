@@ -14,58 +14,58 @@ class Player;
 #include <list>
 
 class Zone {
-	private:
-		class Server * server;
-		std::string id;
-		std::string name;
-		unsigned int width;
-		unsigned int height;
-		std::vector<class Place> places;
-		std::list<int> players;
+public:
+	Zone(
+		class Server * server,
+		std::string id,
+		std::string name,
+		unsigned int width,
+		unsigned int height,
+		class Tile * baseTile
+	);
+	~Zone();
+	class Server * getServer();
+	std::string getId();
+	std::string getName();
+	void setName(std::string name);
+	unsigned int getWidth();
+	unsigned int getHeight();
+	bool isPlaceValid(int x, int y);
+	class Tile * getTile(int x, int y); // May return nullptr.
+	void setTile(int x, int y, class Tile * tile); // And broadcast it.
+	std::string * getLandOn(int x, int y); // May return nullptr.
+	void setLandOn(int x, int y, std::string script);
+	void resetLandOn(int x, int y);
+	void event(std::string message); // Broadcast a message to all players.
 
-		class Player * getPlayer(int id); // Auto remove if invalid.
-		class Place * getPlace(int x, int y);
-		void updateTile(int x, int y);
+	std::string getTag(int x, int y, std::string id);
+	void setTag(int x, int y, std::string id, std::string value);
+	void delTag(int x, int y, std::string id);
 
-	public:
-		Zone(
-			class Server * server,
-			std::string id,
-			std::string name,
-			unsigned int width,
-			unsigned int height,
-			class Tile * baseTile
-		);
-		~Zone();
-		class Server * getServer();
-		std::string getId();
-		std::string getName();
-		void setName(std::string name);
-		unsigned int getWidth();
-		unsigned int getHeight();
-		bool isPlaceValid(int x, int y);
-		class Tile * getTile(int x, int y); // May return nullptr.
-		void setTile(int x, int y, class Tile * tile); // And broadcast it.
-		std::string * getLandOn(int x, int y); // May return nullptr.
-		void setLandOn(int x, int y, std::string script);
-		void resetLandOn(int x, int y);
-		void event(std::string message); // Broadcast a message to all players.
+	/* Called by Player only */
 
-		std::string getTag(int x, int y, std::string id);
-		void setTag(int x, int y, std::string id, std::string value);
-		void delTag(int x, int y, std::string id);
+	bool canLandPlayer(class Player * player, int x, int y);
 
-		/* Called by Player only */
+	// Add the player to the zone,
+	// send him the floor and broadcast its position.
+	void enterPlayer(class Player * player, int x, int y);
 
-		bool canLandPlayer(class Player * player, int x, int y);
+	// Remove the player from the zone and broadcast it.
+	void exitPlayer(class Player * player);
 
-		// Add the player to the zone,
-		// send him the floor and broadcast its position.
-		void enterPlayer(class Player * player, int x, int y);
+	// Broadcast the new position and aspect of the player.
+	void updatePlayer(class Player * player);
 
-		// Remove the player from the zone and broadcast it.
-		void exitPlayer(class Player * player);
+private:
+	class Server * server;
+	std::string id;
+	std::string name;
+	unsigned int width;
+	unsigned int height;
+	std::vector<class Place> places;
+	std::list<int> players;
 
-		// Broadcast the new position and aspect of the player.
-		void updatePlayer(class Player * player);
+	class Player * getPlayer(int id); // Auto remove if invalid.
+	class Place * getPlace(int x, int y);
+	void updateTile(int x, int y);
 };

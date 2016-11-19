@@ -15,14 +15,15 @@ extern "C" {
 #define LUA_SPAWN_SCRIPT "spawn.lua"
 
 class Luawrapper {
-	private:
-		lua_State * lua_state;
-	public:
-		static class Server * server;
+public:
+	static class Server * server;
 
-		Luawrapper(class Server * server);
-		~Luawrapper();
-		void executeFile(std::string filename, class Player * player = nullptr, std::string arg = "");
-		void executeCode(std::string code, class Player * player = nullptr);
-		void spawnScript(class Player * player);
+	Luawrapper(class Server * server);
+	~Luawrapper();
+	void executeFile(std::string filename, class Player * player = nullptr, std::string arg = "");
+	void executeCode(std::string code, class Player * player = nullptr);
+	void spawnScript(class Player * player);
+
+private:
+	lua_State * lua_state;
 };
