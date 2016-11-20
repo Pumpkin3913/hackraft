@@ -1,9 +1,9 @@
 #include "zone.h"
 
-#include "server.h"
-#include "tile.h"
+#include "aspect.h"
 #include "place.h"
 #include "player.h"
+#include "server.h"
 
 // TODO : Zone::setName() : broadcast new name.
 
@@ -13,7 +13,7 @@ Zone::Zone(
 	const Name& name,
 	unsigned int width,
 	unsigned int height,
-	class Tile * baseTile
+	const Aspect& base_aspect
 ) :
 	Named(name),
 	server(server),
@@ -21,8 +21,8 @@ Zone::Zone(
 	width(width),
 	height(height)
 {
-	this->places = std::vector<class Place>(width * height, Place(baseTile));
-	this->server->addZone(id, this);
+	this->places = std::vector<class Place>(width * height, Place(*this, base_aspect));
+	this->server->addZone(id, this); // XXX ??
 }
 
 Zone::~Zone() {
@@ -53,50 +53,6 @@ bool Zone::isPlaceValid(int x, int y) {
 	return(x >= 0 && x < this->width && y >= 0 && y < this->height);
 }
 
-class Tile * Zone::getTile(int x, int y) {
-	class Place * place = this->getPlace(x,y);
-	if(place) {
-		return(place->getTile());
-	} else {
-		return(nullptr);
-	}
-}
-
-void Zone::setTile(int x, int y, class Tile * tile) {
-	class Place * place = this->getPlace(x,y);
-	if(place) {
-		place->setTile(tile);
-		this->updateTile(x, y);
-	}
-}
-
-std::string * Zone::getLandOn(int x, int y) {
-	class Place * place = this->getPlace(x,y);
-	if(place) {
-		return(place->getLandOn());
-	} else {
-		return(nullptr);
-	}
-}
-
-void Zone::setLandOn(int x, int y, std::string script) {
-	class Place * place = this->getPlace(x,y);
-	if(place) {
-		place->setLandOn(script);
-	} else {
-		// Warning already done by Zone::getPlace();
-	}
-}
-
-void Zone::resetLandOn(int x, int y) {
-	class Place * place = this->getPlace(x,y);
-	if(place) {
-		place->resetLandOn();
-	} else {
-		// Warning already done by Zone::getPlace();
-	}
-}
-
 void Zone::event(std::string message) {
 	for(int id : this->players) {
 		class Player * player = this->getPlayer(id);
@@ -104,59 +60,12 @@ void Zone::event(std::string message) {
 	}
 }
 
-/* XXX //
-std::string Zone::getTag(int x, int y, std::string id) {
-	class Place * place = this->getPlace(x,y);
-	if(place) {
-		return(place->getTag(id));
-	} else {
-		return("");
-	}
-}
-
-void Zone::setTag(int x, int y, std::string id, std::string value) {
-	class Place * place = this->getPlace(x,y);
-	if(place) {
-		place->setTag(id, value);
-	} else {
-		warning("In zone "
-		+ this->id
-		+ ": unable to set tag "
-		+ id
-		+ "to value "
-		+ value
-		+ " because place "
-		+ std::to_string(x)
-		+ "-"
-		+ std::to_string(y)
-		+ "is invalid.");
-	}
-}
-
-void Zone::delTag(int x, int y, std::string id) {
-	class Place * place = this->getPlace(x,y);
-	if(place) {
-		place->delTag(id);
-	} else {
-		warning("In zone "
-		+ this->id
-		+ ": unable to remove tag "
-		+ id
-		+ " because place "
-		+ std::to_string(x)
-		+ "-"
-		+ std::to_string(y)
-		+ "is invalid.");
-	}
-}
-// XXX */
-
 /* Called by Player only */
 
 bool Zone::canLandPlayer(class Player * player, int x, int y) {
 	class Place * place;
 	if(this->isPlaceValid(x,y) && (place = this->getPlace(x,y)) != nullptr) {
-		return(place->canLand());
+		return(place->isWalkable());
 	} else {
 		return(false);
 	}
@@ -219,13 +128,13 @@ class Place * Zone::getPlace(int x, int y) {
 	}
 }
 
-void Zone::updateTile(int x, int y) {
+void Zone::updatePlaceAspect(int x, int y) {
 	class Place * place = this->getPlace(x,y);
 	if(place) {
-		Aspect aspect = place->getAspect();
+		auto aspect = place->getAspect();
 		for(int id : this->players) {
 			class Player * player = this->getPlayer(id);
-			if(player) player->updateTile(x, y, aspect);
+			if(player) player->updateFloor(x, y, aspect);
 		}
 	}
 }

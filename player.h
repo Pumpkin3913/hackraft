@@ -15,14 +15,12 @@ class Gauge;
 // TODO : Invisible.
 // TODO : Unmovable.
 
-class Player : public Named, public Tagged {
+class Player : public Aspected, public Named, public Tagged {
 public:
-	Player(int fd, Name name, Aspect aspect);
+	Player(int fd, Name name, const Aspect& aspect);
 	~Player();
 	void spawn(class Zone * zone, int x, int y); // Add itself to the zone and start the parsing loop. Do nothing if already running.
 	int getId();
-	Aspect getAspect();
-	void setAspect(Aspect aspect); // and broadcast it.
 	class Zone * getZone(); // May return nullptr.
 	unsigned int getX();
 	unsigned int getY();
@@ -58,24 +56,25 @@ public:
 	void updatePlayer(class Player * player);
 	void updatePlayerExit(class Player * player);
 	void updateFloor();
-	void updateTile(unsigned int x, unsigned int y, Aspect aspect);
+	void updateFloor(unsigned int x, unsigned int y, const Aspect& aspect);
 	void updateGauge(
 		std::string name,
 		unsigned int val,
 		unsigned int max,
-		Aspect full,
-		Aspect empty);
+		const Aspect& full,
+		const Aspect& empty);
 	void updateNoGauge(std::string name);
+/* XXX //
 	void updateInventory(unsigned long int id, Aspect aspect);
 	void updateNoInventory(unsigned long int id);
 	void addPickupList(unsigned long int id, Aspect aspect);
 	void remPickupList(unsigned long int id);
+// XXX */
 	void follow(class Player * player);
 
 private:
 	int fd;
 	int id;
-	Aspect aspect;
 	class Zone * zone;
 	int x;
 	int y;

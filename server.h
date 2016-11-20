@@ -1,7 +1,6 @@
 #pragma once
 
 class Zone;
-class Tile;
 class Luawrapper;
 class Player;
 
@@ -27,9 +26,6 @@ public:
 	void addZone(std::string id, class Zone * zone); // Automatically done by new Zone().
 	class Zone * getZone(std::string id);
 	void delZone(std::string id);
-	void addTile(class Tile * tile);
-	class Tile * getTile(std::string id); // May return nullptr.
-	// A Tile must never be removed before the destruction of the server.
 	void addPlayer(class Player * player); // Automatically called by new Player()
 	class Player * getPlayer(int id); // May return nullptr.
 	void delPlayer(int id);
@@ -48,10 +44,10 @@ public:
 private:
 	int connexion_fd;
 	unsigned short port;
-	std::map<std::string, class Tile *> tiles;
 	std::map<std::string, class Zone *> zones;
 	std::map<int, class Player *> players;
 	std::map<std::string, Script> actions;
+
 	std::thread * acceptThread;
 	class Luawrapper * luawrapper;
 	std::mutex terminaisonLock;

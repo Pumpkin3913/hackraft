@@ -2,8 +2,6 @@
 
 #include "player.h"
 #include "zone.h"
-#include "aspect.h"
-#include "tile.h"
 #include "luawrapper.h"
 #include "error.h"
 
@@ -42,8 +40,7 @@ void Server::acceptLoop() {
 					+ " on socket #"
 					+ std::to_string(fd)
 					);
-			class Player * player = new Player(fd, Name{},
-					Tile::defaultTile.getAspect());
+			class Player * player = new Player(fd, Name{}, Aspect{});
 			this->addPlayer(player);
 			this->luawrapper->spawnScript(player);
 			if(player->getZone() == nullptr) {
@@ -77,11 +74,6 @@ Server::~Server() {
 	}
 
 	for(std::pair<std::string, Zone*> it : this->zones) {
-		delete(it.second);
-	}
-
-	// A Tile must never be remove before the destruction of the server.
-	for(std::pair<std::string, Tile*> it : this->tiles) {
 		delete(it.second);
 	}
 
@@ -187,26 +179,6 @@ void Server::delZone(std::string id) {
 	if(this->zones[id] != nullptr) {
 		delete(this->zones[id]);
 		this->zones.erase(id);
-	}
-}
-
-void Server::addTile(class Tile * tile) {
-	if(this->tiles[tile->getId()] != nullptr) {
-		delete(this->tiles[tile->getId()]);
-		this->tiles.erase(tile->getId());
-		verbose_info("Tile '"+tile->getId()+"' replaced.");
-	}
-	this->tiles[tile->getId()] = tile;
-// TODO : replace tile's content and delete new one when replacing a tile.
-}
-
-class Tile * Server::getTile(std::string id) {
-	class Tile * tile = this->tiles[id];
-	if(tile == nullptr) {
-		// return(&Tile::defaultTile);
-		return(nullptr);
-	} else {
-		return(tile);
 	}
 }
 

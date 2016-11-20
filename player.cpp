@@ -1,10 +1,10 @@
 #include "player.h"
 
 #include "zone.h"
-#include "tile.h"
 #include "server.h"
 #include "gauge.h"
 #include "luawrapper.h"
+#include "place.h"
 
 #ifdef __linux__
 #include <unistd.h>
@@ -108,11 +108,7 @@ void Player::parse() {
 			}
 		} else if(cmd == "say") {
 			if(this->zone) {
-				// this->zone->event(this->getName()+" say "+arg);
-				// this->zone->event((const std::string)(this->getName())+" say "+arg); // XXX
-				this->zone->event(this->getName().toString()+" say "+arg); // XXX
-				// this->zone->event(this->getName()+" say "+arg); // XXX
-				// this->zone->event(std::string{}+this->getName()+" say "+arg); // XXX
+				this->zone->event(this->getName().toString()+" say "+arg);
 			}
 		} else if(cmd == "quit") {
 			this->stop = true;
@@ -125,17 +121,16 @@ void Player::parse() {
 Player::Player(
 	int fd,
 	Name name,
-	Aspect aspect
+	const Aspect& aspect
 ) :
-	Named(name), // XXX
+	Aspected(aspect),
+	Named(name),
 	fd(fd),
 	id(fd),
-	// name(name), // XXX
-	aspect(aspect),
 	zone(nullptr),
 	x(0),
 	y(0),
-	whenDeath(""),
+	whenDeath(),
 	ghost(false),
 /*
 	movepoints(0),
@@ -184,16 +179,15 @@ int Player::getId() {
 	return(this->id);
 }
 
-Aspect Player::getAspect() {
-	return(this->aspect);
-}
-
+/* XXX //
+// Override Aspected::setAspect();
+// Currently done by luawrapper.cpp .
 void Player::setAspect(Aspect aspect) {
-	this->aspect = aspect;
-	if(this->zone) {
-		this->zone->updatePlayer(this);
-	}
+	// (Aspected*) (this)->setAspect(aspect);
+	this->Aspected::setAspect(aspect); // XXX
+	this->zone.updatePlayer(this);
 }
+// XXX */
 
 class Zone * Player::getZone() {
 	return(this->zone);
@@ -222,12 +216,10 @@ void Player::move(int xShift, int yShift) {
 			and this->zone->isPlaceValid((unsigned) new_x, (unsigned) new_y)) {
 		if(this->ghost or this->zone->canLandPlayer(this, new_x, new_y)) {
 			this->setXY(new_x, new_y);
+
 			// Trigger landon script.
-			std::string * script =
-				this->zone->getLandOn(new_x, new_y);
-			if(script != nullptr) {
-				this->zone->getServer()->getLua()->executeCode(*script, this);
-			}
+			class Place * place = this->zone->getPlace(new_x, new_y);
+			place->getWhenWalkedOn().execute(*(this->zone->getServer()->getLua()), this);
 		}
 	}
 }
@@ -338,7 +330,7 @@ void Player::updatePlayer(class Player * player) {
 			"move "
 			+ std::to_string(player->getId())
 			+ " "
-			+ std::to_string(player->getAspect())
+			+ std::to_string(Aspect::getAspectEntry(player->getAspect()))
 			+ " "
 			+ std::to_string(player->getX())
 			+ " "
@@ -361,11 +353,11 @@ void Player::updateFloor() {
 			+ this->zone->getName().toString()
 		  );
 
-	// Send tiles.
+	// Send places' aspects.
 	std::string toSend = "";
 	for(unsigned int y=0; y<this->zone->getHeight(); y++) {
 		for(unsigned int x=0; x<this->zone->getWidth(); x++) {
-			toSend += std::to_string(this->zone->getTile(x, y)->getAspect());
+			toSend += std::to_string(this->zone->getPlace(x, y)->getAspect().toEntry());
 			toSend += ",";
 		}
 	}
@@ -373,11 +365,11 @@ void Player::updateFloor() {
 	this->send(toSend);
 }
 
-void Player::updateTile(unsigned int x, unsigned int y, Aspect aspect) {
-	// tilechange <aspect> <X> <Y>
+void Player::updateFloor(unsigned int x, unsigned int y, const Aspect& aspect) {
+	// floorchange <aspect> <X> <Y>
 	this->send(
-			"tilechange "
-			+ std::to_string(aspect)
+			"floorchange "
+			+ std::to_string(aspect.toEntry())
 			+ " "
 			+ std::to_string(x)
 			+ " "
@@ -389,8 +381,8 @@ void Player::updateGauge(
 	std::string name,
 	unsigned int val,
 	unsigned int max,
-	Aspect full,
-	Aspect empty
+	const Aspect& full,
+	const Aspect& empty
 ) {
 	// gauge <name> <val> <max> <full> <empty>
 	this->send(
@@ -401,9 +393,9 @@ void Player::updateGauge(
 			+ " "
 			+ std::to_string(max)
 			+ " "
-			+ std::to_string(full)
+			+ std::to_string(Aspect::getAspectEntry(full))
 			+ " "
-			+ std::to_string(empty)
+			+ std::to_string(Aspect::getAspectEntry(empty))
 	);
 }
 
@@ -414,6 +406,7 @@ void Player::updateNoGauge(std::string name) {
 	);
 }
 
+/* XXX //
 void Player::updateInventory(unsigned long int id, Aspect aspect) {
 	// invent <id> <aspect>
 	this->send(
@@ -446,6 +439,7 @@ void Player::remPickupList(unsigned long int id) {
 			+ std::to_string(id)
 	);
 }
+// XXX */
 
 void Player::follow(class Player * player) {
 	this->send("follow " + std::to_string(player->getId()));

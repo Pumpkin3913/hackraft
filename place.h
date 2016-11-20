@@ -1,38 +1,35 @@
 #pragma once
 
-#include <string>
-#include <list>
-
-class Tile;
+class Zone;
 
 #include "aspect.h"
+#include "script.h"
 #include "tag.h"
 
-class Place : public Tagged {
+class Place : public Tagged, public Aspected {
 public:
-	Place(class Tile * tile);
-	~Place();
-	class Tile * getTile();
-	void setTile(class Tile * tile);
-	std::string getName();
-	void setName(std::string name);
-	void resetName();
-	Aspect getAspect();
-	void setAspect(Aspect aspect);
-	void resetAspect();
-	bool canLand();
-	void setCanLand();
-	void setCantLand();
-	void resetCanLand();
-	std::string * getLandOn();
-	void setLandOn(std::string script);
-	void resetLandOn();
+	Place() = delete;
+	Place(
+		const Zone& zone,
+		const Aspect& aspect,
+		bool walkable = true
+	);
+
+	/* Zone handling. */
+	const Zone& getZone() const;
+
+	/* Walkable. */
+	bool isWalkable() const;
+	void setWalkable();
+	void setNotWalkable();
+
+	/* When Walked On. */
+	const Script& getWhenWalkedOn() const;
+	void setWhenWalkedOn(const Script script);
+	void resetWhenWalkedOn();
 
 private:
-	class Tile * tile;
-	std::string local_name; // use tile's one if "".
-	Aspect local_aspect;    // use tile's one if 0.
-	bool useLocalCanLand;
-	bool local_canLand;
-	std::string * landon;
+	const Zone& zone;     // The zone in which this is contained.
+	bool walkable;        // Can a player walk here?
+	Script whenWalkOn {}; // Script triggered when a player walks here.
 };

@@ -15,8 +15,8 @@ public:
 		Name name,
 		unsigned int initVal,
 		unsigned int max,
-		Aspect aFull,
-		Aspect aEmpty,
+		const Aspect& aFull,
+		const Aspect& aEmpty,
 		bool visible = true);
 	// Automatically add itself to its player.
 	~Gauge();

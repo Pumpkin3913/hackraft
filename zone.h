@@ -1,13 +1,11 @@
 #pragma once
 
-class Place;
 class Server;
-class Tile;
 class Place;
 class Player;
 
-#include "error.h"
 #include "aspect.h"
+#include "error.h"
 #include "name.h"
 
 #include <string>
@@ -22,21 +20,20 @@ public:
 		const Name& name,
 		unsigned int width,
 		unsigned int height,
-		class Tile * baseTile
+		const Aspect& base_aspect
 	);
 	~Zone();
+
 	class Server * getServer();
 	std::string getId();
+
 	unsigned int getWidth();
 	unsigned int getHeight();
 	bool isPlaceValid(int x, int y);
-	class Tile * getTile(int x, int y); // May return nullptr.
-	void setTile(int x, int y, class Tile * tile); // And broadcast it.
-	std::string * getLandOn(int x, int y); // May return nullptr.
-	void setLandOn(int x, int y, std::string script);
-	void resetLandOn(int x, int y);
-	void event(std::string message); // Broadcast a message to all players.
 	class Place * getPlace(int x, int y);
+	void updatePlaceAspect(int x, int y);
+
+	void event(std::string message); // Broadcast a message to all players.
 
 	/* Called by Player only */
 
@@ -61,5 +58,4 @@ private:
 	std::list<int> players;
 
 	class Player * getPlayer(int id); // Auto remove if invalid.
-	void updateTile(int x, int y);
 };

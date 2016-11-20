@@ -1,93 +1,48 @@
 #include "place.h"
 
-#include "tile.h"
+#include "zone.h"
+#include "aspect.h"
 
-Place::Place(class Tile * tile) :
-	tile(tile),
-	local_name(""),
-	local_aspect(noAspect),
-	useLocalCanLand(false),
-	local_canLand(true), // useless.
-	landon(nullptr)
+Place::Place(
+	const Zone& zone,
+	const Aspect& aspect,
+	bool walkable
+) :
+	Aspected(aspect),
+	zone(zone),
+	walkable(walkable)
 { }
 
-Place::~Place() {
+/* Zone handling. */
+
+const Zone& Place::getZone() const {
+	return(this->zone);
 }
 
-class Tile * Place::getTile() {
-	return(this->tile);
+/* Walkable. */
+
+bool Place::isWalkable() const {
+	return(this->walkable);
 }
 
-void Place::setTile(class Tile * tile) {
-	this->tile = tile;
+void Place::setWalkable() {
+	this->walkable = true;
 }
 
-std::string Place::getName() {
-	if(this->local_name == "") {
-		return(this->tile->getName());
-	} else {
-		return(this->local_name);
-	}
+void Place::setNotWalkable() {
+	this->walkable = false;
 }
 
-void Place::setName(std::string name) {
-	this->local_name = name;
+/* When Walked On. */
+
+const Script& Place::getWhenWalkedOn() const {
+	return(this->whenWalkOn);
 }
 
-void Place::resetName() {
-	this->local_name = "";
+void Place::setWhenWalkedOn(const Script script) {
+	this->whenWalkOn = script;
 }
 
-Aspect Place::getAspect() {
-	if(this->local_aspect == noAspect) {
-		return(this->tile->getAspect());
-	} else {
-		return(this->local_aspect);
-	}
+void Place::resetWhenWalkedOn() {
+	this->whenWalkOn = Script{};
 }
-
-void Place::setAspect(Aspect aspect) {
-	this->local_aspect = aspect;
-}
-
-void Place::resetAspect() {
-	this->local_aspect = noAspect;
-}
-
-bool Place::canLand() {
-	if(this->useLocalCanLand) {
-		return(this->local_canLand);
-	} else {
-		return(this->tile->canLand());
-	}
-}
-
-void Place::setCanLand() {
-	this->useLocalCanLand = true;
-	this->local_canLand = true;
-}
-
-void Place::setCantLand() {
-	this->useLocalCanLand = true;
-	this->local_canLand = false;
-}
-
-void Place::resetCanLand() {
-	this->useLocalCanLand = false;
-}
-
-std::string * Place::getLandOn() {
-	return(this->landon);
-}
-
-void Place::setLandOn(std::string script) {
-	this->landon = new std::string(script);
-}
-
-void Place::resetLandOn() {
-	if(this->landon) {
-		delete(this->landon);
-		this->landon = nullptr;
-	}
-}
-
