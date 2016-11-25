@@ -4,6 +4,7 @@
 #include "place.h"
 #include "player.h"
 #include "server.h"
+#include "log.h"
 
 // TODO : Zone::setName() : broadcast new name.
 
@@ -30,7 +31,7 @@ Zone::~Zone() {
 	for(int id : this->players) {
 		this->server->delPlayer(id);
 	}
-	verbose_info("Zone '"+id+"' deleted.");
+	info("Zone '"+id+"' deleted.");
 }
 
 class Server * Zone::getServer() {

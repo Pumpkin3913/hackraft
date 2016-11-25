@@ -7,6 +7,7 @@
 
 #include "server.h"
 #include "luawrapper.h"
+#include "log.h"
 
 void luaLoop(class Server * server) {
 	std::string input;

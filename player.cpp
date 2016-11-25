@@ -5,6 +5,7 @@
 #include "gauge.h"
 #include "luawrapper.h"
 #include "place.h"
+#include "log.h"
 
 #ifdef __linux__
 #include <unistd.h>
@@ -142,7 +143,7 @@ Player::Player(
 { }
 
 Player::~Player() {
-	verbose_info("Player "+std::to_string(this->getId())+" deleted.");
+	info("Player "+std::to_string(this->getId())+" deleted.");
 	if(this->zone) {
 		if(this->whenDeath != Script::noValue) {
 			Script script = this->whenDeath;
@@ -170,7 +171,7 @@ void Player::spawn(class Zone * zone, int x, int y) {
 		this->zone->enterPlayer(this, x, y);
 		this->loopThread = new std::thread(&Player::loopFunction, this);
 		this->follow(this);
-		verbose_info("Player "+std::to_string(this->getId())
+		info("Player "+std::to_string(this->getId())
 				+" spawn successfully.");
 	}
 }
@@ -262,7 +263,7 @@ void Player::delGauge(const Name& name) {
 		delete(old);
 		this->gauges.erase(name.toString());
 	} else {
-		verbose_info("Gauge '"+name.toString()+"' doesn't exist: can't be deleted.");
+		info("Gauge '"+name.toString()+"' doesn't exist: can't be deleted.");
 	}
 }
 

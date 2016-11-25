@@ -3,7 +3,7 @@
 #include "player.h"
 #include "zone.h"
 #include "luawrapper.h"
-#include "error.h"
+#include "log.h"
 
 #include <thread>
 
@@ -30,9 +30,9 @@ void Server::acceptLoop() {
 	while(this->isOpen()) {
 		fd = accept(connexion_fd, (struct sockaddr*) &remote_addr, &addr_len);
 		if(fd == -1) {
-			nonfatal("Accept new connexion failed");
+			warning("Accept new connexion failed");
 		} else {
-			verbose_info(
+			info(
 					"Got connexion from "
 					+ std::string(inet_ntoa(remote_addr.sin_addr))
 					+ " port "
@@ -93,11 +93,11 @@ void Server::_open(unsigned short port) {
 	int yes=1;
 
 	if((sockfd = socket(PF_INET, SOCK_STREAM, 0)) == -1) {
-		nonfatal("Unable to create socket");
+		warning("Unable to create socket");
 		return;
 	}
 	if(setsockopt(sockfd, SOL_SOCKET, SO_REUSEADDR, &yes, sizeof(int)) == -1) {
-		nonfatal("Unable to set socket option : SO_REUSEADDR");
+		warning("Unable to set socket option : SO_REUSEADDR");
 		return;
 	}
 
@@ -106,11 +106,11 @@ void Server::_open(unsigned short port) {
 	addr.sin_addr.s_addr = 0;
 	// memset(&(host_addr.sin_zero), '\0', 8); // FIXME: is this really useless ?
 	if(bind(sockfd,(struct sockaddr *) &addr, sizeof(struct sockaddr)) == -1) {
-		nonfatal("Unable to bind socket to port");
+		warning("Unable to bind socket to port");
 		return;
 	}
 	if(listen(sockfd, MAX_SOCKET_QUEUE) == -1) {
-		nonfatal("Unable to listen on socket");
+		warning("Unable to listen on socket");
 		return;
 	}
 
@@ -125,7 +125,7 @@ void Server::_open(unsigned short port) {
 #elif defined _WIN32
 #endif
 
-	verbose_info("Server opened.");
+	info("Server opened.");
 	// TODO : IPv4/IPv6 connexions.
 
 	// Start connexion accepting thread.
@@ -147,7 +147,7 @@ void Server::_close() {
 		this->acceptThread = nullptr;
 	}
 
-	verbose_info("Server closed.");
+	info("Server closed.");
 }
 
 bool Server::isOpen() {
@@ -166,7 +166,7 @@ unsigned short Server::getPort() {
 void Server::addZone(std::string id, class Zone * zone) {
 	if(this->getZone(id) != nullptr) {
 		this->delZone(id);
-		verbose_info("Zone '"+id+"' replaced.");
+		info("Zone '"+id+"' replaced.");
 	}
 	this->zones[id] = zone;
 }
@@ -203,7 +203,7 @@ class Player * Server::getPlayer(int id) {
 void Server::delPlayer(int id) {
 	class Player * player = this->players[id];
 	if(player == nullptr) {
-		verbose_info("Player '"+std::to_string(id)+
+		info("Player '"+std::to_string(id)+
 				"' can't be deleted: doesn't exist.");
 	} else {
 		delete(player);
@@ -232,7 +232,7 @@ const Script& Server::getAction(std::string trigger) {
 
 void Server::delAction(std::string trigger) {
 	if(this->actions.count(trigger) == 0) {
-		verbose_info("Action '"+trigger+"' can't be deleted: doesn't exist.");
+		info("Action '"+trigger+"' can't be deleted: doesn't exist.");
 	} else {
 		this->actions.erase(trigger);
 	}
@@ -242,7 +242,7 @@ void Server::doAction(std::string trigger, class Player& player, std::string arg
 	try {
 		this->actions.at(trigger).execute(*(this->luawrapper), &player, arg);
 	} catch (const std::out_of_range& oor) {
-		verbose_info("Action '"+trigger+"' doesn't exist.");
+		info("Action '"+trigger+"' doesn't exist.");
 	}
 }
 

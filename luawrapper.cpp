@@ -1,6 +1,6 @@
 #include "luawrapper.h"
 
-#include "error.h"
+#include "log.h"
 #include "gauge.h"
 #include "name.h"
 #include "place.h"
@@ -51,36 +51,6 @@ int l_isverbose(lua_State * lua) {
 	return(1);
 }
 
-int l_warning(lua_State * lua) {
-	if(not lua_isstring(lua, 1)) {
-		lua_arg_error("warning(message)");
-	} else {
-		std::string message = lua_tostring(lua, 1);
-		warning(message);
-	}
-	return(0);
-}
-
-int l_nonfatal(lua_State * lua) {
-	if(not lua_isstring(lua, 1)) {
-		lua_arg_error("nonfatal(message)");
-	} else {
-		std::string message = lua_tostring(lua, 1);
-		nonfatal(message);
-	}
-	return(0);
-}
-
-int l_fatal(lua_State * lua) {
-	if(not lua_isstring(lua, 1)) {
-		lua_arg_error("fatal(message)");
-	} else {
-		std::string message = lua_tostring(lua, 1);
-		fatal(message);
-	}
-	return(0);
-}
-
 int l_info(lua_State * lua) {
 	if(not lua_isstring(lua, 1)) {
 		lua_arg_error("info(message)");
@@ -91,12 +61,22 @@ int l_info(lua_State * lua) {
 	return(0);
 }
 
-int l_verboseinfo(lua_State * lua) {
+int l_warning(lua_State * lua) {
 	if(not lua_isstring(lua, 1)) {
-		lua_arg_error("verboseinfo(message)");
+		lua_arg_error("warning(message)");
 	} else {
 		std::string message = lua_tostring(lua, 1);
-		verbose_info(message);
+		warning(message);
+	}
+	return(0);
+}
+
+int l_fatal(lua_State * lua) {
+	if(not lua_isstring(lua, 1)) {
+		lua_arg_error("fatal(message)");
+	} else {
+		std::string message = lua_tostring(lua, 1);
+		fatal(message);
 	}
 	return(0);
 }
@@ -1473,11 +1453,9 @@ Luawrapper::Luawrapper(class Server * server) :
 	lua_register(this->lua_state, "setverbose", l_setverbose);
 	lua_register(this->lua_state, "setnoverbose", l_setnoverbose);
 	lua_register(this->lua_state, "isverbose", l_isverbose);
-	lua_register(this->lua_state, "warning", l_warning);
-	lua_register(this->lua_state, "nonfatal", l_nonfatal);
-	lua_register(this->lua_state, "fatal", l_fatal);
 	lua_register(this->lua_state, "info", l_info);
-	lua_register(this->lua_state, "verbose", l_verboseinfo);
+	lua_register(this->lua_state, "warning", l_warning);
+	lua_register(this->lua_state, "fatal", l_fatal);
 
 	lua_register(this->lua_state, "halt", l_halt);
 	lua_register(this->lua_state, "open", l_open);

@@ -5,7 +5,6 @@ class Place;
 class Player;
 
 #include "aspect.h"
-#include "error.h"
 #include "name.h"
 
 #include <string>

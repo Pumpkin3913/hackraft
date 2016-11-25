@@ -4,7 +4,6 @@ class Zone;
 class Luawrapper;
 class Player;
 
-#include "error.h"
 #include "script.h"
 
 #include <map>
