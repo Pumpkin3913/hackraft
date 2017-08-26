@@ -825,20 +825,6 @@ int l_player_setwhendeath(lua_State * lua) {
 	return(0);
 }
 
-/* XXX //
-int l_player_getgauge(lua_State * lua) {
-	class Player * player = (class Player *) lua_touserdata(lua, 1);
-	if(player == nullptr or not lua_isstring(lua, 2)) {
-		lua_arg_error("player_getgauge(player, name)");
-	} else {
-		std::string name = lua_tostring(lua, 2);
-		lua_pushlightuserdata(lua, player->getGauge(name));
-		return(1);
-	}
-	return(0);
-}
-// XXX */
-
 int l_player_delgauge(lua_State * lua) {
 	if(not lua_isnumber(lua, 1) or not lua_isstring(lua, 2)) {
 		lua_arg_error("player_delgauge(player_id, gauge_id)");
@@ -1440,14 +1426,6 @@ Luawrapper::Luawrapper(class Server * server) :
 	Luawrapper::server = server;
 	luaL_openlibs(this->lua_state);
 
-/* XXX //
-	lua_pushlightuserdata(this->lua_state, this->server);
-	lua_setglobal(this->lua_state, "Server");
-
-	lua_pushlightuserdata(this->lua_state, nullptr);
-	lua_setglobal(this->lua_state, "nullptr");
-// XXX */
-
 	lua_register(this->lua_state, "c_rand", l_c_rand);
 
 	lua_register(this->lua_state, "setverbose", l_setverbose);
@@ -1500,7 +1478,6 @@ Luawrapper::Luawrapper(class Server * server) :
 	lua_register(this->lua_state, "player_changezone", l_player_changezone);
 	lua_register(this->lua_state, "player_getwhendeath", l_player_getwhendeath);
 	lua_register(this->lua_state, "player_setwhendeath", l_player_setwhendeath);
-	// lua_register(this->lua_state, "player_getgauge", l_player_getgauge);
 	lua_register(this->lua_state, "player_delgauge", l_player_delgauge);
 	lua_register(this->lua_state, "player_gettag", l_player_gettag);
 	lua_register(this->lua_state, "player_settag", l_player_settag);

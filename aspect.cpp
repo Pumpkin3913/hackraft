@@ -51,8 +51,6 @@ int Aspect::toEntry() const {
 	return(getAspectEntry(*this));
 }
 
-// const Aspect Aspect::noAspect {}; // XXX
-
 /* Static */
 
 std::map<class Aspect, int> aspectEntries; // Global

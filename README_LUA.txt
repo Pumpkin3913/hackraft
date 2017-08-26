@@ -2,11 +2,9 @@ c_rand(max) -> int | nil
 setverbose()
 setnoverbose()
 isverbose() -> bool
-warning(message)
-nonfatal(message)
-fatal(message)
 info(message)
-verbose(message)
+warning(message)
+fatal(message)
 
 halt()
 open(port)
@@ -19,16 +17,7 @@ add_action(trigger, script)
 get_action(trigger) -> string | nil
 delete_action(trigger)
 -- list_actions()
-
-new_tile(id, name, aspect [, passable])
-assert_tile(tile_id) -> bool | nil
-tile_getname(tile_id) -> string | nil
-tile_setname(tile_id, name)
-tile_getaspect(tile_id) -> int | nil
-tile_setaspect(tile_id, aspect)
-tile_canland(tile_id) -> bool | nil
-tile_setcanland(tile_id, bool)
--- list_tiles()
+register_aspect(string, int [, passable])
 
 new_zone(id, name, width, height, tile_id)
 assert_zone(zone_id) -> bool
@@ -36,16 +25,16 @@ zone_getname(zone_id) -> string | nil
 zone_setname(zone_id, name)
 zone_getwidth(zone_id) -> int | nil
 zone_getheight(zone_id) -> int | nil
-zone_gettile(zone_id, x, y) -> string | nil
-zone_settile(zone_id, x, y, tile_id)
--- zone_getplayer(zone, id)
-zone_getlandon(zone_id, x, y) -> string | nil
-zone_setlandon(zone_id, x, y, script)
-zone_resetlandon(zone_id, x, y)
-zone_gettag(zone_id, x, y, tag_id)
-zone_settag(zone_id, x, y, tag_id, value)
-zone_deltag(zone_id, x, y, tag_id)
 zone_event(zone_id, message)
+
+place_getaspect(zone_id, x, y)
+place_setaspect(zone_id, x, y, aspect) // Automatically set aspect's default passability.
+place_getlandon(zone_id, x, y)
+place_setlandon(zone_id, x, y, script)
+place_resetlandon(zone_id, x, y)
+place_gettag(zone_id, x, y, tag_id)
+place_settag(zone_id, x, y, tag_id, value)
+place_deltag(zone_id, x, y, tag_id)
 
 delete_player(player_id)
 assert_player(player_id) -> bool | nil
@@ -62,7 +51,6 @@ player_move(player_id, x_shift, y_shift)
 player_changezone(player_id, zone_id, x, y)
 player_getwhendeath(player_id) -> string | nil
 player_setwhendeath(player_id, script)
--- player_getgauge(player_id, gauge_id)
 -- player_list_gauges(player_id)
 player_delgauge(player_id, gauge_id)
 player_gettag(player_id, tag_id) -> string | tag

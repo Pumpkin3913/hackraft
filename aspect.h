@@ -12,8 +12,6 @@ public:
 	const std::string& toString() const;
 	int toEntry() const;
 
-	// static const Aspect noAspect; // XXX
-
 	static void registerAspect(const Aspect& aspect, int entry, bool default_passable = true);
 	static int getAspectEntry(const Aspect& aspect);
 	static bool getAspectDefaultPassable(const Aspect& aspect);
@@ -25,7 +23,6 @@ private:
 class Aspected {
 public:
 	Aspected(const Aspect& aspect);
-	// Aspected() : Aspected(Aspect::noAspect) {}; // XXX
 	Aspected() : Aspected(Aspect{}) {};
 	const Aspect& getAspect() const;
 	void setAspect(const Aspect& aspect);
