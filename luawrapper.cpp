@@ -370,6 +370,89 @@ int l_place_setaspect(lua_State * lua) {
 	return(0);
 }
 
+int l_place_ispassable(lua_State * lua) {
+	if(not lua_isstring(lua, 1)
+			or not lua_isnumber(lua, 2)
+			or not lua_isnumber(lua, 3)) {
+		lua_arg_error("place_ispassable(zone_id, x, y)");
+		lua_pushnil(lua);
+	} else {
+		std::string zone_id = lua_tostring(lua, 1);
+		class Zone * zone = Luawrapper::server->getZone(zone_id);
+		if(zone != nullptr) {
+			unsigned int x = lua_tointeger(lua, 2);
+			unsigned int y = lua_tointeger(lua, 3);
+			class Place * place = zone->getPlace(x, y);
+			if(place != nullptr) {
+				lua_pushboolean(lua, place->isWalkable());
+			} else {
+				warning("Invalid place "
+					+ std::to_string(x) + "-" + std::to_string(y)
+					+ " in zone '" + zone_id + "'.");
+				lua_pushnil(lua);
+			}
+		} else {
+			warning("Zone '"+zone_id+"' doesn't exist.");
+			lua_pushnil(lua);
+		}
+	}
+	return(1);
+}
+
+int l_place_setpassable(lua_State * lua) {
+	if(not lua_isstring(lua, 1)
+			or not lua_isnumber(lua, 2)
+			or not lua_isnumber(lua, 3)) {
+		lua_arg_error("place_setpassable(zone_id, x, y)");
+	} else {
+		std::string zone_id = lua_tostring(lua, 1);
+		class Zone * zone = Luawrapper::server->getZone(zone_id);
+		if(zone != nullptr) {
+			unsigned int x = lua_tointeger(lua, 2);
+			unsigned int y = lua_tointeger(lua, 3);
+			class Place * place = zone->getPlace(x, y);
+			if(place != nullptr) {
+				place->setWalkable();
+			} else {
+				warning("Invalid place "
+					+ std::to_string(x) + "-" + std::to_string(y)
+					+ " in zone '" + zone_id + "'.");
+				lua_pushnil(lua);
+			}
+		} else {
+			warning("Zone '"+zone_id+"' doesn't exist.");
+		}
+	}
+	return(0);
+}
+
+int l_place_setnotpassable(lua_State * lua) {
+	if(not lua_isstring(lua, 1)
+			or not lua_isnumber(lua, 2)
+			or not lua_isnumber(lua, 3)) {
+		lua_arg_error("place_setnotpassable(zone_id, x, y)");
+	} else {
+		std::string zone_id = lua_tostring(lua, 1);
+		class Zone * zone = Luawrapper::server->getZone(zone_id);
+		if(zone != nullptr) {
+			unsigned int x = lua_tointeger(lua, 2);
+			unsigned int y = lua_tointeger(lua, 3);
+			class Place * place = zone->getPlace(x, y);
+			if(place != nullptr) {
+				place->setNotWalkable();
+			} else {
+				warning("Invalid place "
+					+ std::to_string(x) + "-" + std::to_string(y)
+					+ " in zone '" + zone_id + "'.");
+				lua_pushnil(lua);
+			}
+		} else {
+			warning("Zone '"+zone_id+"' doesn't exist.");
+		}
+	}
+	return(0);
+}
+
 int l_place_getlandon(lua_State * lua) {
 	if(not lua_isstring(lua, 1)
 			or not lua_isnumber(lua, 2)
@@ -1456,6 +1539,9 @@ Luawrapper::Luawrapper(class Server * server) :
 
 	lua_register(this->lua_state, "place_getaspect", l_place_getaspect);
 	lua_register(this->lua_state, "place_setaspect", l_place_setaspect); // Automatically set aspect's default passability.
+	lua_register(this->lua_state, "place_ispassable", l_place_ispassable);
+	lua_register(this->lua_state, "place_setpassable", l_place_setpassable);
+	lua_register(this->lua_state, "place_setnotpassable", l_place_setnotpassable);
 	lua_register(this->lua_state, "place_getlandon", l_place_getlandon);
 	lua_register(this->lua_state, "place_setlandon", l_place_setlandon);
 	lua_register(this->lua_state, "place_resetlandon", l_place_resetlandon);

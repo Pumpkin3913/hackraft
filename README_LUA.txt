@@ -29,6 +29,9 @@ zone_event(zone_id, message)
 
 place_getaspect(zone_id, x, y)
 place_setaspect(zone_id, x, y, aspect) // Automatically set aspect's default passability.
+place_ispassable(zone_id, x, y)
+place_setpassable(zone_id, x, y)
+place_setnotpassable(zone_id, x, y)
 place_getlandon(zone_id, x, y)
 place_setlandon(zone_id, x, y, script)
 place_resetlandon(zone_id, x, y)
