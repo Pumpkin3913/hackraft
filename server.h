@@ -5,6 +5,7 @@ class Luawrapper;
 class Player;
 
 #include "script.h"
+#include "uuid.h"
 
 #include <map>
 #include <thread>
@@ -37,6 +38,13 @@ public:
 	void delAction(std::string trigger);
 	void doAction(std::string trigger, class Player& player, std::string arg = "");
 
+	/* Timers */
+	Uuid addTimer(unsigned int duration, const Script& script);
+	void delTimer(Uuid id);
+	void triggerTimer(Uuid id);
+	unsigned int getTimerRemaining(Uuid id); // 0 is not-found.
+	void setTimerRemaining(Uuid id, unsigned int remaining);
+
 	class Luawrapper * getLua();
 	void waitForTerminaison();
 
@@ -46,6 +54,13 @@ private:
 	std::map<std::string, class Zone *> zones;
 	std::map<int, class Player *> players;
 	std::map<std::string, Script> actions;
+
+	/* Timers */
+	struct Timer { unsigned int remaining; Script script; };
+	std::map<Uuid,struct Timer> timers;
+	std::thread timersThread;
+	// std::mutex timersLock; // TODO
+	void timersLoop();
 
 	std::thread * acceptThread;
 	class Luawrapper * luawrapper;

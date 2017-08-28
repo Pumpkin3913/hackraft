@@ -174,6 +174,63 @@ int l_register_aspect(lua_State * lua) {
 	return(0);
 }
 
+/* Timer */
+
+int l_create_timer(lua_State * lua) {
+	if(not lua_isnumber(lua, 1) or not lua_isstring(lua, 2)) {
+		lua_arg_error("create_timer(duration, script)");
+		lua_pushnil(lua);
+	} else {
+		int duration = lua_tointeger(lua, 1);
+		Script script { lua_tostring(lua, 2) };
+		Uuid id = Luawrapper::server->addTimer(duration, script);
+		lua_pushstring(lua, id.toString().c_str());
+	}
+	return(1);
+}
+
+int l_delete_timer(lua_State * lua) {
+	if(not lua_isstring(lua, 1)) {
+		lua_arg_error("delete_timer(timer_id)");
+	} else {
+		Uuid id { lua_tostring(lua, 1) };
+		Luawrapper::server->delTimer(id);
+	}
+	return(0);
+}
+
+int l_timer_getremaining(lua_State * lua) {
+	if(not lua_isstring(lua, 1)) {
+		lua_arg_error("delete_timer(timer_id)");
+		lua_pushnil(lua);
+	} else {
+		Uuid id { lua_tostring(lua, 1) };
+		lua_pushinteger(lua, Luawrapper::server->getTimerRemaining(id));
+	}
+	return(1);
+}
+
+int l_timer_setremaining(lua_State * lua) {
+	if(not lua_isstring(lua, 1) or not lua_isnumber(lua, 2)) {
+		lua_arg_error("timer_setremaining(timer_id, val)");
+	} else {
+		Uuid id { lua_tostring(lua, 1) };
+		int remaining = lua_tointeger(lua, 2);
+		Luawrapper::server->setTimerRemaining(id, remaining);
+	}
+	return(0);
+}
+
+int l_timer_triggernow(lua_State * lua) {
+	if(not lua_isstring(lua, 1)) {
+		lua_arg_error("timer_triggernow(timer_id)");
+	} else {
+		Uuid id { lua_tostring(lua, 1) };
+		Luawrapper::server->triggerTimer(id);
+	}
+	return(0);
+}
+
 /* Zone */
 
 int l_new_zone(lua_State * lua) {
@@ -1522,6 +1579,12 @@ Luawrapper::Luawrapper(class Server * server) :
 	lua_register(this->lua_state, "get_action", l_get_action);
 	lua_register(this->lua_state, "delete_action", l_delete_action);
 	lua_register(this->lua_state, "register_aspect", l_register_aspect);
+
+	lua_register(this->lua_state, "create_timer", l_create_timer);
+	lua_register(this->lua_state, "delete_timer", l_delete_timer);
+	lua_register(this->lua_state, "timer_getremaining", l_timer_getremaining);
+	lua_register(this->lua_state, "timer_setremaining", l_timer_setremaining);
+	lua_register(this->lua_state, "timer_triggernow", l_timer_triggernow);
 
 	lua_register(this->lua_state, "new_zone", l_new_zone);
 	lua_register(this->lua_state, "assert_zone", l_assert_zone);

@@ -54,12 +54,30 @@ void Server::acceptLoop() {
 	this->acceptThread = nullptr;
 }
 
+void Server::timersLoop() {
+	while(true) {
+		usleep(1000000);
+		// timersLock.lock();
+		for(auto it = this->timers.begin(); it != this->timers.end(); ) {
+			it->second.remaining--;
+			if(it->second.remaining == 0) {
+				it->second.script.execute(*luawrapper);
+				it = this->timers.erase(it);
+			} else {
+				it++;
+			}
+		}
+		// timersLock.unlock();
+	}
+}
+
 /* Public */
 
 Server::Server() :
 	// 0 is a valid file descriptor, but not a valid socket file descriptor.
 	connexion_fd(0),
 	port(0),
+	timersThread(std::thread(&Server::timersLoop, this)),
 	acceptThread(nullptr),
 	luawrapper(new Luawrapper(this))
 {
@@ -244,6 +262,47 @@ void Server::doAction(std::string trigger, class Player& player, std::string arg
 	} catch (const std::out_of_range& oor) {
 		info("Action '"+trigger+"' doesn't exist.");
 	}
+}
+
+Uuid Server::addTimer(unsigned int duration, const Script& script) {
+	Uuid id {};
+	this->timers.emplace(id, Timer{duration, script});
+	return(id);
+}
+
+void Server::delTimer(Uuid id) {
+	this->timers.erase(id);
+}
+
+void Server::triggerTimer(Uuid id) {
+	auto it = this->timers.find(id);
+	if(it == this->timers.end()) {
+		warning("Cannot trigger timer: id not found.");
+		return;
+	}
+	it->second.script.execute(*luawrapper);
+	this->timers.erase(it);
+}
+
+unsigned int Server::getTimerRemaining(Uuid id) {
+	auto it = this->timers.find(id);
+	if(it == this->timers.end()) {
+		return(0);
+	}
+	return(it->second.remaining);
+}
+
+void Server::setTimerRemaining(Uuid id, unsigned int remaining) {
+	if(remaining == 0) {
+		this->triggerTimer(id);
+		return;
+	}
+	auto it = this->timers.find(id);
+	if(it == this->timers.end()) {
+		warning("Cannot set timer's remaining time: id not found.");
+		return;
+	}
+	it->second.remaining = remaining;
 }
 
 class Luawrapper * Server::getLua() {

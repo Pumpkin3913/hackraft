@@ -19,6 +19,12 @@ delete_action(trigger)
 -- list_actions()
 register_aspect(string, int [, passable])
 
+create_timer(duration, script) -> timer_id
+delete_timer(timer_id)
+timer_getremaining(timer_id) -> int | 0
+timer_setremaining(timer_id, val)
+timer_triggernow(timer_id)
+
 new_zone(id, name, width, height, tile_id)
 assert_zone(zone_id) -> bool
 zone_getname(zone_id) -> string | nil
