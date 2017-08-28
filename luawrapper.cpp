@@ -8,8 +8,7 @@
 #include "server.h"
 #include "zone.h"
 
-#include <cstdlib> // srand(), rand()
-#include <ctime> // time()
+#include <cstdlib> // rand()
 
 class Server * Luawrapper::server = nullptr;
 
@@ -22,11 +21,6 @@ int l_c_rand(lua_State * lua) {
 		lua_arg_error("c_rand(max)");
 		lua_pushnil(lua);
 	} else {
-		static bool done = false;
-		if(not done) {
-			srand(time(nullptr));
-			done = true;
-		}
 		int max = lua_tointeger(lua, 1);
 		int x = rand()%max+1;
 		lua_pushinteger(lua, x);

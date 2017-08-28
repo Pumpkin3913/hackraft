@@ -1,5 +1,7 @@
 #include <iostream>
 #include <thread>
+#include <cstdlib> // srand()
+#include <ctime> // time()
 #ifdef __linux__
 #include <unistd.h>
 #elif defined _WIN32
@@ -22,6 +24,9 @@ int main (int argc, char** argv) {
 	if(argc >= 2) {
 		chdir(argv[1]);
 	}
+
+	// Seed RNG.
+	srand(time(nullptr));
 
 	server = new Server();
 	luaLoopThread = new std::thread(&luaLoop, server);
