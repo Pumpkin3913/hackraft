@@ -109,7 +109,7 @@ void Player::parse() {
 			}
 		} else if(cmd == "say") {
 			if(this->zone) {
-				this->zone->event(this->getName().toString()+" say "+arg);
+				this->zone->event(this->getName().toString()+": "+arg);
 			}
 		} else if(cmd == "quit") {
 			this->stop = true;
