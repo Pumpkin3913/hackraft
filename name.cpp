@@ -2,6 +2,8 @@
 
 /* Name */
 
+Name::Name(const std::string& name) : data {name} {}
+/*
 Name::Name(const std::string& name) :
 	data { "" }
 {
@@ -16,17 +18,18 @@ Name::Name(const std::string& name) :
 		) {
 			data.append(std::string{c});
 		}
-		/*
+		// *
 		else {
 			data.append(std::string{'?'});
 		}
-		*/
+		// *
 	}
 
 	if(data == "") {
 		data = "_";
 	}
 }
+*/
 
 const std::string& Name::toString() const {
 	return(data);

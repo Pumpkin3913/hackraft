@@ -344,9 +344,10 @@ void Player::updatePlayerExit(class Player * player) {
 }
 
 void Player::updateFloor() {
+	this->send("zonename " + this->zone->getName().toString());
 	// floor <W> <H> <name>
 	this->send(
-			"floor "
+			"zone "
 			+ std::to_string(this->zone->getWidth())
 			+ " "
 			+ std::to_string(this->zone->getHeight())
