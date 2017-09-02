@@ -61,8 +61,9 @@ void Server::timersLoop() {
 		for(auto it = this->timers.begin(); it != this->timers.end(); ) {
 			it->second.remaining--;
 			if(it->second.remaining == 0) {
-				it->second.script.execute(*luawrapper);
+				Script script = std::move(it->second.script);
 				it = this->timers.erase(it);
+				script.execute(*luawrapper);
 			} else {
 				it++;
 			}
