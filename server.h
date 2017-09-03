@@ -6,6 +6,7 @@ class Player;
 
 #include "script.h"
 #include "uuid.h"
+#include "artifact.h"
 
 #include <map>
 #include <thread>
@@ -38,6 +39,10 @@ public:
 	void delAction(std::string trigger);
 	void doAction(std::string trigger, class Player& player, std::string arg = "");
 
+	Uuid newArtifact(Name name);
+	void delArtifact(Uuid id);
+	class Artifact* getArtifact(Uuid id); // May return nullptr.
+
 	/* Timers */
 	Uuid addTimer(unsigned int duration, const Script& script);
 	void delTimer(Uuid id);
@@ -54,6 +59,7 @@ private:
 	std::map<std::string, class Zone *> zones;
 	std::map<int, class Player *> players;
 	std::map<std::string, Script> actions;
+	std::map<Uuid, class Artifact *> artifacts;
 
 	/* Timers */
 	struct Timer { unsigned int remaining; Script script; };

@@ -28,6 +28,15 @@ int main (int argc, char** argv) {
 	// Seed RNG.
 	srand(time(nullptr));
 
+	Uuid a{"123.456"};
+	info("TEST: "+a.toString());
+
+	Uuid b{"123456"};
+	info("TEST: "+b.toString());
+
+	Uuid c{"plopokio"};
+	info("TEST: "+c.toString());
+
 	server = new Server();
 	luaLoopThread = new std::thread(&luaLoop, server);
 

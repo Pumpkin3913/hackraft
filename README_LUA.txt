@@ -89,3 +89,10 @@ gauge_resetwhenempty(player_id, gauge_id)
 gauge_isvisible(player_id, gauge_id) -> bool | nil
 gauge_setvisible(player_id, gauge_id, bool)
 
+create_artifact(name) -> artifact_id
+delete_artifact(artifact_id)
+artifact_getname(artifact_id) -> string
+artifact_setname(artifact_id, name)
+artifact_gettag(artifact_id, tag_id) -> string
+artifact_settag(artifact_id, tag_id, value)
+artifact_deltag(artifact_id, tag_id)

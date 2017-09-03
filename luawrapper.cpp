@@ -1552,6 +1552,126 @@ int l_gauge_setvisible(lua_State * lua) {
 	return(0);
 }
 
+
+/* Artifacts */
+
+int l_create_artifact(lua_State * lua) {
+	if(not lua_isstring(lua, 1)) {
+		lua_arg_error("create_artifact(name)");
+		lua_pushnil(lua);
+		return(1);
+	}
+
+	Uuid id = Luawrapper::server->newArtifact(Name{lua_tostring(lua, 1)});
+	lua_pushstring(lua, id.toString().c_str());
+	return(1);
+}
+
+int l_delete_artifact(lua_State * lua) {
+	if(not lua_isstring(lua, 1)) {
+		lua_arg_error("delete_artifact(artifact_id)");
+		return(0);
+	}
+
+	Uuid id{ lua_tostring(lua, 1) };
+	Luawrapper::server->delArtifact(id);
+	return(0);
+}
+
+int l_artifact_getname(lua_State * lua) {
+	if(not lua_isstring(lua, 1)) {
+		lua_arg_error("artifact_getname(artifact_id)");
+		lua_pushnil(lua);
+		return(1);
+	}
+
+	Uuid id{ lua_tostring(lua, 1) };
+	Artifact* artifact = Luawrapper::server->getArtifact(id);
+
+	if(artifact == nullptr) {
+		warning("Artifact "+id.toString()+" doesn't exist.");
+		lua_pushnil(lua);
+		return(1);
+	}
+
+	lua_pushstring(lua, artifact->getName().toString().c_str());
+	return(1);
+}
+
+int l_artifact_setname(lua_State * lua) {
+	if(not lua_isstring(lua, 1) or not lua_isstring(lua, 2)) {
+		lua_arg_error("artifact_setname(artifact_id, name)");
+		return(0);
+	}
+
+	Uuid id{ lua_tostring(lua, 1) };
+	Artifact* artifact = Luawrapper::server->getArtifact(id);
+
+	if(artifact == nullptr) {
+		warning("Artifact "+id.toString()+" doesn't exist.");
+		return(0);
+	}
+
+	artifact->setName(Name{ lua_tostring(lua, 2) });
+	return(0);
+}
+
+int l_artifact_gettag(lua_State * lua) {
+	if(not lua_isstring(lua, 1) or not lua_isstring(lua, 2)) {
+		lua_arg_error("artifact_gettag(artifact_id, tag)");
+		lua_pushnil(lua);
+		return(1);
+	}
+
+	Uuid id{ lua_tostring(lua, 1) };
+	Artifact* artifact = Luawrapper::server->getArtifact(id);
+
+	if(artifact == nullptr) {
+		warning("Artifact "+id.toString()+" doesn't exist.");
+		lua_pushnil(lua);
+		return(1);
+	}
+
+	lua_pushstring(lua, artifact->getTag(TagID{ lua_tostring(lua, 2) }).toString().c_str());
+	return(1);
+}
+
+int l_artifact_settag(lua_State * lua) {
+	if(not lua_isstring(lua, 1) or not lua_isstring(lua, 2) or not lua_isstring(lua, 3)) {
+		lua_arg_error("artifact_settag(artifact_id, tag, value)");
+		return(0);
+	}
+
+	Uuid id{ lua_tostring(lua, 1) };
+	Artifact* artifact = Luawrapper::server->getArtifact(id);
+
+	if(artifact == nullptr) {
+		warning("Artifact "+id.toString()+" doesn't exist.");
+		return(0);
+	}
+
+	artifact->setTag(TagID{ lua_tostring(lua, 2) }, TagValue{ lua_tostring(lua, 3) });
+	return(0);
+}
+
+int l_artifact_deltag(lua_State * lua) {
+	if(not lua_isstring(lua, 1) or not lua_isstring(lua, 2)) {
+		lua_arg_error("artifact_deltag(artifact_id, tag)");
+		return(0);
+	}
+
+	Uuid id{ lua_tostring(lua, 1) };
+	Artifact* artifact = Luawrapper::server->getArtifact(id);
+
+	if(artifact == nullptr) {
+		warning("Artifact "+id.toString()+" doesn't exist.");
+		return(0);
+	}
+
+	artifact->delTag(TagID{ lua_tostring(lua, 2) });
+	return(0);
+}
+
 /* Wraper class */
 
 Luawrapper::Luawrapper(class Server * server) :
@@ -1649,6 +1769,14 @@ Luawrapper::Luawrapper(class Server * server) :
 	lua_register(this->lua_state, "gauge_resetwhenempty", l_gauge_resetwhenempty);
 	lua_register(this->lua_state, "gauge_isvisible", l_gauge_isvisible);
 	lua_register(this->lua_state, "gauge_setvisible", l_gauge_setvisible);
+
+	lua_register(this->lua_state, "create_artifact", l_create_artifact);
+	lua_register(this->lua_state, "delete_artifact", l_delete_artifact);
+	lua_register(this->lua_state, "artifact_getname", l_artifact_getname);
+	lua_register(this->lua_state, "artifact_setname", l_artifact_setname);
+	lua_register(this->lua_state, "artifact_gettag", l_artifact_gettag);
+	lua_register(this->lua_state, "artifact_settag", l_artifact_settag);
+	lua_register(this->lua_state, "artifact_deltag", l_artifact_deltag);
 
 	this->executeFile(LUA_INIT_SCRIPT);
 }

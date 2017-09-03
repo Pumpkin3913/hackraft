@@ -9,10 +9,18 @@ Uuid::Uuid() :
 
 Uuid::Uuid(const std::string& s) {
 	size_t middle = s.find_first_of(".");
-	std::string s_timestamp = s.substr(0, middle);
-	std::string s_random = s.substr(middle+1);
-	this->timestamp = std::stoi(s_timestamp);
-	this->random = std::stoi(s_random);
+	if(middle == std::string::npos) {
+		this->timestamp = 0;
+		this->random = 0;
+	}
+
+	try  {
+		this->timestamp = std::stoi(s.substr(0, middle));
+		this->random = std::stoi(s.substr(middle+1));
+	} catch(...) { // Invalid argument or Out of range.
+		this->timestamp = 0;
+		this->random = 0;
+	}
 }
 
 bool Uuid::operator == (const Uuid& rhs) const {
