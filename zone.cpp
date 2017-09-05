@@ -22,7 +22,7 @@ Zone::Zone(
 	width(width),
 	height(height)
 {
-	this->places = std::vector<class Place>(width * height, Place(*this, base_aspect));
+	this->places = std::vector<class Place>(width * height, Place(base_aspect));
 	this->server->addZone(id, this); // XXX ??
 }
 
