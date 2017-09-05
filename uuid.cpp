@@ -28,7 +28,11 @@ bool Uuid::operator == (const Uuid& rhs) const {
 }
 
 bool Uuid::operator < (const Uuid& rhs) const {
-	return(timestamp < rhs.timestamp or random < rhs.random);
+	if(timestamp == rhs.timestamp) {
+		return(random < rhs.random);
+	} else {
+		return(timestamp < rhs.timestamp);
+	}
 }
 
 std::string Uuid::toString() const {
