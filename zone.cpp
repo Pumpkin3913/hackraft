@@ -28,7 +28,7 @@ Zone::Zone(
 
 Zone::~Zone() {
 	// For now, players in a zone are deleted with it.
-	for(int id : this->players) {
+	for(Uuid id : this->players) {
 		this->server->delPlayer(id);
 	}
 	info("Zone '"+id+"' deleted.");
@@ -55,7 +55,7 @@ bool Zone::isPlaceValid(int x, int y) {
 }
 
 void Zone::event(std::string message) {
-	for(int id : this->players) {
+	for(Uuid id : this->players) {
 		class Player * player = this->getPlayer(id);
 		if(player) player->message(message);
 	}
@@ -77,7 +77,7 @@ void Zone::enterPlayer(class Player * player, int x, int y) {
 	player->setXY(x, y);
 	player->updateFloor();
 	this->updatePlayer(player);
-	for(int id : this->players) {
+	for(Uuid id : this->players) {
 		if(id != player->getId()) {
 			class Player * p = this->getPlayer(id);
 			if(p) player->updatePlayer(p);
@@ -87,14 +87,14 @@ void Zone::enterPlayer(class Player * player, int x, int y) {
 
 void Zone::exitPlayer(class Player * player) {
 	this->players.remove(player->getId());
-	for(int id : this->players) {
+	for(Uuid id : this->players) {
 		class Player * p = this->getPlayer(id);
 		if(p) p->updatePlayerExit(player);
 	}
 }
 
 void Zone::updatePlayer(class Player * player) {
-	for(int id : this->players) {
+	for(Uuid id : this->players) {
 		class Player * p = this->getPlayer(id);
 		if(p) p->updatePlayer(player);
 	}
@@ -102,7 +102,7 @@ void Zone::updatePlayer(class Player * player) {
 
 /* Private */
 
-class Player * Zone::getPlayer(int id) {
+class Player * Zone::getPlayer(Uuid id) {
 	class Player * player = this->server->getPlayer(id);
 	if(player != nullptr) {
 		return(player);
@@ -133,7 +133,7 @@ void Zone::updatePlaceAspect(int x, int y) {
 	class Place * place = this->getPlace(x,y);
 	if(place) {
 		auto aspect = place->getAspect();
-		for(int id : this->players) {
+		for(Uuid id : this->players) {
 			class Player * player = this->getPlayer(id);
 			if(player) player->updateFloor(x, y, aspect);
 		}

@@ -120,6 +120,7 @@ void Player::parse() {
 // PUBLIC
 
 Player::Player(
+	Uuid id,
 	int fd,
 	Name name,
 	const Aspect& aspect
@@ -127,7 +128,7 @@ Player::Player(
 	Aspected(aspect),
 	Named(name),
 	fd(fd),
-	id(fd),
+	id(id),
 	zone(nullptr),
 	x(0),
 	y(0),
@@ -143,7 +144,7 @@ Player::Player(
 { }
 
 Player::~Player() {
-	info("Player "+std::to_string(this->getId())+" deleted.");
+	info("Player "+this->getId().toString()+" deleted.");
 	if(this->zone) {
 		if(this->whenDeath != Script::noValue) {
 			Script script = this->whenDeath;
@@ -171,12 +172,11 @@ void Player::spawn(class Zone * zone, int x, int y) {
 		this->zone->enterPlayer(this, x, y);
 		this->loopThread = new std::thread(&Player::loopFunction, this);
 		this->follow(this);
-		info("Player "+std::to_string(this->getId())
-				+" spawn successfully.");
+		info("Player "+this->getId().toString()+" spawn successfully.");
 	}
 }
 
-int Player::getId() {
+Uuid Player::getId() {
 	return(this->id);
 }
 
@@ -329,7 +329,7 @@ void Player::updatePlayer(class Player * player) {
 	// move <plrID> <X> <Y>
 	this->send(
 			"move "
-			+ std::to_string(player->getId())
+			+ player->getId().toString()
 			+ " "
 			+ std::to_string(Aspect::getAspectEntry(player->getAspect()))
 			+ " "
@@ -340,7 +340,7 @@ void Player::updatePlayer(class Player * player) {
 }
 
 void Player::updatePlayerExit(class Player * player) {
-	this->send("exit "+std::to_string(player->getId()));
+	this->send("exit "+player->getId().toString());
 }
 
 void Player::updateFloor() {
@@ -444,6 +444,6 @@ void Player::remPickupList(unsigned long int id) {
 // XXX */
 
 void Player::follow(class Player * player) {
-	this->send("follow " + std::to_string(player->getId()));
+	this->send("follow " + player->getId().toString());
 }
 

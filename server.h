@@ -20,17 +20,20 @@ class Server {
 public:
 	Server();
 	~Server();
+
 	void _open(unsigned short port);
 	void _close();
 	bool isOpen();
 	unsigned short getPort();
+
 	void addZone(std::string id, class Zone * zone); // Automatically done by new Zone().
 	class Zone * getZone(std::string id);
 	void delZone(std::string id);
-	void addPlayer(class Player * player); // Automatically called by new Player()
-	class Player * getPlayer(int id); // May return nullptr.
-	void delPlayer(int id);
-	void remPlayer(int id);
+
+	void addPlayer(class Player * player);
+	class Player * getPlayer(Uuid id); // May return nullptr.
+	void delPlayer(Uuid id);
+	void remPlayer(Uuid id);
 
 	/* Player actions */
 // TODO: Stronger type: trigger.
@@ -57,7 +60,7 @@ private:
 	int connexion_fd;
 	unsigned short port;
 	std::map<std::string, class Zone *> zones;
-	std::map<int, class Player *> players;
+	std::map<Uuid, class Player *> players;
 	std::map<std::string, Script> actions;
 	std::map<Uuid, class Artifact *> artifacts;
 

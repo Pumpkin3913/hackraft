@@ -6,6 +6,7 @@ class Player;
 
 #include "aspect.h"
 #include "name.h"
+#include "uuid.h"
 
 #include <string>
 #include <vector>
@@ -54,7 +55,7 @@ private:
 	unsigned int width;
 	unsigned int height;
 	std::vector<class Place> places;
-	std::list<int> players;
+	std::list<Uuid> players;
 
-	class Player * getPlayer(int id); // Auto remove if invalid.
+	class Player * getPlayer(Uuid id); // Auto remove if invalid.
 };

@@ -683,26 +683,26 @@ int l_place_deltag(lua_State * lua) {
 /* Player */
 
 int l_delete_player(lua_State * lua) {
-	if(not lua_isnumber(lua, 1)) {
+	if(not lua_isstring(lua, 1)) {
 		lua_arg_error("delete_player(player_id)");
 	} else {
-		int player_id = lua_tointeger(lua, 1);
+		Uuid player_id { lua_tostring(lua, 1) };
 		class Player * player = Luawrapper::server->getPlayer(player_id);
 		if(player != nullptr) {
 			delete(player);
 		} else {
-			warning("Player '"+std::to_string(player_id)+"' doesn't exist.");
+			warning("Player '"+player_id.toString()+"' doesn't exist.");
 		}
 	}
 	return(0);
 }
 
 int l_assert_player(lua_State * lua) {
-	if(not lua_isnumber(lua, 1)) {
+	if(not lua_isstring(lua, 1)) {
 		lua_arg_error("assert_player(player_id)");
 		lua_pushnil(lua);
 	} else {
-		int player_id = lua_tointeger(lua, 1);
+		Uuid player_id { lua_tostring(lua, 1) };
 		class Player * player = Luawrapper::server->getPlayer(player_id);
 		if(player == nullptr) {
 			lua_pushboolean(lua, false);
@@ -714,13 +714,13 @@ int l_assert_player(lua_State * lua) {
 }
 
 int l_player_spawn(lua_State * lua) {
-	if(not lua_isnumber(lua, 1)
+	if(not lua_isstring(lua, 1)
 			or not lua_isstring(lua, 2)
 			or not lua_isnumber(lua, 3)
 			or not lua_isnumber(lua, 4)) {
 		lua_arg_error("player_spawn(player_id, zone_id, x, y)");
 	} else {
-		int player_id = lua_tointeger(lua, 1);
+		Uuid player_id { lua_tostring(lua, 1) };
 		class Player * player = Luawrapper::server->getPlayer(player_id);
 		if(player != nullptr) {
 			std::string zone_id = lua_tostring(lua, 2);
@@ -733,23 +733,23 @@ int l_player_spawn(lua_State * lua) {
 				warning("Zone '"+zone_id+"' doesn't exist.");
 			}
 		} else {
-			warning("Player '"+std::to_string(player_id)+"' doesn't exist.");
+			warning("Player '"+player_id.toString()+"' doesn't exist.");
 		}
 	}
 	return(0);
 }
 
 int l_player_getname(lua_State * lua) {
-	if(not lua_isnumber(lua, 1)) {
+	if(not lua_isstring(lua, 1)) {
 		lua_arg_error("player_getname(player_id)");
 		lua_pushnil(lua);
 	} else {
-		int player_id = lua_tointeger(lua, 1);
+		Uuid player_id { lua_tostring(lua, 1) };
 		class Player * player = Luawrapper::server->getPlayer(player_id);
 		if(player != nullptr) {
 			lua_pushstring(lua, player->getName().toString().c_str());
 		} else {
-			warning("Player '"+std::to_string(player_id)+"' doesn't exist.");
+			warning("Player '"+player_id.toString()+"' doesn't exist.");
 			lua_pushnil(lua);
 		}
 	}
@@ -757,32 +757,32 @@ int l_player_getname(lua_State * lua) {
 }
 
 int l_player_setname(lua_State * lua) {
-	if(not lua_isnumber(lua, 1) or not lua_isstring(lua, 2)) {
+	if(not lua_isstring(lua, 1) or not lua_isstring(lua, 2)) {
 		lua_arg_error("player_setname(player_id, name)");
 	} else {
-		int player_id = lua_tointeger(lua, 1);
+		Uuid player_id { lua_tostring(lua, 1) };
 		class Player * player = Luawrapper::server->getPlayer(player_id);
 		if(player != nullptr) {
 			std::string name = lua_tostring(lua, 2);
 			player->setName(Name{name});
 		} else {
-			warning("Player '"+std::to_string(player_id)+"' doesn't exist.");
+			warning("Player '"+player_id.toString()+"' doesn't exist.");
 		}
 	}
 	return(0);
 }
 
 int l_player_getaspect(lua_State * lua) {
-	if(not lua_isnumber(lua, 1)) {
+	if(not lua_isstring(lua, 1)) {
 		lua_arg_error("player_getaspect(player_id)");
 		lua_pushnil(lua);
 	} else {
-		int player_id = lua_tointeger(lua, 1);
+		Uuid player_id { lua_tostring(lua, 1) };
 		class Player * player = Luawrapper::server->getPlayer(player_id);
 		if(player != nullptr) {
 			lua_pushstring(lua, player->getAspect().toString().c_str());
 		} else {
-			warning("Player '"+std::to_string(player_id)+"' doesn't exist.");
+			warning("Player '"+player_id.toString()+"' doesn't exist.");
 			lua_pushnil(lua);
 		}
 	}
@@ -790,10 +790,10 @@ int l_player_getaspect(lua_State * lua) {
 }
 
 int l_player_setaspect(lua_State * lua) {
-	if(not lua_isnumber(lua, 1) or not lua_isstring(lua, 2)) {
+	if(not lua_isstring(lua, 1) or not lua_isstring(lua, 2)) {
 		lua_arg_error("player_setaspect(player_id, aspect)");
 	} else {
-		int player_id = lua_tointeger(lua, 1);
+		Uuid player_id { lua_tostring(lua, 1) };
 		class Player * player = Luawrapper::server->getPlayer(player_id);
 		if(player != nullptr) {
 			Aspect aspect { lua_tostring(lua, 2) };
@@ -805,23 +805,23 @@ int l_player_setaspect(lua_State * lua) {
 				zone->updatePlayer(player);
 			}
 		} else {
-			warning("Player '"+std::to_string(player_id)+"' doesn't exist.");
+			warning("Player '"+player_id.toString()+"' doesn't exist.");
 		}
 	}
 	return(0);
 }
 
 int l_player_getzone(lua_State * lua) {
-	if(not lua_isnumber(lua, 1)) {
+	if(not lua_isstring(lua, 1)) {
 		lua_arg_error("player_getzone(player_id)");
 		lua_pushnil(lua);
 	} else {
-		int player_id = lua_tointeger(lua, 1);
+		Uuid player_id { lua_tostring(lua, 1) };
 		class Player * player = Luawrapper::server->getPlayer(player_id);
 		if(player != nullptr) {
 			lua_pushstring(lua, player->getZone()->getId().c_str());
 		} else {
-			warning("Player '"+std::to_string(player_id)+"' doesn't exist.");
+			warning("Player '"+player_id.toString()+"' doesn't exist.");
 			lua_pushnil(lua);
 		}
 	}
@@ -829,16 +829,16 @@ int l_player_getzone(lua_State * lua) {
 }
 
 int l_player_getx(lua_State * lua) {
-	if(not lua_isnumber(lua, 1)) {
+	if(not lua_isstring(lua, 1)) {
 		lua_arg_error("player_getx(player_id)");
 		lua_pushnil(lua);
 	} else {
-		int player_id = lua_tointeger(lua, 1);
+		Uuid player_id { lua_tostring(lua, 1) };
 		class Player * player = Luawrapper::server->getPlayer(player_id);
 		if(player != nullptr) {
 			lua_pushinteger(lua, player->getX());
 		} else {
-			warning("Player '"+std::to_string(player_id)+"' doesn't exist.");
+			warning("Player '"+player_id.toString()+"' doesn't exist.");
 			lua_pushnil(lua);
 		}
 	}
@@ -846,16 +846,16 @@ int l_player_getx(lua_State * lua) {
 }
 
 int l_player_gety(lua_State * lua) {
-	if(not lua_isnumber(lua, 1)) {
+	if(not lua_isstring(lua, 1)) {
 		lua_arg_error("player_gety(player_id)");
 		lua_pushnil(lua);
 	} else {
-		int player_id = lua_tointeger(lua, 1);
+		Uuid player_id { lua_tostring(lua, 1) };
 		class Player * player = Luawrapper::server->getPlayer(player_id);
 		if(player != nullptr) {
 			lua_pushinteger(lua, player->getY());
 		} else {
-			warning("Player '"+std::to_string(player_id)+"' doesn't exist.");
+			warning("Player '"+player_id.toString()+"' doesn't exist.");
 			lua_pushnil(lua);
 		}
 	}
@@ -863,51 +863,51 @@ int l_player_gety(lua_State * lua) {
 }
 
 int l_player_setxy(lua_State * lua) {
-	if(not lua_isnumber(lua, 1)
+	if(not lua_isstring(lua, 1)
 			or not lua_isnumber(lua, 2)
 			or not lua_isnumber(lua, 3)) {
 		lua_arg_error("player_setxy(player_id, x, y)");
 	} else {
-		int player_id = lua_tointeger(lua, 1);
+		Uuid player_id { lua_tostring(lua, 1) };
 		class Player * player = Luawrapper::server->getPlayer(player_id);
 		if(player != nullptr) {
 			int x = lua_tointeger(lua, 2);
 			int y = lua_tointeger(lua, 3);
 			player->setXY(x, y);
 		} else {
-			warning("Player '"+std::to_string(player_id)+"' doesn't exist.");
+			warning("Player '"+player_id.toString()+"' doesn't exist.");
 		}
 	}
 	return(0);
 }
 
 int l_player_move(lua_State * lua) {
-	if(not lua_isnumber(lua, 1)
+	if(not lua_isstring(lua, 1)
 			or not lua_isnumber(lua, 2)
 			or not lua_isnumber(lua, 3)) {
 		lua_arg_error("player_move(player_id, x_shift, y_shift)");
 	} else {
-		int player_id = lua_tointeger(lua, 1);
+		Uuid player_id { lua_tostring(lua, 1) };
 		class Player * player = Luawrapper::server->getPlayer(player_id);
 		if(player != nullptr) {
 			int x = lua_tointeger(lua, 2);
 			int y = lua_tointeger(lua, 3);
 			player->move(x, y);
 		} else {
-			warning("Player '"+std::to_string(player_id)+"' doesn't exist.");
+			warning("Player '"+player_id.toString()+"' doesn't exist.");
 		}
 	}
 	return(0);
 }
 
 int l_player_changezone(lua_State * lua) {
-	if(not lua_isnumber(lua, 1)
+	if(not lua_isstring(lua, 1)
 			or not lua_isstring(lua, 2)
 			or not lua_isnumber(lua, 3)
 			or not lua_isnumber(lua, 4)) {
 		lua_arg_error("player_changezone(player_id, zone_id, x, y)");
 	} else {
-		int player_id = lua_tointeger(lua, 1);
+		Uuid player_id { lua_tostring(lua, 1) };
 		class Player * player = Luawrapper::server->getPlayer(player_id);
 		if(player != nullptr) {
 			std::string zone_id = lua_tostring(lua, 2);
@@ -920,23 +920,23 @@ int l_player_changezone(lua_State * lua) {
 				warning("Zone '"+zone_id+"' doesn't exist.");
 			}
 		} else {
-			warning("Player '"+std::to_string(player_id)+"' doesn't exist.");
+			warning("Player '"+player_id.toString()+"' doesn't exist.");
 		}
 	}
 	return(0);
 }
 
 int l_player_getwhendeath(lua_State * lua) {
-	if(not lua_isnumber(lua, 1)) {
+	if(not lua_isstring(lua, 1)) {
 		lua_arg_error("player_getwhendeath(player_id)");
 		lua_pushnil(lua);
 	} else {
-		int player_id = lua_tointeger(lua, 1);
+		Uuid player_id { lua_tostring(lua, 1) };
 		class Player * player = Luawrapper::server->getPlayer(player_id);
 		if(player != nullptr) {
 			lua_pushstring(lua, player->getWhenDeath().toString().c_str());
 		} else {
-			warning("Player '"+std::to_string(player_id)+"' doesn't exist.");
+			warning("Player '"+player_id.toString()+"' doesn't exist.");
 			lua_pushnil(lua);
 		}
 	}
@@ -944,49 +944,49 @@ int l_player_getwhendeath(lua_State * lua) {
 }
 
 int l_player_setwhendeath(lua_State * lua) {
-	if(not lua_isnumber(lua, 1) or not lua_isstring(lua, 2)) {
+	if(not lua_isstring(lua, 1) or not lua_isstring(lua, 2)) {
 		lua_arg_error("player_setwhendeath(player_id, script)");
 	} else {
-		int player_id = lua_tointeger(lua, 1);
+		Uuid player_id { lua_tostring(lua, 1) };
 		class Player * player = Luawrapper::server->getPlayer(player_id);
 		if(player != nullptr) {
 			Script script = Script { lua_tostring(lua, 2) };
 			player->setWhenDeath(script);
 		} else {
-			warning("Player '"+std::to_string(player_id)+"' doesn't exist.");
+			warning("Player '"+player_id.toString()+"' doesn't exist.");
 		}
 	}
 	return(0);
 }
 
 int l_player_delgauge(lua_State * lua) {
-	if(not lua_isnumber(lua, 1) or not lua_isstring(lua, 2)) {
+	if(not lua_isstring(lua, 1) or not lua_isstring(lua, 2)) {
 		lua_arg_error("player_delgauge(player_id, gauge_id)");
 	} else {
-		int player_id = lua_tointeger(lua, 1);
+		Uuid player_id { lua_tostring(lua, 1) };
 		class Player * player = Luawrapper::server->getPlayer(player_id);
 		if(player != nullptr) {
 			Name name = Name { lua_tostring(lua, 2) };
 			player->delGauge(name);
 		} else {
-			warning("Player '"+std::to_string(player_id)+"' doesn't exist.");
+			warning("Player '"+player_id.toString()+"' doesn't exist.");
 		}
 	}
 	return(0);
 }
 
 int l_player_gettag(lua_State * lua) {
-	if(not lua_isnumber(lua, 1) or not lua_isstring(lua, 2)) {
+	if(not lua_isstring(lua, 1) or not lua_isstring(lua, 2)) {
 		lua_arg_error("player_gettag(player_id, tag_id)");
 		lua_pushnil(lua);
 	} else {
-		int player_id = lua_tointeger(lua, 1);
+		Uuid player_id { lua_tostring(lua, 1) };
 		class Player * player = Luawrapper::server->getPlayer(player_id);
 		if(player != nullptr) {
 			TagID tag_id = TagID { lua_tostring(lua, 2) };
 			lua_pushstring(lua, player->getTag(tag_id).toString().c_str());
 		} else {
-			warning("Player '"+std::to_string(player_id)+"' doesn't exist.");
+			warning("Player '"+player_id.toString()+"' doesn't exist.");
 			lua_pushnil(lua);
 		}
 	}
@@ -994,51 +994,51 @@ int l_player_gettag(lua_State * lua) {
 }
 
 int l_player_settag(lua_State * lua) {
-	if(not lua_isnumber(lua, 1)
+	if(not lua_isstring(lua, 1)
 			or not lua_isstring(lua, 2)
 			or not lua_isstring(lua, 3)) {
 		lua_arg_error("player_settag(player_id, tag_id, value)");
 	} else {
-		int player_id = lua_tointeger(lua, 1);
+		Uuid player_id { lua_tostring(lua, 1) };
 		class Player * player = Luawrapper::server->getPlayer(player_id);
 		if(player != nullptr) {
 			TagID tag_id = TagID { lua_tostring(lua, 2) };
 			TagValue value = TagValue { lua_tostring(lua, 3) };
 			player->setTag(tag_id, value);
 		} else {
-			warning("Player '"+std::to_string(player_id)+"' doesn't exist.");
+			warning("Player '"+player_id.toString()+"' doesn't exist.");
 		}
 	}
 	return(0);
 }
 
 int l_player_deltag(lua_State * lua) {
-	if(not lua_isnumber(lua, 1) or not lua_isstring(lua, 2)) {
+	if(not lua_isstring(lua, 1) or not lua_isstring(lua, 2)) {
 		lua_arg_error("player_deltag(player_id, tag_id)");
 	} else {
-		int player_id = lua_tointeger(lua, 1);
+		Uuid player_id { lua_tostring(lua, 1) };
 		class Player * player = Luawrapper::server->getPlayer(player_id);
 		if(player != nullptr) {
 			TagID tag_id = TagID { lua_tostring(lua, 2) };
 			player->delTag(tag_id);
 		} else {
-			warning("Player '"+std::to_string(player_id)+"' doesn't exist.");
+			warning("Player '"+player_id.toString()+"' doesn't exist.");
 		}
 	}
 	return(0);
 }
 
 int l_player_isghost(lua_State * lua) {
-	if(not lua_isnumber(lua, 1)) {
+	if(not lua_isstring(lua, 1)) {
 		lua_arg_error("player_isghost(player_id)");
 		lua_pushnil(lua);
 	} else {
-		int player_id = lua_tointeger(lua, 1);
+		Uuid player_id { lua_tostring(lua, 1) };
 		class Player * player = Luawrapper::server->getPlayer(player_id);
 		if(player != nullptr) {
 			lua_pushboolean(lua, player->isGhost());
 		} else {
-			warning("Player '"+std::to_string(player_id)+"' doesn't exist.");
+			warning("Player '"+player_id.toString()+"' doesn't exist.");
 			lua_pushnil(lua);
 		}
 	}
@@ -1046,53 +1046,53 @@ int l_player_isghost(lua_State * lua) {
 }
 
 int l_player_setghost(lua_State * lua) {
-	if(not lua_isnumber(lua, 1) or not lua_isboolean(lua, 2)) {
+	if(not lua_isstring(lua, 1) or not lua_isboolean(lua, 2)) {
 		lua_arg_error("player_setghost(player_id, bool)");
 	} else {
-		int player_id = lua_tointeger(lua, 1);
+		Uuid player_id { lua_tostring(lua, 1) };
 		class Player * player = Luawrapper::server->getPlayer(player_id);
 		if(player != nullptr) {
 			bool b = lua_toboolean(lua, 2);
 			b ? player->setGhost() : player->setNotGhost();
 		} else {
-			warning("Player '"+std::to_string(player_id)+"' doesn't exist.");
+			warning("Player '"+player_id.toString()+"' doesn't exist.");
 		}
 	}
 	return(0);
 }
 
 int l_player_message(lua_State * lua) {
-	if(not lua_isnumber(lua, 1) or not lua_isstring(lua, 2)) {
+	if(not lua_isstring(lua, 1) or not lua_isstring(lua, 2)) {
 		lua_arg_error("player_message(player_id, message)");
 	} else {
-		int player_id = lua_tointeger(lua, 1);
+		Uuid player_id { lua_tostring(lua, 1) };
 		class Player * player = Luawrapper::server->getPlayer(player_id);
 		if(player != nullptr) {
 			std::string message = lua_tostring(lua, 2);
 			player->message(message);
 		} else {
-			warning("Player '"+std::to_string(player_id)+"' doesn't exist.");
+			warning("Player '"+player_id.toString()+"' doesn't exist.");
 		}
 	}
 	return(0);
 }
 
 int l_player_follow(lua_State * lua) {
-	if(not lua_isnumber(lua, 1) or not lua_isnumber(lua, 2)) {
+	if(not lua_isstring(lua, 1) or not lua_isstring(lua, 2)) {
 		lua_arg_error("player_follow(player_id, target_player_id)");
 	} else {
-		int player_id = lua_tointeger(lua, 1);
+		Uuid player_id { lua_tostring(lua, 1) };
 		class Player * player = Luawrapper::server->getPlayer(player_id);
 		if(player != nullptr) {
-			int target_id = lua_tointeger(lua, 2);
+			Uuid target_id { lua_tostring(lua, 2) };
 			class Player * target = Luawrapper::server->getPlayer(target_id);
 			if(target != nullptr) {
 				player->follow(target);
 			} else {
-				warning("Player '"+std::to_string(player_id)+"' doesn't exist.");
+				warning("Player '"+target_id.toString()+"' doesn't exist.");
 			}
 		} else {
-			warning("Player '"+std::to_string(player_id)+"' doesn't exist.");
+			warning("Player '"+player_id.toString()+"' doesn't exist.");
 		}
 	}
 	return(0);
@@ -1109,7 +1109,7 @@ int l_new_gauge(lua_State * lua) {
 			or not lua_isstring(lua, 6)) {
 		lua_arg_error("new_gauge(player_id, gauge_id, val, max, aspectFull, aspectEmpty, [, visible])");
 	} else {
-		int player_id = lua_tointeger(lua, 1);
+		Uuid player_id { lua_tostring(lua, 1) };
 		class Player * player = Luawrapper::server->getPlayer(player_id);
 		if(player != nullptr) {
 			std::string gauge_id = lua_tostring(lua, 2);
@@ -1124,7 +1124,7 @@ int l_new_gauge(lua_State * lua) {
 				new Gauge(player, Name{gauge_id}, val, max, aspectFull, aspectEmpty);
 			}
 		} else {
-			warning("Player '"+std::to_string(player_id)+"' doesn't exist.");
+			warning("Player '"+player_id.toString()+"' doesn't exist.");
 		}
 	}
 	return(0);
@@ -1135,7 +1135,7 @@ int l_assert_gauge(lua_State * lua) {
 		lua_arg_error("assert_gauge(player_id, gauge_id)");
 		lua_pushnil(lua);
 	} else {
-		int player_id = lua_tointeger(lua, 1);
+		Uuid player_id { lua_tostring(lua, 1) };
 		class Player * player = Luawrapper::server->getPlayer(player_id);
 		if(player != nullptr) {
 			Name name = Name { lua_tostring(lua, 2) };
@@ -1146,7 +1146,7 @@ int l_assert_gauge(lua_State * lua) {
 				lua_pushboolean(lua, true);
 			}
 		} else {
-			warning("Player '"+std::to_string(player_id)+"' doesn't exist.");
+			warning("Player '"+player_id.toString()+"' doesn't exist.");
 			lua_pushnil(lua);
 		}
 	}
@@ -1158,7 +1158,7 @@ int l_gauge_getname(lua_State * lua) {
 		lua_arg_error("gauge_getname(player_id, gauge_id)");
 		lua_pushnil(lua);
 	} else {
-		int player_id = lua_tointeger(lua, 1);
+		Uuid player_id { lua_tostring(lua, 1) };
 		class Player * player = Luawrapper::server->getPlayer(player_id);
 		if(player != nullptr) {
 			Name name = Name { lua_tostring(lua, 2) };
@@ -1166,12 +1166,12 @@ int l_gauge_getname(lua_State * lua) {
 			if(gauge != nullptr) {
 				lua_pushstring(lua, gauge->getName().toString().c_str());
 			} else {
-				warning("Player '"+std::to_string(player_id)
+				warning("Player '"+player_id.toString()
 						+"' doesn't have gauge '"+name.toString()+"'.");
 				lua_pushnil(lua);
 			}
 		} else {
-			warning("Player '"+std::to_string(player_id)+"' doesn't exist.");
+			warning("Player '"+player_id.toString()+"' doesn't exist.");
 			lua_pushnil(lua);
 		}
 	}
@@ -1184,7 +1184,7 @@ int l_gauge_setname(lua_State * lua) {
 			or not lua_isstring(lua, 3)) {
 		lua_arg_error("gauge_setname(player_id, gauge_id, name)");
 	} else {
-		int player_id = lua_tointeger(lua, 1);
+		Uuid player_id { lua_tostring(lua, 1) };
 		class Player * player = Luawrapper::server->getPlayer(player_id);
 		if(player != nullptr) {
 			Name name = Name { lua_tostring(lua, 2) };
@@ -1193,11 +1193,11 @@ int l_gauge_setname(lua_State * lua) {
 				Name new_name = Name { lua_tostring(lua, 3) };
 				gauge->setName(new_name);
 			} else {
-				warning("Player '"+std::to_string(player_id)
+				warning("Player '"+player_id.toString()
 						+"' doesn't have gauge '"+name.toString()+"'.");
 			}
 		} else {
-			warning("Player '"+std::to_string(player_id)+"' doesn't exist.");
+			warning("Player '"+player_id.toString()+"' doesn't exist.");
 		}
 	}
 	return(0);
@@ -1209,7 +1209,7 @@ int l_gauge_getval(lua_State * lua) {
 		lua_arg_error("gauge_getval(player_id, gauge_id)");
 		lua_pushnil(lua);
 	} else {
-		int player_id = lua_tointeger(lua, 1);
+		Uuid player_id { lua_tostring(lua, 1) };
 		class Player * player = Luawrapper::server->getPlayer(player_id);
 		if(player != nullptr) {
 			Name name = Name { lua_tostring(lua, 2) };
@@ -1217,12 +1217,12 @@ int l_gauge_getval(lua_State * lua) {
 			if(gauge != nullptr) {
 				lua_pushinteger(lua, gauge->getVal());
 			} else {
-				warning("Player '"+std::to_string(player_id)
+				warning("Player '"+player_id.toString()
 						+"' doesn't have gauge '"+name.toString()+"'.");
 				lua_pushnil(lua);
 			}
 		} else {
-			warning("Player '"+std::to_string(player_id)+"' doesn't exist.");
+			warning("Player '"+player_id.toString()+"' doesn't exist.");
 			lua_pushnil(lua);
 		}
 	}
@@ -1235,7 +1235,7 @@ int l_gauge_setval(lua_State * lua) {
 			or not lua_isnumber(lua, 3)) {
 		lua_arg_error("gauge_setval(player_id, gauge_id, val)");
 	} else {
-		int player_id = lua_tointeger(lua, 1);
+		Uuid player_id { lua_tostring(lua, 1) };
 		class Player * player = Luawrapper::server->getPlayer(player_id);
 		if(player != nullptr) {
 			Name name = Name { lua_tostring(lua, 2) };
@@ -1244,11 +1244,11 @@ int l_gauge_setval(lua_State * lua) {
 				unsigned int val = lua_tointeger(lua, 3);
 				gauge->setVal(val);
 			} else {
-				warning("Player '"+std::to_string(player_id)
+				warning("Player '"+player_id.toString()
 						+"' doesn't have gauge '"+name.toString()+"'.");
 			}
 		} else {
-			warning("Player '"+std::to_string(player_id)+"' doesn't exist.");
+			warning("Player '"+player_id.toString()+"' doesn't exist.");
 		}
 	}
 	return(0);
@@ -1260,7 +1260,7 @@ int l_gauge_increase(lua_State * lua) {
 			or not lua_isnumber(lua, 3)) {
 		lua_arg_error("gauge_increase(player_id, gauge_id, val)");
 	} else {
-		int player_id = lua_tointeger(lua, 1);
+		Uuid player_id { lua_tostring(lua, 1) };
 		class Player * player = Luawrapper::server->getPlayer(player_id);
 		if(player != nullptr) {
 			Name name = Name { lua_tostring(lua, 2) };
@@ -1269,11 +1269,11 @@ int l_gauge_increase(lua_State * lua) {
 				unsigned int val = lua_tointeger(lua, 3);
 				gauge->increase(val);
 			} else {
-				warning("Player '"+std::to_string(player_id)
+				warning("Player '"+player_id.toString()
 						+"' doesn't have gauge '"+name.toString()+"'.");
 			}
 		} else {
-			warning("Player '"+std::to_string(player_id)+"' doesn't exist.");
+			warning("Player '"+player_id.toString()+"' doesn't exist.");
 		}
 	}
 	return(0);
@@ -1285,7 +1285,7 @@ int l_gauge_decrease(lua_State * lua) {
 			or not lua_isnumber(lua, 3)) {
 		lua_arg_error("gauge_decrease(player_id, gauge_id, val)");
 	} else {
-		int player_id = lua_tointeger(lua, 1);
+		Uuid player_id { lua_tostring(lua, 1) };
 		class Player * player = Luawrapper::server->getPlayer(player_id);
 		if(player != nullptr) {
 			Name name = Name { lua_tostring(lua, 2) };
@@ -1294,11 +1294,11 @@ int l_gauge_decrease(lua_State * lua) {
 				unsigned int val = lua_tointeger(lua, 3);
 				gauge->decrease(val);
 			} else {
-				warning("Player '"+std::to_string(player_id)
+				warning("Player '"+player_id.toString()
 						+"' doesn't have gauge '"+name.toString()+"'.");
 			}
 		} else {
-			warning("Player '"+std::to_string(player_id)+"' doesn't exist.");
+			warning("Player '"+player_id.toString()+"' doesn't exist.");
 		}
 	}
 	return(0);
@@ -1310,7 +1310,7 @@ int l_gauge_getmax(lua_State * lua) {
 		lua_arg_error("gauge_getmax(player_id, gauge_id)");
 		lua_pushnil(lua);
 	} else {
-		int player_id = lua_tointeger(lua, 1);
+		Uuid player_id { lua_tostring(lua, 1) };
 		class Player * player = Luawrapper::server->getPlayer(player_id);
 		if(player != nullptr) {
 			Name name = Name { lua_tostring(lua, 2) };
@@ -1318,12 +1318,12 @@ int l_gauge_getmax(lua_State * lua) {
 			if(gauge != nullptr) {
 				lua_pushinteger(lua, gauge->getMax());
 			} else {
-				warning("Player '"+std::to_string(player_id)
+				warning("Player '"+player_id.toString()
 						+"' doesn't have gauge '"+name.toString()+"'.");
 				lua_pushnil(lua);
 			}
 		} else {
-			warning("Player '"+std::to_string(player_id)+"' doesn't exist.");
+			warning("Player '"+player_id.toString()+"' doesn't exist.");
 			lua_pushnil(lua);
 		}
 	}
@@ -1336,7 +1336,7 @@ int l_gauge_setmax(lua_State * lua) {
 			or not lua_isnumber(lua, 3)) {
 		lua_arg_error("gauge_setmax(player_id, gauge_id, max)");
 	} else {
-		int player_id = lua_tointeger(lua, 1);
+		Uuid player_id { lua_tostring(lua, 1) };
 		class Player * player = Luawrapper::server->getPlayer(player_id);
 		if(player != nullptr) {
 			Name name = Name { lua_tostring(lua, 2) };
@@ -1345,11 +1345,11 @@ int l_gauge_setmax(lua_State * lua) {
 				unsigned int val = lua_tointeger(lua, 3);
 				gauge->setMax(val);
 			} else {
-				warning("Player '"+std::to_string(player_id)
+				warning("Player '"+player_id.toString()
 						+"' doesn't have gauge '"+name.toString()+"'.");
 			}
 		} else {
-			warning("Player '"+std::to_string(player_id)+"' doesn't exist.");
+			warning("Player '"+player_id.toString()+"' doesn't exist.");
 		}
 	}
 	return(0);
@@ -1361,7 +1361,7 @@ int l_gauge_getwhenfull(lua_State * lua) {
 		lua_arg_error("gauge_getwhenfull(player_id, gauge_id)");
 		lua_pushnil(lua);
 	} else {
-		int player_id = lua_tointeger(lua, 1);
+		Uuid player_id { lua_tostring(lua, 1) };
 		class Player * player = Luawrapper::server->getPlayer(player_id);
 		if(player != nullptr) {
 			Name name = Name { lua_tostring(lua, 2) };
@@ -1369,12 +1369,12 @@ int l_gauge_getwhenfull(lua_State * lua) {
 			if(gauge != nullptr) {
 				lua_pushstring(lua, gauge->getWhenFull().toString().c_str());
 			} else {
-				warning("Player '"+std::to_string(player_id)
+				warning("Player '"+player_id.toString()
 						+"' doesn't have gauge '"+name.toString()+"'.");
 				lua_pushnil(lua);
 			}
 		} else {
-			warning("Player '"+std::to_string(player_id)+"' doesn't exist.");
+			warning("Player '"+player_id.toString()+"' doesn't exist.");
 			lua_pushnil(lua);
 		}
 	}
@@ -1387,7 +1387,7 @@ int l_gauge_setwhenfull(lua_State * lua) {
 			or not lua_isstring(lua, 3)) {
 		lua_arg_error("gauge_setwhenfull(player_id, gauge_id, script)");
 	} else {
-		int player_id = lua_tointeger(lua, 1);
+		Uuid player_id { lua_tostring(lua, 1) };
 		class Player * player = Luawrapper::server->getPlayer(player_id);
 		if(player != nullptr) {
 			Name name = Name { lua_tostring(lua, 2) };
@@ -1396,11 +1396,11 @@ int l_gauge_setwhenfull(lua_State * lua) {
 				Script script = Script { lua_tostring(lua, 3) };
 				gauge->setWhenFull(script);
 			} else {
-				warning("Player '"+std::to_string(player_id)
+				warning("Player '"+player_id.toString()
 						+"' doesn't have gauge '"+name.toString()+"'.");
 			}
 		} else {
-			warning("Player '"+std::to_string(player_id)+"' doesn't exist.");
+			warning("Player '"+player_id.toString()+"' doesn't exist.");
 		}
 	}
 	return(0);
@@ -1411,7 +1411,7 @@ int l_gauge_resetwhenfull(lua_State * lua) {
 			or not lua_isstring(lua, 2)) {
 		lua_arg_error("gauge_resetwhenfull(player_id, gauge_id)");
 	} else {
-		int player_id = lua_tointeger(lua, 1);
+		Uuid player_id { lua_tostring(lua, 1) };
 		class Player * player = Luawrapper::server->getPlayer(player_id);
 		if(player != nullptr) {
 			Name name = Name { lua_tostring(lua, 2) };
@@ -1419,11 +1419,11 @@ int l_gauge_resetwhenfull(lua_State * lua) {
 			if(gauge != nullptr) {
 				gauge->resetWhenFull();
 			} else {
-				warning("Player '"+std::to_string(player_id)
+				warning("Player '"+player_id.toString()
 						+"' doesn't have gauge '"+name.toString()+"'.");
 			}
 		} else {
-			warning("Player '"+std::to_string(player_id)+"' doesn't exist.");
+			warning("Player '"+player_id.toString()+"' doesn't exist.");
 		}
 	}
 	return(0);
@@ -1435,7 +1435,7 @@ int l_gauge_getwhenempty(lua_State * lua) {
 		lua_arg_error("gauge_getwhenempty(player_id, gauge_id)");
 		lua_pushnil(lua);
 	} else {
-		int player_id = lua_tointeger(lua, 1);
+		Uuid player_id { lua_tostring(lua, 1) };
 		class Player * player = Luawrapper::server->getPlayer(player_id);
 		if(player != nullptr) {
 			Name name = Name { lua_tostring(lua, 2) };
@@ -1443,12 +1443,12 @@ int l_gauge_getwhenempty(lua_State * lua) {
 			if(gauge != nullptr) {
 				lua_pushstring(lua, gauge->getWhenEmpty().toString().c_str());
 			} else {
-				warning("Player '"+std::to_string(player_id)
+				warning("Player '"+player_id.toString()
 						+"' doesn't have gauge '"+name.toString()+"'.");
 				lua_pushnil(lua);
 			}
 		} else {
-			warning("Player '"+std::to_string(player_id)+"' doesn't exist.");
+			warning("Player '"+player_id.toString()+"' doesn't exist.");
 			lua_pushnil(lua);
 		}
 	}
@@ -1461,7 +1461,7 @@ int l_gauge_setwhenempty(lua_State * lua) {
 			or not lua_isstring(lua, 3)) {
 		lua_arg_error("gauge_setwhenempty(player_id, gauge_id, script)");
 	} else {
-		int player_id = lua_tointeger(lua, 1);
+		Uuid player_id { lua_tostring(lua, 1) };
 		class Player * player = Luawrapper::server->getPlayer(player_id);
 		if(player != nullptr) {
 			Name name = Name { lua_tostring(lua, 2) };
@@ -1470,11 +1470,11 @@ int l_gauge_setwhenempty(lua_State * lua) {
 				Script script = Script { lua_tostring(lua, 3) };
 				gauge->setWhenEmpty(script);
 			} else {
-				warning("Player '"+std::to_string(player_id)
+				warning("Player '"+player_id.toString()
 						+"' doesn't have gauge '"+name.toString()+"'.");
 			}
 		} else {
-			warning("Player '"+std::to_string(player_id)+"' doesn't exist.");
+			warning("Player '"+player_id.toString()+"' doesn't exist.");
 		}
 	}
 	return(0);
@@ -1485,7 +1485,7 @@ int l_gauge_resetwhenempty(lua_State * lua) {
 			or not lua_isstring(lua, 2)) {
 		lua_arg_error("gauge_resetwhenempty(player_id, gauge_id)");
 	} else {
-		int player_id = lua_tointeger(lua, 1);
+		Uuid player_id { lua_tostring(lua, 1) };
 		class Player * player = Luawrapper::server->getPlayer(player_id);
 		if(player != nullptr) {
 			Name name = Name { lua_tostring(lua, 2) };
@@ -1493,11 +1493,11 @@ int l_gauge_resetwhenempty(lua_State * lua) {
 			if(gauge != nullptr) {
 				gauge->resetWhenEmpty();
 			} else {
-				warning("Player '"+std::to_string(player_id)
+				warning("Player '"+player_id.toString()
 						+"' doesn't have gauge '"+name.toString()+"'.");
 			}
 		} else {
-			warning("Player '"+std::to_string(player_id)+"' doesn't exist.");
+			warning("Player '"+player_id.toString()+"' doesn't exist.");
 		}
 	}
 	return(0);
@@ -1509,7 +1509,7 @@ int l_gauge_isvisible(lua_State * lua) {
 		lua_arg_error("gauge_isvisible(player_id, gauge_id)");
 		lua_pushnil(lua);
 	} else {
-		int player_id = lua_tointeger(lua, 1);
+		Uuid player_id { lua_tostring(lua, 1) };
 		class Player * player = Luawrapper::server->getPlayer(player_id);
 		if(player != nullptr) {
 			Name name = Name { lua_tostring(lua, 2) };
@@ -1517,11 +1517,11 @@ int l_gauge_isvisible(lua_State * lua) {
 			if(gauge != nullptr) {
 				lua_pushboolean(lua, gauge->isVisible());
 			} else {
-				warning("Player '"+std::to_string(player_id)
+				warning("Player '"+player_id.toString()
 						+"' doesn't have gauge '"+name.toString()+"'.");
 			}
 		} else {
-			warning("Player '"+std::to_string(player_id)+"' doesn't exist.");
+			warning("Player '"+player_id.toString()+"' doesn't exist.");
 		}
 	}
 	return(1);
@@ -1533,7 +1533,7 @@ int l_gauge_setvisible(lua_State * lua) {
 			or not lua_isboolean(lua, 3)) {
 		lua_arg_error("gauge_setvisible(player_id, gauge_id, bool)");
 	} else {
-		int player_id = lua_tointeger(lua, 1);
+		Uuid player_id { lua_tostring(lua, 1) };
 		class Player * player = Luawrapper::server->getPlayer(player_id);
 		if(player != nullptr) {
 			Name name = Name { lua_tostring(lua, 2) };
@@ -1542,11 +1542,11 @@ int l_gauge_setvisible(lua_State * lua) {
 				bool b = lua_toboolean(lua, 3);
 				b ? gauge->setVisible() : gauge->setNotVisible();
 			} else {
-				warning("Player '"+std::to_string(player_id)
+				warning("Player '"+player_id.toString()
 						+"' doesn't have gauge '"+name.toString()+"'.");
 			}
 		} else {
-			warning("Player '"+std::to_string(player_id)+"' doesn't exist.");
+			warning("Player '"+player_id.toString()+"' doesn't exist.");
 		}
 	}
 	return(0);
@@ -1787,7 +1787,7 @@ Luawrapper::~Luawrapper() {
 
 void Luawrapper::executeFile(std::string filename, class Player * player, std::string arg) {
 	if(player) {
-		lua_pushinteger(this->lua_state, player->getId());
+		lua_pushstring(this->lua_state, player->getId().toString().c_str());
 	} else {
 		lua_pushnil(this->lua_state);
 	}
@@ -1805,7 +1805,7 @@ void Luawrapper::executeFile(std::string filename, class Player * player, std::s
 
 void Luawrapper::executeCode(std::string code, class Player * player, std::string arg) {
 	if(player) {
-		lua_pushinteger(this->lua_state, player->getId());
+		lua_pushstring(this->lua_state, player->getId().toString().c_str());
 	} else {
 		lua_pushnil(this->lua_state);
 	}

@@ -8,6 +8,7 @@
 #include "name.h"
 #include "tag.h"
 #include "script.h"
+#include "uuid.h"
 
 class Zone;
 class Gauge;
@@ -17,10 +18,10 @@ class Gauge;
 
 class Player : public Aspected, public Named, public Tagged {
 public:
-	Player(int fd, Name name, const Aspect& aspect);
+	Player(Uuid id, int fd, Name name, const Aspect& aspect);
 	~Player();
 	void spawn(class Zone * zone, int x, int y); // Add itself to the zone and start the parsing loop. Do nothing if already running.
-	int getId();
+	Uuid getId();
 	class Zone * getZone(); // May return nullptr.
 	unsigned int getX();
 	unsigned int getY();
@@ -74,7 +75,7 @@ public:
 
 private:
 	int fd;
-	int id;
+	Uuid id;
 	class Zone * zone;
 	int x;
 	int y;

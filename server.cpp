@@ -41,7 +41,8 @@ void Server::acceptLoop() {
 					+ " on socket #"
 					+ std::to_string(fd)
 					);
-			class Player * player = new Player(fd, Name{}, Aspect{});
+			Uuid id {};
+			class Player * player = new Player(id, fd, Name{}, Aspect{});
 			this->addPlayer(player);
 			this->luawrapper->spawnScript(player);
 			if(player->getZone() == nullptr) {
@@ -203,15 +204,15 @@ void Server::delZone(std::string id) {
 }
 
 void Server::addPlayer(class Player * player) {
-	int id = player->getId();
+	Uuid id = player->getId();
 	if(this->players[id] != nullptr) {
-		warning("Player '"+std::to_string(id)+"' replaced.");
+		warning("Player '"+id.toString()+"' replaced.");
 		delete(this->players[id]);
 	}
 	this->players[id] = player;
 }
 
-class Player * Server::getPlayer(int id) {
+class Player * Server::getPlayer(Uuid id) {
 	class Player * player = this->players[id];
 	if(player == nullptr) {
 		return(nullptr);
@@ -220,18 +221,17 @@ class Player * Server::getPlayer(int id) {
 	}
 }
 
-void Server::delPlayer(int id) {
+void Server::delPlayer(Uuid id) {
 	class Player * player = this->players[id];
 	if(player == nullptr) {
-		info("Player '"+std::to_string(id)+
-				"' can't be deleted: doesn't exist.");
+		info("Player '"+id.toString()+"' can't be deleted: doesn't exist.");
 	} else {
 		delete(player);
 		this->remPlayer(id);
 	}
 }
 
-void Server::remPlayer(int id) {
+void Server::remPlayer(Uuid id) {
 	this->players.erase(id);
 }
 
