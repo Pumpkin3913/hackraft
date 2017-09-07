@@ -1098,6 +1098,26 @@ int l_player_follow(lua_State * lua) {
 	return(0);
 }
 
+int l_player_hint(lua_State * lua) {
+	if(not lua_isstring(lua, 1) or not lua_isstring(lua, 2) or not lua_isstring(lua, 3)) {
+		lua_arg_error("player_hint(player_id, aspect, hint)");
+		return(0);
+	}
+
+	Uuid player_id { lua_tostring(lua, 1) };
+	class Player * player = Luawrapper::server->getPlayer(player_id);
+	if(player == nullptr) {
+		warning("Player '"+player_id.toString()+"' doesn't exist.");
+		return(0);
+	}
+
+	Aspect aspect { lua_tostring(lua, 2) };
+
+	player->hint(aspect, lua_tostring(lua, 3));
+
+	return(0);
+}
+
 /* Gauge */
 
 int l_new_gauge(lua_State * lua) {
@@ -1750,6 +1770,7 @@ Luawrapper::Luawrapper(class Server * server) :
 	lua_register(this->lua_state, "player_setghost", l_player_setghost);
 	lua_register(this->lua_state, "player_message", l_player_message);
 	lua_register(this->lua_state, "player_follow", l_player_follow);
+	lua_register(this->lua_state, "player_hint", l_player_hint);
 
 	lua_register(this->lua_state, "new_gauge", l_new_gauge);
 	lua_register(this->lua_state, "assert_gauge", l_assert_gauge);

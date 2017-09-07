@@ -69,6 +69,7 @@ player_isghost(player_id) -> bool | nil
 player_setghost(player_id, bool)
 player_message(player_id, message)
 player_follow(player_id, target_player_id)
+player_hint(player_id, aspect, hint)
 
 new_gauge(player_id, gauge_id, val, max, aspectFull, aspectEmpty, [, visible])
 assert_gauge(player_id, gauge_id) -> bool | nil

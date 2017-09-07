@@ -447,3 +447,10 @@ void Player::follow(class Player * player) {
 	this->send("follow " + player->getId().toString());
 }
 
+void Player::hint(Aspect aspect, std::string hint) {
+	this->send("hint "
+		+ std::to_string(aspect.toEntry())
+		+ " "
+		+ hint
+	);
+}

@@ -72,6 +72,7 @@ public:
 	void remPickupList(unsigned long int id);
 // XXX */
 	void follow(class Player * player);
+	void hint(Aspect aspect, std::string hint);
 
 private:
 	int fd;
