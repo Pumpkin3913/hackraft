@@ -3,6 +3,7 @@
 class Zone;
 class Luawrapper;
 class Player;
+class Inventory;
 
 #include "script.h"
 #include "uuid.h"
@@ -46,6 +47,10 @@ public:
 	void delArtifact(Uuid id);
 	class Artifact* getArtifact(Uuid id); // May return nullptr.
 
+	Uuid newInventory(unsigned int size);
+	void delInventory(Uuid id);
+	class Inventory* getInventory(Uuid id); // May return nullptr.
+
 	/* Timers */
 	Uuid addTimer(unsigned int duration, const Script& script);
 	void delTimer(Uuid id);
@@ -63,6 +68,7 @@ private:
 	std::map<Uuid, class Player *> players;
 	std::map<std::string, Script> actions;
 	std::map<Uuid, class Artifact *> artifacts;
+	std::map<Uuid, class Inventory *> inventories;
 
 	/* Timers */
 	struct Timer { unsigned int remaining; Script script; };

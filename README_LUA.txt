@@ -97,3 +97,17 @@ artifact_setname(artifact_id, name)
 artifact_gettag(artifact_id, tag_id) -> string
 artifact_settag(artifact_id, tag_id, value)
 artifact_deltag(artifact_id, tag_id)
+
+create_inventory(size) -> inventory_id
+delete_inventory(inventory_id)
+inventory_get(inventory_id, item_name) -> int
+inventory_get_all(inventory_id) -> table of {name, quantity}
+inventory_size(inventory_id) -> int
+inventory_resize(inventory_id, size)
+inventory_available(inventory_id) -> int
+inventory_add(inventory_id, int quantity, item_name) -> int
+inventory_add_all(inventory_id, int quantity, item_name) -> int
+inventory_del(inventory_id, int quantity, item_name) -> int
+inventory_del_all(inventory_id, int quantity, item_name) -> int
+inventory_move(inventory_id, int quantity, item_name, inventory_id) -> int
+inventory_move_all(inventory_id, int quantity, item_name, inventory_id) -> int

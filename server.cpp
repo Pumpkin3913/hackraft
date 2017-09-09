@@ -5,6 +5,7 @@
 #include "artifact.h"
 #include "luawrapper.h"
 #include "log.h"
+#include "inventory.h"
 
 #include <thread>
 
@@ -285,6 +286,29 @@ class Artifact* Server::getArtifact(Uuid id) {
 	try {
 		return(this->artifacts.at(id));
 	} catch(const std::out_of_range& oor) {
+		return(nullptr);
+	}
+}
+
+Uuid Server::newInventory(unsigned int size) {
+	Uuid id {};
+	Inventory* inventory = new Inventory(size);
+	this->inventories[id] = inventory;
+	return(id);
+}
+
+void Server::delInventory(Uuid id) {
+	Inventory* inventory = this->getInventory(id);
+	if(inventory != nullptr) {
+		delete(inventory);
+	}
+	this->inventories.erase(id);
+}
+
+class Inventory* Server::getInventory(Uuid id) {
+	try {
+		return(this->inventories.at(id));
+	} catch(...) {
 		return(nullptr);
 	}
 }
