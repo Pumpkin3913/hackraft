@@ -8,10 +8,12 @@ class Inventory;
 #include "script.h"
 #include "uuid.h"
 #include "artifact.h"
+#include "player.h"
 
 #include <map>
 #include <thread>
 #include <mutex>
+#include <list>
 
 #define MAX_SOCKET_QUEUE 8
 
@@ -69,6 +71,7 @@ private:
 	std::map<std::string, Script> actions;
 	std::map<Uuid, class Artifact *> artifacts;
 	std::map<Uuid, class Inventory *> inventories;
+	std::list<class Player *> players;
 
 	/* Timers */
 	struct Timer { unsigned int remaining; Script script; };

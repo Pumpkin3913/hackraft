@@ -1,7 +1,6 @@
 #pragma once
 
 #include <string>
-#include <thread>
 #include <map>
 
 #include "aspect.h"
@@ -10,6 +9,7 @@
 #include "script.h"
 #include "uuid.h"
 
+class Player;
 class Zone;
 class Gauge;
 
@@ -18,7 +18,7 @@ class Gauge;
 
 class Character : public Aspected, public Named, public Tagged {
 public:
-	Character(Uuid id, int fd, Name name, const Aspect& aspect);
+	Character(Uuid id, Name name, const Aspect& aspect);
 	~Character();
 	void spawn(class Zone * zone, int x, int y); // Add itself to the zone and start the parsing loop. Do nothing if already running.
 	Uuid getId();
@@ -28,6 +28,7 @@ public:
 	void setXY(int x, int y); // dont check if canLand(); auto bcast new position.
 	void move(int xShift, int yShift); // check if canLand() and setXY() if yes.
 	void changeZone(class Zone * newZone, int x, int y); // exit this zone, enter the new one.
+	void set_player(class Player * player);
 
 	/* Scripts */
 	const Script& getWhenDeath();
@@ -75,7 +76,8 @@ public:
 	void hint(Aspect aspect, std::string hint);
 
 private:
-	int fd;
+	class Player* player; // May be nullptr.
+
 	Uuid id;
 	class Zone * zone;
 	int x;
@@ -88,12 +90,4 @@ private:
 	bool visible;
 	bool movable;
 */
-	std::thread * loopThread;
-	bool stop;
-
-	void send(std::string message);
-	std::string receive();
-	void _close();
-	void loopFunction();
-	void parse(); // Receive one line from the socket and execute it. Return false if socket closed.
 };

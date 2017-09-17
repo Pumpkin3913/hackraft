@@ -43,8 +43,13 @@ void Server::acceptLoop() {
 					+ std::to_string(fd)
 					);
 			Uuid id {};
-			class Character * character = new Character(id, fd, Name{}, Aspect{});
+			class Character * character = new Character(id, Name{}, Aspect{});
 			this->addCharacter(character);
+
+			class Player * player = new Player(fd, character);
+			this->players.push_back(player);
+			character->set_player(player);
+
 			this->luawrapper->spawnScript(character);
 			if(character->getZone() == nullptr) {
 				warning("Spawn script didn't call spawn().");

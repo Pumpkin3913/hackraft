@@ -1,5 +1,6 @@
 #include "character.h"
 
+#include "player.h"
 #include "zone.h"
 #include "server.h"
 #include "gauge.h"
@@ -7,140 +8,27 @@
 #include "place.h"
 #include "log.h"
 
-#ifdef __linux__
-#include <unistd.h>
-#elif defined _WIN32
-#endif
-
-// PRIVATE
-
-void Character::send(std::string message) {
-	if(this->fd) {
-		std::string toSend = message + "\n";
-#ifdef __linux__
-		write(this->fd, toSend.c_str(), toSend.length());
-		// this->socket << message << std::endl;
-#elif defined _WIN32
-#endif
-	}
-}
-
-std::string Character::receive() {
-	std::string msg = "";
-#ifdef __linux__
-	char c;
-	int flag;
-	flag = read(this->fd, &c, 1);
-	while(flag && c != '\n') {
-		msg.push_back(c);
-		flag = read(this->fd, &c, 1);
-	}
-	if(!flag) {
-#ifdef __linux__
-		close(this->fd);
-#elif defined _WIN32
-#endif
-		this->fd = 0;
-		this->stop = true;
-	}
-#elif defined _WIN32
-#endif
-	return(msg);
-}
-
-void Character::_close() {
-	if(this->fd) {
-		this->send("EOF");
-#ifdef __linux__
-		close(this->fd);
-#elif defined _WIN32
-#endif
-		this->fd = 0;
-		this->stop = true;
-	}
-}
-
-void Character::loopFunction() {
-	while(!this->stop) {
-		this->parse();
-	}
-	this->loopThread = nullptr;
-	delete(this);
-}
-
-void Character::parse() {
-	std::string msg;
-	std::string cmd;
-	std::string arg;
-	std::size_t separator;
-
-	msg = this->receive();
-	if(!this->stop) {
-		separator = msg.find_first_of(' ');
-		if(separator == std::string::npos) {
-			cmd = msg;
-			arg = "";
-		} else {
-			cmd = msg.substr(0, separator);
-			arg = msg.substr(separator+1); // from separator+1 to the end.
-		}
-
-		if(cmd[0] == '/') {
-			if(this->zone) {
-				this->zone->getServer()->doAction(cmd.substr(1), *this, arg);
-			}
-		} else if(cmd == "move") {
-			signed int xShift = 0;
-			signed int yShift = 0;
-			bool valid = true;
-			if(arg == "north") {
-				yShift--;
-			} else if(arg == "south") {
-				yShift++;
-			} else if(arg == "west") {
-				xShift--;
-			} else if(arg == "east") {
-				xShift++;
-			} else {
-				valid = false;
-			}
-			if(valid) {
-				this->move(xShift, yShift);
-			}
-		} else if(cmd == "say") {
-			if(this->zone) {
-				this->zone->event(this->getName().toString()+": "+arg);
-			}
-		} else if(cmd == "quit") {
-			this->stop = true;
-		}
-	}
-}
-
 // PUBLIC
 
 Character::Character(
 	Uuid id,
-	int fd,
 	Name name,
 	const Aspect& aspect
 ) :
 	Aspected(aspect),
 	Named(name),
-	fd(fd),
+	player(nullptr),
 	id(id),
 	zone(nullptr),
 	x(0),
 	y(0),
 	whenDeath(),
-	ghost(false),
+	ghost(false)
 /*
 	movepoints(0),
 	visible(true),
 	movable(true),
 */
-	loopThread(nullptr),
-	stop(false)
 { }
 
 Character::~Character() {
@@ -157,23 +45,16 @@ Character::~Character() {
 	for(auto it : this->gauges) {
 		delete(it.second);
 	}
-	this->_close();
-	if(this->loopThread != nullptr &&
-			this->loopThread->get_id() != std::this_thread::get_id()) {
-		// Only when deleted by something else than its own loopThread.
-		this->loopThread->detach();
-		delete(this->loopThread);
-	}
 }
 
 void Character::spawn(class Zone * zone, int x, int y) {
-	if(!this->loopThread) {
-		this->zone = zone;
-		this->zone->enterCharacter(this, x, y);
-		this->loopThread = new std::thread(&Character::loopFunction, this);
-		this->follow(this);
-		info("Character "+this->getId().toString()+" spawn successfully.");
+	if(this->player) {
+		this->player->spawn();
 	}
+	this->zone = zone;
+	this->zone->enterCharacter(this, x, y);
+	this->follow(this);
+	info("Character "+this->getId().toString()+" spawn successfully.");
 }
 
 Uuid Character::getId() {
@@ -231,6 +112,10 @@ void Character::changeZone(class Zone * newZone, int x, int y) {
 		this->zone = newZone;
 		this->zone->enterCharacter(this, x, y);
 	}
+}
+
+void Character::set_player(class Player * player) {
+	this->player = player;
 }
 
 const Script& Character::getWhenDeath() {
@@ -322,61 +207,33 @@ void Character::setNotMovable() {
 /* Send messages to client */
 
 void Character::message(std::string message) {
-	this->send("msg " + message);
+	if(this->player) {
+		this->player->message(message);
+	}
 }
 
 void Character::updateCharacter(class Character * character) {
-	// move <plrID> <X> <Y>
-	this->send(
-			"move "
-			+ character->getId().toString()
-			+ " "
-			+ std::to_string(Aspect::getAspectEntry(character->getAspect()))
-			+ " "
-			+ std::to_string(character->getX())
-			+ " "
-			+ std::to_string(character->getY())
-		  );
+	if(this->player) {
+		this->player->updateCharacter(character);
+	}
 }
 
 void Character::updateCharacterExit(class Character * character) {
-	this->send("exit "+character->getId().toString());
+	if(this->player) {
+		this->player->updateCharacterExit(character);
+	}
 }
 
 void Character::updateFloor() {
-	this->send("zonename " + this->zone->getName().toString());
-	// floor <W> <H> <name>
-	this->send(
-			"zone "
-			+ std::to_string(this->zone->getWidth())
-			+ " "
-			+ std::to_string(this->zone->getHeight())
-			+ " "
-			+ this->zone->getName().toString()
-		  );
-
-	// Send places' aspects.
-	std::string toSend = "";
-	for(unsigned int y=0; y<this->zone->getHeight(); y++) {
-		for(unsigned int x=0; x<this->zone->getWidth(); x++) {
-			toSend += std::to_string(this->zone->getPlace(x, y)->getAspect().toEntry());
-			toSend += ",";
-		}
+	if(this->player) {
+		this->player->updateFloor();
 	}
-	toSend.pop_back();
-	this->send(toSend);
 }
 
 void Character::updateFloor(unsigned int x, unsigned int y, const Aspect& aspect) {
-	// floorchange <aspect> <X> <Y>
-	this->send(
-			"floorchange "
-			+ std::to_string(aspect.toEntry())
-			+ " "
-			+ std::to_string(x)
-			+ " "
-			+ std::to_string(y)
-		  );
+	if(this->player) {
+		this->player->updateFloor(x, y, aspect);
+	}
 }
 
 void Character::updateGauge(
@@ -386,71 +243,25 @@ void Character::updateGauge(
 	const Aspect& full,
 	const Aspect& empty
 ) {
-	// gauge <name> <val> <max> <full> <empty>
-	this->send(
-			"gauge "
-			+ name
-			+ " "
-			+ std::to_string(val)
-			+ " "
-			+ std::to_string(max)
-			+ " "
-			+ std::to_string(Aspect::getAspectEntry(full))
-			+ " "
-			+ std::to_string(Aspect::getAspectEntry(empty))
-	);
+	if(this->player) {
+		this->player->updateGauge(name, val, max, full, empty);
+	}
 }
 
 void Character::updateNoGauge(std::string name) {
-	this->send(
-			"nogauge "
-			+ name
-	);
+	if(this->player) {
+		this->player->updateNoGauge(name);
+	}
 }
-
-/* XXX //
-void Character::updateInventory(unsigned long int id, Aspect aspect) {
-	// invent <id> <aspect>
-	this->send(
-			"invent "
-			+ std::to_string(id)
-			+ " "
-			+ std::to_string(aspect)
-	);
-}
-
-void Character::updateNoInventory(unsigned long int id) {
-	// noinvent <id>
-	this->send("noinvent " + std::to_string(id));
-}
-
-void Character::addPickupList(unsigned long int id, Aspect aspect) {
-	// pickuplist <id> <aspect>
-	this->send(
-			"addpickuplist "
-			+ std::to_string(id)
-			+ " "
-			+ std::to_string(aspect)
-	);
-}
-
-void Character::remPickupList(unsigned long int id) {
-	// pickuplist <id> <aspect>
-	this->send(
-			"rempickuplist "
-			+ std::to_string(id)
-	);
-}
-// XXX */
 
 void Character::follow(class Character * character) {
-	this->send("follow " + character->getId().toString());
+	if(this->player) {
+		this->player->follow(character);
+	}
 }
 
 void Character::hint(Aspect aspect, std::string hint) {
-	this->send("hint "
-		+ std::to_string(aspect.toEntry())
-		+ " "
-		+ hint
-	);
+	if(this->player) {
+		this->player->hint(aspect, hint);
+	}
 }
