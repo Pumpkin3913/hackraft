@@ -1,4 +1,4 @@
-#include "player.h"
+#include "character.h"
 
 #include "zone.h"
 #include "server.h"
@@ -14,7 +14,7 @@
 
 // PRIVATE
 
-void Player::send(std::string message) {
+void Character::send(std::string message) {
 	if(this->fd) {
 		std::string toSend = message + "\n";
 #ifdef __linux__
@@ -25,7 +25,7 @@ void Player::send(std::string message) {
 	}
 }
 
-std::string Player::receive() {
+std::string Character::receive() {
 	std::string msg = "";
 #ifdef __linux__
 	char c;
@@ -48,7 +48,7 @@ std::string Player::receive() {
 	return(msg);
 }
 
-void Player::_close() {
+void Character::_close() {
 	if(this->fd) {
 		this->send("EOF");
 #ifdef __linux__
@@ -60,7 +60,7 @@ void Player::_close() {
 	}
 }
 
-void Player::loopFunction() {
+void Character::loopFunction() {
 	while(!this->stop) {
 		this->parse();
 	}
@@ -68,7 +68,7 @@ void Player::loopFunction() {
 	delete(this);
 }
 
-void Player::parse() {
+void Character::parse() {
 	std::string msg;
 	std::string cmd;
 	std::string arg;
@@ -119,7 +119,7 @@ void Player::parse() {
 
 // PUBLIC
 
-Player::Player(
+Character::Character(
 	Uuid id,
 	int fd,
 	Name name,
@@ -143,16 +143,16 @@ Player::Player(
 	stop(false)
 { }
 
-Player::~Player() {
-	info("Player "+this->getId().toString()+" deleted.");
+Character::~Character() {
+	info("Character "+this->getId().toString()+" deleted.");
 	if(this->zone) {
 		if(this->whenDeath != Script::noValue) {
 			Script script = this->whenDeath;
 			this->whenDeath = Script::noValue;
 			script.execute(*(this->zone->getServer()->getLua()), this);
 		}
-		this->zone->exitPlayer(this);
-		this->zone->getServer()->remPlayer(id);
+		this->zone->exitCharacter(this);
+		this->zone->getServer()->remCharacter(id);
 	}
 	for(auto it : this->gauges) {
 		delete(it.second);
@@ -166,56 +166,56 @@ Player::~Player() {
 	}
 }
 
-void Player::spawn(class Zone * zone, int x, int y) {
+void Character::spawn(class Zone * zone, int x, int y) {
 	if(!this->loopThread) {
 		this->zone = zone;
-		this->zone->enterPlayer(this, x, y);
-		this->loopThread = new std::thread(&Player::loopFunction, this);
+		this->zone->enterCharacter(this, x, y);
+		this->loopThread = new std::thread(&Character::loopFunction, this);
 		this->follow(this);
-		info("Player "+this->getId().toString()+" spawn successfully.");
+		info("Character "+this->getId().toString()+" spawn successfully.");
 	}
 }
 
-Uuid Player::getId() {
+Uuid Character::getId() {
 	return(this->id);
 }
 
 /* XXX //
 // Override Aspected::setAspect();
 // Currently done by luawrapper.cpp .
-void Player::setAspect(Aspect aspect) {
+void Character::setAspect(Aspect aspect) {
 	// (Aspected*) (this)->setAspect(aspect);
 	this->Aspected::setAspect(aspect); // XXX
-	this->zone.updatePlayer(this);
+	this->zone.updateCharacter(this);
 }
 // XXX */
 
-class Zone * Player::getZone() {
+class Zone * Character::getZone() {
 	return(this->zone);
 }
 
-unsigned int Player::getX() {
+unsigned int Character::getX() {
 	return(this->x);
 }
 
-unsigned int Player::getY() {
+unsigned int Character::getY() {
 	return(this->y);
 }
 
-void Player::setXY(int x, int y) {
+void Character::setXY(int x, int y) {
 	this->x = x;
 	this->y = y;
 	if(this->zone) {
-		this->zone->updatePlayer(this);
+		this->zone->updateCharacter(this);
 	}
 }
 
-void Player::move(int xShift, int yShift) {
+void Character::move(int xShift, int yShift) {
 	int new_x = this->x + xShift;
 	int new_y = this->y + yShift;
 	if(this->zone and new_x >= 0 and new_y >= 0
 			and this->zone->isPlaceValid((unsigned) new_x, (unsigned) new_y)) {
-		if(this->ghost or this->zone->canLandPlayer(this, new_x, new_y)) {
+		if(this->ghost or this->zone->canLandCharacter(this, new_x, new_y)) {
 			this->setXY(new_x, new_y);
 
 			// Trigger landon script.
@@ -225,23 +225,23 @@ void Player::move(int xShift, int yShift) {
 	}
 }
 
-void Player::changeZone(class Zone * newZone, int x, int y) {
+void Character::changeZone(class Zone * newZone, int x, int y) {
 	if(this->zone) {
-		this->zone->exitPlayer(this);
+		this->zone->exitCharacter(this);
 		this->zone = newZone;
-		this->zone->enterPlayer(this, x, y);
+		this->zone->enterCharacter(this, x, y);
 	}
 }
 
-const Script& Player::getWhenDeath() {
+const Script& Character::getWhenDeath() {
 	return(this->whenDeath);
 }
 
-void Player::setWhenDeath(const Script& script) {
+void Character::setWhenDeath(const Script& script) {
 	this->whenDeath = script;
 }
 
-class Gauge * Player::getGauge(const Name& name) {
+class Gauge * Character::getGauge(const Name& name) {
 	try {
 		return(this->gauges.at(name.toString()));
 	} catch(...) {
@@ -249,7 +249,7 @@ class Gauge * Player::getGauge(const Name& name) {
 	}
 }
 
-void Player::addGauge(class Gauge * gauge) {
+void Character::addGauge(class Gauge * gauge) {
 	class Gauge * old = this->getGauge(gauge->getName());
 	if(old) {
 		delete(old);
@@ -257,7 +257,7 @@ void Player::addGauge(class Gauge * gauge) {
 	this->gauges[gauge->getName().toString()] = gauge;
 }
 
-void Player::delGauge(const Name& name) {
+void Character::delGauge(const Name& name) {
 	class Gauge * old = this->getGauge(name);
 	if(old) {
 		delete(old);
@@ -267,53 +267,53 @@ void Player::delGauge(const Name& name) {
 	}
 }
 
-bool Player::isGhost() {
+bool Character::isGhost() {
 	return(this->ghost);
 }
 
-void Player::setGhost() {
+void Character::setGhost() {
 	this->ghost = true;
 }
 
-void Player::setNotGhost() {
+void Character::setNotGhost() {
 	this->ghost = false;
 }
 
 /*
 
-unsigned int Player::getMovePoints() {
+unsigned int Character::getMovePoints() {
 	return(this->movepoints);
 }
 
-void Player::setMovePoints(unsigned int points) {
+void Character::setMovePoints(unsigned int points) {
 	this->movepoints = points;
 }
 
-void Player::resetMovePoints() {
+void Character::resetMovePoints() {
 	this->movepoints = 0;
 }
 
-bool Player::isVisible() {
+bool Character::isVisible() {
 	return(this->visible);
 }
 
-void Player::setVisible() {
+void Character::setVisible() {
 	this->visible = true;
 }
 
-void Player::setNotVisible() {
+void Character::setNotVisible() {
 	this->visible = false;
 }
 
-bool Player::isMovable() {
+bool Character::isMovable() {
 	return(this->movable);
 }
 
-void Player::setMovable() {
+void Character::setMovable() {
 	this->movable = true;
 }
 
-void Player::setNotMovable() {
+void Character::setNotMovable() {
 	this->movable = false;
 }
 
@@ -321,29 +321,29 @@ void Player::setNotMovable() {
 
 /* Send messages to client */
 
-void Player::message(std::string message) {
+void Character::message(std::string message) {
 	this->send("msg " + message);
 }
 
-void Player::updatePlayer(class Player * player) {
+void Character::updateCharacter(class Character * character) {
 	// move <plrID> <X> <Y>
 	this->send(
 			"move "
-			+ player->getId().toString()
+			+ character->getId().toString()
 			+ " "
-			+ std::to_string(Aspect::getAspectEntry(player->getAspect()))
+			+ std::to_string(Aspect::getAspectEntry(character->getAspect()))
 			+ " "
-			+ std::to_string(player->getX())
+			+ std::to_string(character->getX())
 			+ " "
-			+ std::to_string(player->getY())
+			+ std::to_string(character->getY())
 		  );
 }
 
-void Player::updatePlayerExit(class Player * player) {
-	this->send("exit "+player->getId().toString());
+void Character::updateCharacterExit(class Character * character) {
+	this->send("exit "+character->getId().toString());
 }
 
-void Player::updateFloor() {
+void Character::updateFloor() {
 	this->send("zonename " + this->zone->getName().toString());
 	// floor <W> <H> <name>
 	this->send(
@@ -367,7 +367,7 @@ void Player::updateFloor() {
 	this->send(toSend);
 }
 
-void Player::updateFloor(unsigned int x, unsigned int y, const Aspect& aspect) {
+void Character::updateFloor(unsigned int x, unsigned int y, const Aspect& aspect) {
 	// floorchange <aspect> <X> <Y>
 	this->send(
 			"floorchange "
@@ -379,7 +379,7 @@ void Player::updateFloor(unsigned int x, unsigned int y, const Aspect& aspect) {
 		  );
 }
 
-void Player::updateGauge(
+void Character::updateGauge(
 	std::string name,
 	unsigned int val,
 	unsigned int max,
@@ -401,7 +401,7 @@ void Player::updateGauge(
 	);
 }
 
-void Player::updateNoGauge(std::string name) {
+void Character::updateNoGauge(std::string name) {
 	this->send(
 			"nogauge "
 			+ name
@@ -409,7 +409,7 @@ void Player::updateNoGauge(std::string name) {
 }
 
 /* XXX //
-void Player::updateInventory(unsigned long int id, Aspect aspect) {
+void Character::updateInventory(unsigned long int id, Aspect aspect) {
 	// invent <id> <aspect>
 	this->send(
 			"invent "
@@ -419,12 +419,12 @@ void Player::updateInventory(unsigned long int id, Aspect aspect) {
 	);
 }
 
-void Player::updateNoInventory(unsigned long int id) {
+void Character::updateNoInventory(unsigned long int id) {
 	// noinvent <id>
 	this->send("noinvent " + std::to_string(id));
 }
 
-void Player::addPickupList(unsigned long int id, Aspect aspect) {
+void Character::addPickupList(unsigned long int id, Aspect aspect) {
 	// pickuplist <id> <aspect>
 	this->send(
 			"addpickuplist "
@@ -434,7 +434,7 @@ void Player::addPickupList(unsigned long int id, Aspect aspect) {
 	);
 }
 
-void Player::remPickupList(unsigned long int id) {
+void Character::remPickupList(unsigned long int id) {
 	// pickuplist <id> <aspect>
 	this->send(
 			"rempickuplist "
@@ -443,11 +443,11 @@ void Player::remPickupList(unsigned long int id) {
 }
 // XXX */
 
-void Player::follow(class Player * player) {
-	this->send("follow " + player->getId().toString());
+void Character::follow(class Character * character) {
+	this->send("follow " + character->getId().toString());
 }
 
-void Player::hint(Aspect aspect, std::string hint) {
+void Character::hint(Aspect aspect, std::string hint) {
 	this->send("hint "
 		+ std::to_string(aspect.toEntry())
 		+ " "

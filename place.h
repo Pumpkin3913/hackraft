@@ -23,6 +23,6 @@ public:
 	void resetWhenWalkedOn();
 
 private:
-	bool walkable;        // Can a player walk here?
-	Script whenWalkOn {}; // Script triggered when a player walks here.
+	bool walkable;        // Can a character walk here?
+	Script whenWalkOn {}; // Script triggered when a character walks here.
 };

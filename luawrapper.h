@@ -1,7 +1,7 @@
 #pragma once
 
 class Server;
-class Player;
+class Character;
 
 extern "C" {
 #include <lua.h>
@@ -20,9 +20,9 @@ public:
 
 	Luawrapper(class Server * server);
 	~Luawrapper();
-	void executeFile(std::string filename, class Player * player = nullptr, std::string arg = ""); // XXX
-	void executeCode(std::string code, class Player * player = nullptr, std::string arg = "");
-	void spawnScript(class Player * player);
+	void executeFile(std::string filename, class Character * character = nullptr, std::string arg = ""); // XXX
+	void executeCode(std::string code, class Character * character = nullptr, std::string arg = "");
+	void spawnScript(class Character * character);
 
 private:
 	lua_State * lua_state;

@@ -2,7 +2,7 @@
 
 class Zone;
 class Luawrapper;
-class Player;
+class Character;
 class Inventory;
 
 #include "script.h"
@@ -31,17 +31,17 @@ public:
 	class Zone * getZone(std::string id);
 	void delZone(std::string id);
 
-	void addPlayer(class Player * player);
-	class Player * getPlayer(Uuid id); // May return nullptr.
-	void delPlayer(Uuid id);
-	void remPlayer(Uuid id);
+	void addCharacter(class Character * character);
+	class Character * getCharacter(Uuid id); // May return nullptr.
+	void delCharacter(Uuid id);
+	void remCharacter(Uuid id);
 
-	/* Player actions */
+	/* Character actions */
 // TODO: Stronger type: trigger.
 	void addAction(const Script& script, std::string trigger);
 	const Script& getAction(std::string trigger); // May return Script::noValue.
 	void delAction(std::string trigger);
-	void doAction(std::string trigger, class Player& player, std::string arg = "");
+	void doAction(std::string trigger, class Character& character, std::string arg = "");
 
 	Uuid newArtifact(Name name);
 	void delArtifact(Uuid id);
@@ -65,7 +65,7 @@ private:
 	int connexion_fd;
 	unsigned short port;
 	std::map<std::string, class Zone *> zones;
-	std::map<Uuid, class Player *> players;
+	std::map<Uuid, class Character *> characters;
 	std::map<std::string, Script> actions;
 	std::map<Uuid, class Artifact *> artifacts;
 	std::map<Uuid, class Inventory *> inventories;

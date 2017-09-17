@@ -12,7 +12,7 @@ public:
 	bool operator != (const Script& rhs) const { return(not (*this == rhs) ); }
 	bool operator < (const Script& rhs) const;
 
-	void execute(Luawrapper& lua, Player * player = nullptr, std::string arg = "") const;
+	void execute(Luawrapper& lua, Character * character = nullptr, std::string arg = "") const;
 	const std::string& toString() const;
 
 	static Script noValue;

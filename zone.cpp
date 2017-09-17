@@ -2,7 +2,7 @@
 
 #include "aspect.h"
 #include "place.h"
-#include "player.h"
+#include "character.h"
 #include "server.h"
 #include "log.h"
 
@@ -27,9 +27,9 @@ Zone::Zone(
 }
 
 Zone::~Zone() {
-	// For now, players in a zone are deleted with it.
-	for(Uuid id : this->players) {
-		this->server->delPlayer(id);
+	// For now, characters in a zone are deleted with it.
+	for(Uuid id : this->characters) {
+		this->server->delCharacter(id);
 	}
 	info("Zone '"+id+"' deleted.");
 }
@@ -55,15 +55,15 @@ bool Zone::isPlaceValid(int x, int y) {
 }
 
 void Zone::event(std::string message) {
-	for(Uuid id : this->players) {
-		class Player * player = this->getPlayer(id);
-		if(player) player->message(message);
+	for(Uuid id : this->characters) {
+		class Character * character = this->getCharacter(id);
+		if(character) character->message(message);
 	}
 }
 
-/* Called by Player only */
+/* Called by Character only */
 
-bool Zone::canLandPlayer(class Player * player, int x, int y) {
+bool Zone::canLandCharacter(class Character * character, int x, int y) {
 	class Place * place;
 	if(this->isPlaceValid(x,y) && (place = this->getPlace(x,y)) != nullptr) {
 		return(place->isWalkable());
@@ -72,42 +72,42 @@ bool Zone::canLandPlayer(class Player * player, int x, int y) {
 	}
 }
 
-void Zone::enterPlayer(class Player * player, int x, int y) {
-	this->players.push_front(player->getId());
-	player->setXY(x, y);
-	player->updateFloor();
-	this->updatePlayer(player);
-	for(Uuid id : this->players) {
-		if(id != player->getId()) {
-			class Player * p = this->getPlayer(id);
-			if(p) player->updatePlayer(p);
+void Zone::enterCharacter(class Character * character, int x, int y) {
+	this->characters.push_front(character->getId());
+	character->setXY(x, y);
+	character->updateFloor();
+	this->updateCharacter(character);
+	for(Uuid id : this->characters) {
+		if(id != character->getId()) {
+			class Character * p = this->getCharacter(id);
+			if(p) character->updateCharacter(p);
 		}
 	}
 }
 
-void Zone::exitPlayer(class Player * player) {
-	this->players.remove(player->getId());
-	for(Uuid id : this->players) {
-		class Player * p = this->getPlayer(id);
-		if(p) p->updatePlayerExit(player);
+void Zone::exitCharacter(class Character * character) {
+	this->characters.remove(character->getId());
+	for(Uuid id : this->characters) {
+		class Character * p = this->getCharacter(id);
+		if(p) p->updateCharacterExit(character);
 	}
 }
 
-void Zone::updatePlayer(class Player * player) {
-	for(Uuid id : this->players) {
-		class Player * p = this->getPlayer(id);
-		if(p) p->updatePlayer(player);
+void Zone::updateCharacter(class Character * character) {
+	for(Uuid id : this->characters) {
+		class Character * p = this->getCharacter(id);
+		if(p) p->updateCharacter(character);
 	}
 }
 
 /* Private */
 
-class Player * Zone::getPlayer(Uuid id) {
-	class Player * player = this->server->getPlayer(id);
-	if(player != nullptr) {
-		return(player);
+class Character * Zone::getCharacter(Uuid id) {
+	class Character * character = this->server->getCharacter(id);
+	if(character != nullptr) {
+		return(character);
 	} else {
-		this->players.remove(id);
+		this->characters.remove(id);
 		return(nullptr);
 	}
 }
@@ -133,9 +133,9 @@ void Zone::updatePlaceAspect(int x, int y) {
 	class Place * place = this->getPlace(x,y);
 	if(place) {
 		auto aspect = place->getAspect();
-		for(Uuid id : this->players) {
-			class Player * player = this->getPlayer(id);
-			if(player) player->updateFloor(x, y, aspect);
+		for(Uuid id : this->characters) {
+			class Character * character = this->getCharacter(id);
+			if(character) character->updateFloor(x, y, aspect);
 		}
 	}
 }

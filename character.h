@@ -16,10 +16,10 @@ class Gauge;
 // TODO : Invisible.
 // TODO : Unmovable.
 
-class Player : public Aspected, public Named, public Tagged {
+class Character : public Aspected, public Named, public Tagged {
 public:
-	Player(Uuid id, int fd, Name name, const Aspect& aspect);
-	~Player();
+	Character(Uuid id, int fd, Name name, const Aspect& aspect);
+	~Character();
 	void spawn(class Zone * zone, int x, int y); // Add itself to the zone and start the parsing loop. Do nothing if already running.
 	Uuid getId();
 	class Zone * getZone(); // May return nullptr.
@@ -54,8 +54,8 @@ public:
 
 	/* Send messages to client */
 	void message(std::string message);
-	void updatePlayer(class Player * player);
-	void updatePlayerExit(class Player * player);
+	void updateCharacter(class Character * character);
+	void updateCharacterExit(class Character * character);
 	void updateFloor();
 	void updateFloor(unsigned int x, unsigned int y, const Aspect& aspect);
 	void updateGauge(
@@ -71,7 +71,7 @@ public:
 	void addPickupList(unsigned long int id, Aspect aspect);
 	void remPickupList(unsigned long int id);
 // XXX */
-	void follow(class Player * player);
+	void follow(class Character * character);
 	void hint(Aspect aspect, std::string hint);
 
 private:

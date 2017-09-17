@@ -45,50 +45,50 @@ place_gettag(zone_id, x, y, tag_id)
 place_settag(zone_id, x, y, tag_id, value)
 place_deltag(zone_id, x, y, tag_id)
 
-delete_player(player_id)
-assert_player(player_id) -> bool | nil
-player_spawn(player_id, zone_id, x, y)
-player_getname(player_id) -> string | nil
-player_setname(player_id, name)
-player_getaspect(player_id) -> int | nil
-player_setaspect(player_id, aspect)
-player_getzone(player_id) -> string | nil
-player_getx(player_id) -> int | nil
-player_gety(player_id) -> int | nil
-player_setxy(player_id, x, y)
-player_move(player_id, x_shift, y_shift)
-player_changezone(player_id, zone_id, x, y)
-player_getwhendeath(player_id) -> string | nil
-player_setwhendeath(player_id, script)
--- player_list_gauges(player_id)
-player_delgauge(player_id, gauge_id)
-player_gettag(player_id, tag_id) -> string | tag
-player_settag(player_id, tag_id, value)
-player_deltag(player_id, tag_id)
-player_isghost(player_id) -> bool | nil
-player_setghost(player_id, bool)
-player_message(player_id, message)
-player_follow(player_id, target_player_id)
-player_hint(player_id, aspect, hint)
+delete_character(character_id)
+assert_character(character_id) -> bool | nil
+character_spawn(character_id, zone_id, x, y)
+character_getname(character_id) -> string | nil
+character_setname(character_id, name)
+character_getaspect(character_id) -> int | nil
+character_setaspect(character_id, aspect)
+character_getzone(character_id) -> string | nil
+character_getx(character_id) -> int | nil
+character_gety(character_id) -> int | nil
+character_setxy(character_id, x, y)
+character_move(character_id, x_shift, y_shift)
+character_changezone(character_id, zone_id, x, y)
+character_getwhendeath(character_id) -> string | nil
+character_setwhendeath(character_id, script)
+-- character_list_gauges(character_id)
+character_delgauge(character_id, gauge_id)
+character_gettag(character_id, tag_id) -> string | tag
+character_settag(character_id, tag_id, value)
+character_deltag(character_id, tag_id)
+character_isghost(character_id) -> bool | nil
+character_setghost(character_id, bool)
+character_message(character_id, message)
+character_follow(character_id, target_character_id)
+character_hint(character_id, aspect, hint)
 
-new_gauge(player_id, gauge_id, val, max, aspectFull, aspectEmpty, [, visible])
-assert_gauge(player_id, gauge_id) -> bool | nil
-gauge_getname(player_id, gauge_id) -> string | nil
-gauge_setname(player_id, gauge_id, name)
-gauge_getval(player_id, gauge_id) -> int | nil
-gauge_setval(player_id, gauge_id, val)
-gauge_increase(player_id, gauge_id, val)
-gauge_decrease(player_id, gauge_id, val)
-gauge_getmax(player_id, gauge_id) -> int | nil
-gauge_setmax(player_id, gauge_id, max)
-gauge_getwhenfull(player_id, gauge_id) -> string | nil
-gauge_setwhenfull(player_id, gauge_id, script)
-gauge_resetwhenfull(player_id, gauge_id)
-gauge_getwhenempty(player_id, gauge_id) -> string | nil
-gauge_setwhenempty(player_id, gauge_id, script)
-gauge_resetwhenempty(player_id, gauge_id)
-gauge_isvisible(player_id, gauge_id) -> bool | nil
-gauge_setvisible(player_id, gauge_id, bool)
+new_gauge(character_id, gauge_id, val, max, aspectFull, aspectEmpty, [, visible])
+assert_gauge(character_id, gauge_id) -> bool | nil
+gauge_getname(character_id, gauge_id) -> string | nil
+gauge_setname(character_id, gauge_id, name)
+gauge_getval(character_id, gauge_id) -> int | nil
+gauge_setval(character_id, gauge_id, val)
+gauge_increase(character_id, gauge_id, val)
+gauge_decrease(character_id, gauge_id, val)
+gauge_getmax(character_id, gauge_id) -> int | nil
+gauge_setmax(character_id, gauge_id, max)
+gauge_getwhenfull(character_id, gauge_id) -> string | nil
+gauge_setwhenfull(character_id, gauge_id, script)
+gauge_resetwhenfull(character_id, gauge_id)
+gauge_getwhenempty(character_id, gauge_id) -> string | nil
+gauge_setwhenempty(character_id, gauge_id, script)
+gauge_resetwhenempty(character_id, gauge_id)
+gauge_isvisible(character_id, gauge_id) -> bool | nil
+gauge_setvisible(character_id, gauge_id, bool)
 
 create_artifact(name) -> artifact_id
 delete_artifact(artifact_id)

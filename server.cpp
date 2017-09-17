@@ -1,6 +1,6 @@
 #include "server.h"
 
-#include "player.h"
+#include "character.h"
 #include "zone.h"
 #include "artifact.h"
 #include "luawrapper.h"
@@ -43,12 +43,12 @@ void Server::acceptLoop() {
 					+ std::to_string(fd)
 					);
 			Uuid id {};
-			class Player * player = new Player(id, fd, Name{}, Aspect{});
-			this->addPlayer(player);
-			this->luawrapper->spawnScript(player);
-			if(player->getZone() == nullptr) {
+			class Character * character = new Character(id, fd, Name{}, Aspect{});
+			this->addCharacter(character);
+			this->luawrapper->spawnScript(character);
+			if(character->getZone() == nullptr) {
 				warning("Spawn script didn't call spawn().");
-				this->delPlayer(player->getId());
+				this->delCharacter(character->getId());
 			}
 		}
 
@@ -204,36 +204,36 @@ void Server::delZone(std::string id) {
 	}
 }
 
-void Server::addPlayer(class Player * player) {
-	Uuid id = player->getId();
-	if(this->players[id] != nullptr) {
-		warning("Player '"+id.toString()+"' replaced.");
-		delete(this->players[id]);
+void Server::addCharacter(class Character * character) {
+	Uuid id = character->getId();
+	if(this->characters[id] != nullptr) {
+		warning("Character '"+id.toString()+"' replaced.");
+		delete(this->characters[id]);
 	}
-	this->players[id] = player;
+	this->characters[id] = character;
 }
 
-class Player * Server::getPlayer(Uuid id) {
-	class Player * player = this->players[id];
-	if(player == nullptr) {
+class Character * Server::getCharacter(Uuid id) {
+	class Character * character = this->characters[id];
+	if(character == nullptr) {
 		return(nullptr);
 	} else {
-		return(player);
+		return(character);
 	}
 }
 
-void Server::delPlayer(Uuid id) {
-	class Player * player = this->players[id];
-	if(player == nullptr) {
-		info("Player '"+id.toString()+"' can't be deleted: doesn't exist.");
+void Server::delCharacter(Uuid id) {
+	class Character * character = this->characters[id];
+	if(character == nullptr) {
+		info("Character '"+id.toString()+"' can't be deleted: doesn't exist.");
 	} else {
-		delete(player);
-		this->remPlayer(id);
+		delete(character);
+		this->remCharacter(id);
 	}
 }
 
-void Server::remPlayer(Uuid id) {
-	this->players.erase(id);
+void Server::remCharacter(Uuid id) {
+	this->characters.erase(id);
 }
 
 void Server::addAction(const Script& script, std::string trigger) {
@@ -259,9 +259,9 @@ void Server::delAction(std::string trigger) {
 	}
 }
 
-void Server::doAction(std::string trigger, class Player& player, std::string arg) {
+void Server::doAction(std::string trigger, class Character& character, std::string arg) {
 	try {
-		this->actions.at(trigger).execute(*(this->luawrapper), &player, arg);
+		this->actions.at(trigger).execute(*(this->luawrapper), &character, arg);
 	} catch (const std::out_of_range& oor) {
 		info("Action '"+trigger+"' doesn't exist.");
 	}

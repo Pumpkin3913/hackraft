@@ -1,11 +1,11 @@
 #include "gauge.h"
-#include "player.h"
+#include "character.h"
 #include "zone.h"
 #include "server.h"
 #include "luawrapper.h"
 
 Gauge::Gauge(
-	class Player * player,
+	class Character * character,
 	Name name,
 	unsigned int initVal,
 	unsigned int max,
@@ -14,7 +14,7 @@ Gauge::Gauge(
 	bool visible
 ) :
 	Named(name),
-	player(player),
+	character(character),
 	val(initVal),
 	max(max),
 	whenFull(Script::noValue),
@@ -23,7 +23,7 @@ Gauge::Gauge(
 	aEmpty(aEmpty),
 	visible(visible)
 {
-	player->addGauge(this);
+	character->addGauge(this);
 	this->update();
 }
 
@@ -128,7 +128,7 @@ void Gauge::setNotVisible() {
 
 void Gauge::update() {
 	if(this->visible) {
-		this->player->updateGauge(
+		this->character->updateGauge(
 			this->getName().toString(),
 			this->val,
 			this->max,
@@ -138,23 +138,23 @@ void Gauge::update() {
 }
 
 void Gauge::disapear() {
-	this->player->updateNoGauge(this->getName().toString());
+	this->character->updateNoGauge(this->getName().toString());
 }
 
 void Gauge::exeFull() {
 	if(this->whenFull != Script::noValue) {
-		class Zone * zone = this->player->getZone();
+		class Zone * zone = this->character->getZone();
 		if(zone != nullptr) {
-			this->whenFull.execute(*(zone->getServer()->getLua()), this->player);
+			this->whenFull.execute(*(zone->getServer()->getLua()), this->character);
 		}
 	}
 }
 
 void Gauge::exeEmpty() {
 	if(this->whenEmpty != Script::noValue) {
-		class Zone * zone = this->player->getZone();
+		class Zone * zone = this->character->getZone();
 		if(zone != nullptr) {
-			this->whenEmpty.execute(*(zone->getServer()->getLua()), this->player);
+			this->whenEmpty.execute(*(zone->getServer()->getLua()), this->character);
 		}
 	}
 }

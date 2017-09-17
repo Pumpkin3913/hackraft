@@ -6,19 +6,19 @@
 #include "name.h"
 #include "script.h"
 
-class Player;
+class Character;
 
 class Gauge : public Named {
 public:
 	Gauge(
-		Player * player,
+		Character * character,
 		Name name,
 		unsigned int initVal,
 		unsigned int max,
 		const Aspect& aFull,
 		const Aspect& aEmpty,
 		bool visible = true);
-	// Automatically add itself to its player.
+	// Automatically add itself to its character.
 	~Gauge();
 	unsigned int getVal();
 	void setVal(unsigned int val);
@@ -40,7 +40,7 @@ public:
 	void setNotVisible();
 
 private:
-	class Player * player;
+	class Character * character;
 	unsigned int val;
 	unsigned int max;
 	Script whenFull;

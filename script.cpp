@@ -10,8 +10,8 @@ bool Script::operator < (const Script& rhs) const {
 	return(this->data < rhs.data);
 }
 
-void Script::execute(Luawrapper& lua, Player * player, std::string arg) const {
-	lua.executeCode(this->data, player, arg);
+void Script::execute(Luawrapper& lua, Character * character, std::string arg) const {
+	lua.executeCode(this->data, character, arg);
 }
 
 const std::string& Script::toString() const {

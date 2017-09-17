@@ -2,7 +2,7 @@
 
 class Server;
 class Place;
-class Player;
+class Character;
 
 #include "aspect.h"
 #include "name.h"
@@ -33,21 +33,21 @@ public:
 	class Place * getPlace(int x, int y);
 	void updatePlaceAspect(int x, int y);
 
-	void event(std::string message); // Broadcast a message to all players.
+	void event(std::string message); // Broadcast a message to all characters.
 
-	/* Called by Player only */
+	/* Called by Character only */
 
-	bool canLandPlayer(class Player * player, int x, int y);
+	bool canLandCharacter(class Character * character, int x, int y);
 
-	// Add the player to the zone,
+	// Add the character to the zone,
 	// send him the floor and broadcast its position.
-	void enterPlayer(class Player * player, int x, int y);
+	void enterCharacter(class Character * character, int x, int y);
 
-	// Remove the player from the zone and broadcast it.
-	void exitPlayer(class Player * player);
+	// Remove the character from the zone and broadcast it.
+	void exitCharacter(class Character * character);
 
-	// Broadcast the new position and aspect of the player.
-	void updatePlayer(class Player * player);
+	// Broadcast the new position and aspect of the character.
+	void updateCharacter(class Character * character);
 
 private:
 	class Server * server;
@@ -55,7 +55,7 @@ private:
 	unsigned int width;
 	unsigned int height;
 	std::vector<class Place> places;
-	std::list<Uuid> players;
+	std::list<Uuid> characters;
 
-	class Player * getPlayer(Uuid id); // Auto remove if invalid.
+	class Character * getCharacter(Uuid id); // Auto remove if invalid.
 };
