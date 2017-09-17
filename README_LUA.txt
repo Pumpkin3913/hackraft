@@ -90,24 +90,23 @@ gauge_resetwhenempty(character_id, gauge_id)
 gauge_isvisible(character_id, gauge_id) -> bool | nil
 gauge_setvisible(character_id, gauge_id, bool)
 
-create_artifact(name) -> artifact_id
-delete_artifact(artifact_id)
-artifact_getname(artifact_id) -> string
-artifact_setname(artifact_id, name)
-artifact_gettag(artifact_id, tag_id) -> string
-artifact_settag(artifact_id, tag_id, value)
-artifact_deltag(artifact_id, tag_id)
-
-create_inventory(size) -> inventory_id
+create_inventory(size, [type]) -> inventory_id
 delete_inventory(inventory_id)
-inventory_get(inventory_id, item_name) -> int
-inventory_get_all(inventory_id) -> table of {name, quantity}
 inventory_size(inventory_id) -> int
 inventory_resize(inventory_id, size)
+inventory_total(inventory_id) -> int
 inventory_available(inventory_id) -> int
-inventory_add(inventory_id, int quantity, item_name) -> int
-inventory_add_all(inventory_id, int quantity, item_name) -> int
-inventory_del(inventory_id, int quantity, item_name) -> int
-inventory_del_all(inventory_id, int quantity, item_name) -> int
-inventory_move(inventory_id, int quantity, item_name, inventory_id) -> int
-inventory_move_all(inventory_id, int quantity, item_name, inventory_id) -> int
+inventory_get(inventory_id, item_name) -> table of { artifact_id }
+inventory_get_all(inventory_id) -> table of { artifact_id }
+
+create_artifact(inventory_id, name, type, [quantity] ) -> artifact_id | nil
+delete_artifact(inventory_id, artifact_id, [quantity] ) -> bool
+artifact_move(inventory_id, artifact_id, destination_inventory_id, [quantity]) -> bool
+artifact_getname(inventory_id, artifact_id) -> string
+artifact_setname(inventory_id, artifact_id, name)
+artifact_gettype(inventory_id, artifact_id) -> string
+artifact_settype(inventory_id, artifact_id, type)
+artifact_getquantity(inventory_id, artifact_id) -> int
+artifact_gettag(inventory_id, artifact_id, tag_id) -> string
+artifact_settag(inventory_id, artifact_id, tag_id, value)
+artifact_deltag(inventory_id, artifact_id, tag_id)

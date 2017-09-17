@@ -4,15 +4,15 @@ class Zone;
 class Luawrapper;
 class Character;
 class Inventory;
+class Player;
 
 #include "script.h"
 #include "uuid.h"
-#include "artifact.h"
-#include "player.h"
 
 #include <map>
 #include <list>
 #include <string>
+#include <memory> // unique_ptr
 
 #define MAX_SOCKET_QUEUE 8
 
@@ -45,13 +45,9 @@ public:
 	void delAction(std::string trigger);
 	void doAction(std::string trigger, class Character& character, std::string arg = "");
 
-	Uuid newArtifact(Name name);
-	void delArtifact(Uuid id);
-	class Artifact* getArtifact(Uuid id); // May return nullptr.
-
-	Uuid newInventory(unsigned int size);
+	Uuid addInventory(std::unique_ptr<Inventory> inventory);
 	void delInventory(Uuid id);
-	class Inventory* getInventory(Uuid id); // May return nullptr.
+	class Inventory* getInventory(Uuid id); // Return non-owning, maybe-null pointer.
 
 	/* Timers */
 	Uuid addTimer(unsigned int duration, const Script& script);
@@ -65,15 +61,14 @@ public:
 	void loop();
 
 private:
-	int connexion_fd;
+	int connexion_fd = 0;
 	unsigned short port;
 	bool stop = false;
 	std::map<std::string, class Zone *> zones;
 	std::map<Uuid, class Character *> characters;
 	std::map<std::string, Script> actions;
-	std::map<Uuid, class Artifact *> artifacts;
-	std::map<Uuid, class Inventory *> inventories;
 	std::list<class Player *> players;
+	std::map<Uuid, std::unique_ptr<Inventory>> inventories;
 
 	/* Timers */
 	struct Timer { unsigned int remaining; Script script; };

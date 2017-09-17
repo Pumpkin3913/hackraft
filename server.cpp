@@ -2,10 +2,10 @@
 
 #include "character.h"
 #include "zone.h"
-#include "artifact.h"
 #include "luawrapper.h"
 #include "log.h"
 #include "inventory.h"
+#include "player.h"
 
 #include <unistd.h> // close()
 #include <sys/socket.h> // socket(), bind(), listen()
@@ -188,47 +188,19 @@ void Server::doAction(std::string trigger, class Character& character, std::stri
 	}
 }
 
-Uuid Server::newArtifact(Name name) {
+Uuid Server::addInventory(std::unique_ptr<Inventory> inventory) {
 	Uuid id {};
-	Artifact* artifact = new Artifact(name);
-	this->artifacts[id] = artifact;
-	return(id);
-}
-
-void Server::delArtifact(Uuid id) {
-	Artifact* artifact = this->getArtifact(id);
-	if(artifact != nullptr) {
-		delete(artifact);
-	}
-	this->artifacts.erase(id);
-}
-
-class Artifact* Server::getArtifact(Uuid id) {
-	try {
-		return(this->artifacts.at(id));
-	} catch(const std::out_of_range& oor) {
-		return(nullptr);
-	}
-}
-
-Uuid Server::newInventory(unsigned int size) {
-	Uuid id {};
-	Inventory* inventory = new Inventory(size);
-	this->inventories[id] = inventory;
+	this->inventories[id] = std::move(inventory);
 	return(id);
 }
 
 void Server::delInventory(Uuid id) {
-	Inventory* inventory = this->getInventory(id);
-	if(inventory != nullptr) {
-		delete(inventory);
-	}
 	this->inventories.erase(id);
 }
 
 class Inventory* Server::getInventory(Uuid id) {
 	try {
-		return(this->inventories.at(id));
+		return(this->inventories.at(id).get());
 	} catch(...) {
 		return(nullptr);
 	}

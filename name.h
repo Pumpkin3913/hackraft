@@ -10,6 +10,8 @@ public:
 	Name() : Name("") {};
 
 	const std::string& toString() const;
+	bool operator ==(const Name& n) const;
+	bool operator !=(const Name& n) const { return(not (*this == n)); }
 
 private:
 	std::string data;

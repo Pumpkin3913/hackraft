@@ -18,6 +18,8 @@ class TagValue {
 public:
 	explicit TagValue(std::string value);
 	TagValue() : TagValue("") { };
+	bool operator == (const TagValue& rhs) const;
+	bool operator != (const TagValue& rhs) const { return(not (*this == rhs) ); }
 	const std::string& toString() const;
 
 	static TagValue noValue;
@@ -28,9 +30,10 @@ private:
 
 class Tagged {
 public:
-	const TagValue& getTag(const TagID& id);
+	const TagValue& getTag(const TagID& id) const;
 	void setTag(const TagID& id, const TagValue& value);
 	void delTag(const TagID& id);
+	bool sameTags(const Tagged& t) const;
 
 private:
 	std::map<TagID, TagValue> tags;

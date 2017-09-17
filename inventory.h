@@ -1,33 +1,35 @@
 #pragma once
 
-#include <string>
+#include "artifact.h"
+#include "uuid.h"
+
 #include <map>
+#include <memory> // unique_ptr
+#include <optional>
+#include <string>
 #include <vector>
 
 class Inventory {
 public:
-	Inventory(unsigned int size);
-	~Inventory();
+	// TODO: Strong Type, with hidden default "joker" value.
+	Inventory(unsigned int size, std::string type = "");
 
-	unsigned int get(std::string name);
-	std::vector<std::string> get_all();
 	unsigned int size();
 	void resize(unsigned int size); // Do not destroy items.
+	unsigned int total();
 	unsigned int available();
 
-	unsigned int add(unsigned int quantity, std::string name);
-	unsigned int del(unsigned int quantity, std::string name);
-	unsigned int move(unsigned int quantity, std::string name, Inventory& destination);
+	Artifact* get(Uuid id); // Return a maybe-null, non-owning pointer.
+	// std::optional<Artifact&> get(Uuid id); // T_T
+	std::vector<Uuid> get_all();
+	std::vector<Uuid> get_all(Name name);
 
-	unsigned int add_all(unsigned int quantity, std::string name);
-	unsigned int del_all(unsigned int quantity, std::string name);
-	unsigned int move_all(unsigned int quantity, std::string name, Inventory& destination);
-	// The *_all methods return either 0 or 'quantity', and cancel the operation entirely if it cannot be fully carried out.
+	std::optional<Uuid> add(std::unique_ptr<Artifact> artifact); // May return false because incorrect type or exceeding size.
+	bool del(Uuid id, unsigned int quantity = 1);
+	bool move(Inventory& destination, Uuid id, unsigned int quantity = 1); // May return false because incorrect type or exceeding size.
 
-	// TODO: bool recipe(requierd[], produced[]);
 private:
 	unsigned int _size;
-	std::map<std::string, unsigned int> content;
-
-	void clean(std::string s);
+	std::string type;
+	std::map<Uuid, std::unique_ptr<Artifact>> content;
 };

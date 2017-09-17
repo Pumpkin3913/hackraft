@@ -9,7 +9,7 @@ CXX = clang
 DEBUG    = -DDEBUG -g 
 ERROR    = -Wall -Werror -pedantic
 #CFLAGS   = $(DEBUG) $(ERROR)
-CXXFLAGS = $(DEBUG) $(ERROR) -std=c++14
+CXXFLAGS = $(DEBUG) $(ERROR) -std=c++17
 LDLIBS = -lstdc++ -lpthread -llua
 $(RM) = rm -f
 

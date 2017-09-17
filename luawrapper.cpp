@@ -1553,137 +1553,24 @@ int l_gauge_setvisible(lua_State * lua) {
 	return(0);
 }
 
-
-/* Artifacts */
-
-int l_create_artifact(lua_State * lua) {
-	if(not lua_isstring(lua, 1)) {
-		lua_arg_error("create_artifact(name)");
-		lua_pushnil(lua);
-		return(1);
-	}
-
-	Uuid id = Luawrapper::server->newArtifact(Name{lua_tostring(lua, 1)});
-	lua_pushstring(lua, id.toString().c_str());
-	return(1);
-}
-
-int l_delete_artifact(lua_State * lua) {
-	if(not lua_isstring(lua, 1)) {
-		lua_arg_error("delete_artifact(artifact_id)");
-		return(0);
-	}
-
-	Uuid id{ lua_tostring(lua, 1) };
-	Luawrapper::server->delArtifact(id);
-	return(0);
-}
-
-int l_artifact_getname(lua_State * lua) {
-	if(not lua_isstring(lua, 1)) {
-		lua_arg_error("artifact_getname(artifact_id)");
-		lua_pushnil(lua);
-		return(1);
-	}
-
-	Uuid id{ lua_tostring(lua, 1) };
-	Artifact* artifact = Luawrapper::server->getArtifact(id);
-
-	if(artifact == nullptr) {
-		warning("Artifact "+id.toString()+" doesn't exist.");
-		lua_pushnil(lua);
-		return(1);
-	}
-
-	lua_pushstring(lua, artifact->getName().toString().c_str());
-	return(1);
-}
-
-int l_artifact_setname(lua_State * lua) {
-	if(not lua_isstring(lua, 1) or not lua_isstring(lua, 2)) {
-		lua_arg_error("artifact_setname(artifact_id, name)");
-		return(0);
-	}
-
-	Uuid id{ lua_tostring(lua, 1) };
-	Artifact* artifact = Luawrapper::server->getArtifact(id);
-
-	if(artifact == nullptr) {
-		warning("Artifact "+id.toString()+" doesn't exist.");
-		return(0);
-	}
-
-	artifact->setName(Name{ lua_tostring(lua, 2) });
-	return(0);
-}
-
-int l_artifact_gettag(lua_State * lua) {
-	if(not lua_isstring(lua, 1) or not lua_isstring(lua, 2)) {
-		lua_arg_error("artifact_gettag(artifact_id, tag)");
-		lua_pushnil(lua);
-		return(1);
-	}
-
-	Uuid id{ lua_tostring(lua, 1) };
-	Artifact* artifact = Luawrapper::server->getArtifact(id);
-
-	if(artifact == nullptr) {
-		warning("Artifact "+id.toString()+" doesn't exist.");
-		lua_pushnil(lua);
-		return(1);
-	}
-
-	lua_pushstring(lua, artifact->getTag(TagID{ lua_tostring(lua, 2) }).toString().c_str());
-	return(1);
-}
-
-int l_artifact_settag(lua_State * lua) {
-	if(not lua_isstring(lua, 1) or not lua_isstring(lua, 2) or not lua_isstring(lua, 3)) {
-		lua_arg_error("artifact_settag(artifact_id, tag, value)");
-		return(0);
-	}
-
-	Uuid id{ lua_tostring(lua, 1) };
-	Artifact* artifact = Luawrapper::server->getArtifact(id);
-
-	if(artifact == nullptr) {
-		warning("Artifact "+id.toString()+" doesn't exist.");
-		return(0);
-	}
-
-	artifact->setTag(TagID{ lua_tostring(lua, 2) }, TagValue{ lua_tostring(lua, 3) });
-	return(0);
-}
-
-int l_artifact_deltag(lua_State * lua) {
-	if(not lua_isstring(lua, 1) or not lua_isstring(lua, 2)) {
-		lua_arg_error("artifact_deltag(artifact_id, tag)");
-		return(0);
-	}
-
-	Uuid id{ lua_tostring(lua, 1) };
-	Artifact* artifact = Luawrapper::server->getArtifact(id);
-
-	if(artifact == nullptr) {
-		warning("Artifact "+id.toString()+" doesn't exist.");
-		return(0);
-	}
-
-	artifact->delTag(TagID{ lua_tostring(lua, 2) });
-	return(0);
-}
-
 /* Inventory */
 
 int l_create_inventory(lua_State * lua) {
 	if(not lua_isinteger(lua, 1)) {
-		lua_arg_error("create_inventory(size)");
+		lua_arg_error("create_inventory(size, [type])");
 		lua_pushnil(lua);
 		return(1);
 	}
 
 	unsigned int size = lua_tointeger(lua, 1);
-	Uuid id = Luawrapper::server->newInventory(size);
+	std::unique_ptr<Inventory> inventory;
+	if(lua_isstring(lua, 2)) {
+		std::string type = std::string{ lua_tostring(lua, 2) };
+		inventory = std::make_unique<Inventory>(size, type);
+	} else {
+		inventory = std::make_unique<Inventory>(size);
+	}
+	Uuid id = Luawrapper::server->addInventory(std::move(inventory));
 	lua_pushstring(lua, id.toString().c_str());
 	return(1);
 }
@@ -1697,53 +1584,6 @@ int l_delete_inventory(lua_State * lua) {
 	Uuid id { lua_tostring(lua, 1) };
 	Luawrapper::server->delInventory(id);
 	return(0);
-}
-
-int l_inventory_get(lua_State * lua) {
-	if(not lua_isstring(lua, 1) or not lua_isstring(lua, 2)) {
-		lua_arg_error("inventory_get(inventory_id, item_name)");
-		lua_pushnil(lua);
-		return(1);
-	}
-
-	Uuid id { lua_tostring(lua, 1) };
-	Inventory* inventory = Luawrapper::server->getInventory(id);
-	if(inventory == nullptr) {
-		warning("Inventory "+id.toString()+" doesn't exist.");
-		lua_pushnil(lua);
-		return(1);
-	}
-
-	std::string name { lua_tostring(lua, 2) };
-	unsigned int returned = inventory->get(name);
-	lua_pushinteger(lua, returned);
-	return(1);
-}
-
-int l_inventory_get_all(lua_State * lua) {
-	if(not lua_isstring(lua, 1)) {
-		lua_arg_error("inventory_get_all(inventory_id)");
-		lua_pushnil(lua);
-		return(1);
-	}
-
-	Uuid id { lua_tostring(lua, 1) };
-	Inventory* inventory = Luawrapper::server->getInventory(id);
-	if(inventory == nullptr) {
-		warning("Inventory "+id.toString()+" doesn't exist.");
-		lua_pushnil(lua);
-		return(1);
-	}
-
-	std::vector<std::string> items = inventory->get_all();
-	lua_newtable(lua);
-
-	for(std::string item : items) {
-		lua_pushstring(lua, item.c_str());
-		lua_pushinteger(lua, inventory->get(item));
-		lua_settable(lua, -3);
-	}
-	return(1);
 }
 
 int l_inventory_size(lua_State * lua) {
@@ -1784,6 +1624,25 @@ int l_inventory_resize(lua_State * lua) {
 	return(0);
 }
 
+int l_inventory_total(lua_State * lua) {
+	if(not lua_isstring(lua, 1)) {
+		lua_arg_error("inventory_total(inventory_id)");
+		lua_pushnil(lua);
+		return(1);
+	}
+
+	Uuid id { lua_tostring(lua, 1) };
+	Inventory* inventory = Luawrapper::server->getInventory(id);
+	if(inventory == nullptr) {
+		warning("Inventory "+id.toString()+" doesn't exist.");
+		lua_pushnil(lua);
+		return(1);
+	}
+
+	lua_pushinteger(lua, inventory->total());
+	return(1);
+}
+
 int l_inventory_available(lua_State * lua) {
 	if(not lua_isstring(lua, 1)) {
 		lua_arg_error("inventory_available(inventory_id)");
@@ -1803,9 +1662,9 @@ int l_inventory_available(lua_State * lua) {
 	return(1);
 }
 
-int l_inventory_add(lua_State * lua) {
-	if(not lua_isstring(lua, 1) or not lua_isinteger(lua, 2) or not lua_isstring(lua, 3)) {
-		lua_arg_error("inventory_add(inventory_id, int quantity, item_name)");
+int l_inventory_get(lua_State * lua) {
+	if(not lua_isstring(lua, 1) or not lua_isstring(lua, 2)) {
+		lua_arg_error("inventory_get(inventory_id, item_name)");
 		lua_pushnil(lua);
 		return(1);
 	}
@@ -1818,16 +1677,20 @@ int l_inventory_add(lua_State * lua) {
 		return(1);
 	}
 
-	unsigned int quantity = lua_tointeger(lua, 2);
-	std::string name { lua_tostring(lua, 3) };
-	unsigned int returned = inventory->add(quantity, name);
-	lua_pushinteger(lua, returned);
+	Name name { lua_tostring(lua, 2) };
+	std::vector<Uuid> ids = inventory->get_all(name);
+
+	lua_newtable(lua);
+	for(int i=0; i<ids.size(); i++) {
+		lua_pushstring(lua, ids[i].toString().c_str());
+		lua_rawseti(lua, -2, i);
+	}
 	return(1);
 }
 
-int l_inventory_add_all(lua_State * lua) {
-	if(not lua_isstring(lua, 1) or not lua_isinteger(lua, 2) or not lua_isstring(lua, 3)) {
-		lua_arg_error("inventory_add_all(inventory_id, int quantity, item_name)");
+int l_inventory_get_all(lua_State * lua) {
+	if(not lua_isstring(lua, 1)) {
+		lua_arg_error("inventory_get_all(inventory_id)");
 		lua_pushnil(lua);
 		return(1);
 	}
@@ -1840,123 +1703,333 @@ int l_inventory_add_all(lua_State * lua) {
 		return(1);
 	}
 
-	unsigned int quantity = lua_tointeger(lua, 2);
-	std::string name { lua_tostring(lua, 3) };
-	unsigned int returned = inventory->add_all(quantity, name);
-	lua_pushinteger(lua, returned);
+	std::vector<Uuid> ids = inventory->get_all();
+
+	lua_newtable(lua);
+	for(int i=0; i<ids.size(); i++) {
+		lua_pushstring(lua, ids[i].toString().c_str());
+		lua_rawseti(lua, -2, i+1);
+	}
 	return(1);
 }
 
-int l_inventory_del(lua_State * lua) {
-	if(not lua_isstring(lua, 1) or not lua_isinteger(lua, 2) or not lua_isstring(lua, 3)) {
-		lua_arg_error("inventory_del(inventory_id, int quantity, item_name)");
+/* Artifacts */
+
+int l_create_artifact(lua_State * lua) {
+	if(not lua_isstring(lua, 1) or not lua_isstring(lua, 2) or not lua_isstring(lua, 3)) {
+		lua_arg_error("create_artifact(inventory_id, item_name, item_type, [quantity])");
 		lua_pushnil(lua);
 		return(1);
 	}
 
-	Uuid id { lua_tostring(lua, 1) };
-	Inventory* inventory = Luawrapper::server->getInventory(id);
+	Uuid inv_id { lua_tostring(lua, 1) };
+	Inventory* inventory = Luawrapper::server->getInventory(inv_id);
 	if(inventory == nullptr) {
-		warning("Inventory "+id.toString()+" doesn't exist.");
+		warning("Inventory "+inv_id.toString()+" doesn't exist.");
 		lua_pushnil(lua);
 		return(1);
 	}
 
-	unsigned int quantity = lua_tointeger(lua, 2);
-	std::string name { lua_tostring(lua, 3) };
-	unsigned int returned = inventory->del(quantity, name);
-	lua_pushinteger(lua, returned);
+	Name name { lua_tostring(lua, 2) };
+	std::string type { lua_tostring(lua, 3) };
+	std::unique_ptr<Artifact> artifact;
+	if(lua_isinteger(lua, 4)) {
+		unsigned int quantity = lua_tointeger(lua, 4);
+		artifact = std::make_unique<Artifact>(name, type, quantity);
+	} else {
+		artifact = std::make_unique<Artifact>(name, type);
+	}
+
+	std::optional<Uuid> art_id = inventory->add(std::move(artifact));
+	if(art_id) {
+		lua_pushstring(lua, art_id->toString().c_str());
+	} else {
+		lua_pushnil(lua);
+	}
 	return(1);
 }
 
-int l_inventory_del_all(lua_State * lua) {
-	if(not lua_isstring(lua, 1) or not lua_isinteger(lua, 2) or not lua_isstring(lua, 3)) {
-		lua_arg_error("inventory_del_all(inventory_id, int quantity, item_name)");
+int l_delete_artifact(lua_State * lua) {
+	if(not lua_isstring(lua, 1) or not lua_isstring(lua, 2)) {
+		lua_arg_error("delete_artifact(inventory_id, artifact_id, [quantity])");
 		lua_pushnil(lua);
 		return(1);
 	}
 
-	Uuid id { lua_tostring(lua, 1) };
-	Inventory* inventory = Luawrapper::server->getInventory(id);
+	Uuid inv_id { lua_tostring(lua, 1) };
+	Inventory* inventory = Luawrapper::server->getInventory(inv_id);
+
 	if(inventory == nullptr) {
-		warning("Inventory "+id.toString()+" doesn't exist.");
+		warning("Inventory "+inv_id.toString()+" doesn't exist.");
 		lua_pushnil(lua);
 		return(1);
 	}
 
-	unsigned int quantity = lua_tointeger(lua, 2);
-	std::string name { lua_tostring(lua, 3) };
-	unsigned int returned = inventory->del_all(quantity, name);
-	lua_pushinteger(lua, returned);
+	Uuid art_id { lua_tostring(lua, 2) };
+	bool b;
+	if(lua_isnumber(lua, 3)) {
+		unsigned int quantity = lua_tointeger(lua, 3);
+		b = inventory->del(art_id, quantity);
+	} else {
+		b = inventory->del(art_id);
+	}
+	lua_pushboolean(lua, b);
 	return(1);
 }
 
-int l_inventory_move(lua_State * lua) {
-	if(not lua_isstring(lua, 1)
-		or not lua_isinteger(lua, 2)
-		or not lua_isstring(lua, 3)
-		or not lua_isstring(lua, 4)
-	) {
-		lua_arg_error("inventory_move(inventory_id, int quantity, item_name, inventory_id)");
-		lua_pushnil(lua);
-		return(1);
+int l_artifact_move(lua_State * lua) {
+	if(not lua_isstring(lua, 1) or not lua_isstring(lua, 2) or not lua_isstring(lua, 3)) {
+		lua_arg_error("artifact_move(inventory_id, artifact_id, destination_inventory_id, [quantity])");
+		return(0);
 	}
 
-	Uuid id { lua_tostring(lua, 1) };
-	Inventory* inventory = Luawrapper::server->getInventory(id);
+	Uuid inv_id { lua_tostring(lua, 1) };
+	Inventory* inventory = Luawrapper::server->getInventory(inv_id);
+
 	if(inventory == nullptr) {
-		warning("Inventory "+id.toString()+" doesn't exist.");
-		lua_pushnil(lua);
-		return(1);
+		warning("Inventory "+inv_id.toString()+" doesn't exist.");
+		return(0);
 	}
 
-	Uuid dst_id { lua_tostring(lua, 1) };
-	Inventory* dst_inventory = Luawrapper::server->getInventory(id);
-	if(dst_inventory == nullptr) {
-		warning("Inventory "+dst_id.toString()+" doesn't exist.");
-		lua_pushnil(lua);
-		return(1);
+	Uuid art_id { lua_tostring(lua, 2) };
+
+	Uuid destination_id { lua_tostring(lua, 3) };
+	Inventory* destination = Luawrapper::server->getInventory(destination_id);
+
+	if(destination == nullptr) {
+		warning("Inventory "+destination_id.toString()+" doesn't exist.");
+		return(0);
 	}
 
-	unsigned int quantity = lua_tointeger(lua, 2);
-	std::string name { lua_tostring(lua, 3) };
-	unsigned int returned = inventory->move(quantity, name, *dst_inventory);
-	lua_pushinteger(lua, returned);
+	bool returned;
+	if(lua_isnumber(lua, 4)) {
+		unsigned int quantity = lua_tointeger(lua, 4);
+		returned = inventory->move(*destination, art_id, quantity);
+	} else {
+		returned = inventory->move(*destination, art_id);
+	}
+	lua_pushboolean(lua, returned);
 	return(1);
 }
 
-int l_inventory_move_all(lua_State * lua) {
-	if(not lua_isstring(lua, 1)
-		or not lua_isinteger(lua, 2)
-		or not lua_isstring(lua, 3)
-		or not lua_isstring(lua, 4)
-	) {
-		lua_arg_error("inventory_move_all(inventory_id, int quantity, item_name, inventory_id)");
+int l_artifact_getname(lua_State * lua) {
+	if(not lua_isstring(lua, 1) or not lua_isstring(lua, 2)) {
+		lua_arg_error("artifact_getname(inventory_id, artifact_id)");
 		lua_pushnil(lua);
 		return(1);
 	}
 
-	Uuid id { lua_tostring(lua, 1) };
-	Inventory* inventory = Luawrapper::server->getInventory(id);
+	Uuid inv_id { lua_tostring(lua, 1) };
+	Inventory* inventory = Luawrapper::server->getInventory(inv_id);
+
 	if(inventory == nullptr) {
-		warning("Inventory "+id.toString()+" doesn't exist.");
+		warning("Inventory "+inv_id.toString()+" doesn't exist.");
 		lua_pushnil(lua);
 		return(1);
 	}
 
-	Uuid dst_id { lua_tostring(lua, 1) };
-	Inventory* dst_inventory = Luawrapper::server->getInventory(id);
-	if(dst_inventory == nullptr) {
-		warning("Inventory "+dst_id.toString()+" doesn't exist.");
+	Uuid art_id { lua_tostring(lua, 2) };
+	Artifact* artifact = inventory->get(art_id);
+
+	if(artifact == nullptr) {
+		warning("Artifact "+art_id.toString()+" doesn't exist.");
 		lua_pushnil(lua);
 		return(1);
 	}
 
-	unsigned int quantity = lua_tointeger(lua, 2);
-	std::string name { lua_tostring(lua, 3) };
-	unsigned int returned = inventory->move_all(quantity, name, *dst_inventory);
-	lua_pushinteger(lua, returned);
+	lua_pushstring(lua, artifact->getName().toString().c_str());
 	return(1);
+}
+
+int l_artifact_setname(lua_State * lua) {
+	if(not lua_isstring(lua, 1) or not lua_isstring(lua, 2) or not lua_isstring(lua, 3)) {
+		lua_arg_error("artifact_getname(inventory_id,, artifact_id)");
+		return(0);
+	}
+
+	Uuid inv_id { lua_tostring(lua, 1) };
+	Inventory* inventory = Luawrapper::server->getInventory(inv_id);
+
+	if(inventory == nullptr) {
+		warning("Inventory "+inv_id.toString()+" doesn't exist.");
+		return(0);
+	}
+
+	Uuid art_id { lua_tostring(lua, 2) };
+	Artifact* artifact = inventory->get(art_id);
+
+	if(artifact == nullptr) {
+		warning("Artifact "+art_id.toString()+" doesn't exist.");
+		return(0);
+	}
+
+	artifact->setName(Name{ lua_tostring(lua, 3) });
+	return(0);
+}
+
+int l_artifact_gettype(lua_State * lua) {
+	if(not lua_isstring(lua, 1) or not lua_isstring(lua, 2)) {
+		lua_arg_error("artifact_gettype(inventory_id,, artifact_id)");
+		lua_pushnil(lua);
+		return(1);
+	}
+
+	Uuid inv_id { lua_tostring(lua, 1) };
+	Inventory* inventory = Luawrapper::server->getInventory(inv_id);
+
+	if(inventory == nullptr) {
+		warning("Inventory "+inv_id.toString()+" doesn't exist.");
+		lua_pushnil(lua);
+		return(1);
+	}
+
+	Uuid art_id { lua_tostring(lua, 2) };
+	Artifact* artifact = inventory->get(art_id);
+
+	if(artifact == nullptr) {
+		warning("Artifact "+art_id.toString()+" doesn't exist.");
+		lua_pushnil(lua);
+		return(1);
+	}
+
+	lua_pushstring(lua, artifact->getType().c_str());
+	return(1);
+}
+
+int l_artifact_settype(lua_State * lua) {
+	if(not lua_isstring(lua, 1) or not lua_isstring(lua, 2) or not lua_isstring(lua, 3)) {
+		lua_arg_error("artifact_gettype(inventory_id,, artifact_id)");
+		return(0);
+	}
+
+	Uuid inv_id { lua_tostring(lua, 1) };
+	Inventory* inventory = Luawrapper::server->getInventory(inv_id);
+
+	if(inventory == nullptr) {
+		warning("Inventory "+inv_id.toString()+" doesn't exist.");
+		return(0);
+	}
+
+	Uuid art_id { lua_tostring(lua, 2) };
+	Artifact* artifact = inventory->get(art_id);
+
+	if(artifact == nullptr) {
+		warning("Artifact "+art_id.toString()+" doesn't exist.");
+		return(0);
+	}
+
+	artifact->setType(lua_tostring(lua, 3));
+	return(0);
+}
+
+int l_artifact_getquantity(lua_State * lua) {
+	if(not lua_isstring(lua, 1) or not lua_isstring(lua, 2)) {
+		lua_arg_error("artifact_getquantity(inventory_id,, artifact_id)");
+		lua_pushnil(lua);
+		return(1);
+	}
+
+	Uuid inv_id { lua_tostring(lua, 1) };
+	Inventory* inventory = Luawrapper::server->getInventory(inv_id);
+
+	if(inventory == nullptr) {
+		warning("Inventory "+inv_id.toString()+" doesn't exist.");
+		lua_pushnil(lua);
+		return(1);
+	}
+
+	Uuid art_id { lua_tostring(lua, 2) };
+	Artifact* artifact = inventory->get(art_id);
+
+	if(artifact == nullptr) {
+		warning("Artifact "+art_id.toString()+" doesn't exist.");
+		lua_pushnil(lua);
+		return(1);
+	}
+
+	lua_pushinteger(lua, artifact->getQuantity());
+	return(1);
+}
+
+int l_artifact_gettag(lua_State * lua) {
+	if(not lua_isstring(lua, 1) or not lua_isstring(lua, 2) or not lua_isstring(lua, 3)) {
+		lua_arg_error("artifact_gettag(inventory_id, artifact_id, tag)");
+		lua_pushnil(lua);
+		return(1);
+	}
+
+	Uuid inv_id { lua_tostring(lua, 1) };
+	Inventory* inventory = Luawrapper::server->getInventory(inv_id);
+
+	if(inventory == nullptr) {
+		warning("Inventory "+inv_id.toString()+" doesn't exist.");
+		lua_pushnil(lua);
+		return(1);
+	}
+
+	Uuid art_id { lua_tostring(lua, 2) };
+	Artifact* artifact = inventory->get(art_id);
+
+	if(artifact == nullptr) {
+		warning("Artifact "+art_id.toString()+" doesn't exist.");
+		lua_pushnil(lua);
+		return(1);
+	}
+
+	lua_pushstring(lua, artifact->getTag(TagID{ lua_tostring(lua, 3) }).toString().c_str());
+	return(1);
+}
+
+int l_artifact_settag(lua_State * lua) {
+	if(not lua_isstring(lua, 1) or not lua_isstring(lua, 2) or not lua_isstring(lua, 3) or not lua_isstring(lua, 4)) {
+		lua_arg_error("artifact_settag(inventory_id, artifact_id, tag, value)");
+		return(0);
+	}
+
+	Uuid inv_id { lua_tostring(lua, 1) };
+	Inventory* inventory = Luawrapper::server->getInventory(inv_id);
+
+	if(inventory == nullptr) {
+		warning("Inventory "+inv_id.toString()+" doesn't exist.");
+		return(0);
+	}
+
+	Uuid art_id { lua_tostring(lua, 2) };
+	Artifact* artifact = inventory->get(art_id);
+
+	if(artifact == nullptr) {
+		warning("Artifact "+art_id.toString()+" doesn't exist.");
+		return(0);
+	}
+
+	artifact->setTag(TagID{ lua_tostring(lua, 3) }, TagValue{ lua_tostring(lua, 4) });
+	return(0);
+}
+
+int l_artifact_deltag(lua_State * lua) {
+	if(not lua_isstring(lua, 1) or not lua_isstring(lua, 2) or not lua_isstring(lua, 3)) {
+		lua_arg_error("artifact_deltag(inventory_id, artifact_id, tag)");
+		return(0);
+	}
+
+	Uuid inv_id { lua_tostring(lua, 1) };
+	Inventory* inventory = Luawrapper::server->getInventory(inv_id);
+
+	if(inventory == nullptr) {
+		warning("Inventory "+inv_id.toString()+" doesn't exist.");
+		return(0);
+	}
+
+	Uuid art_id { lua_tostring(lua, 2) };
+	Artifact* artifact = inventory->get(art_id);
+
+	if(artifact == nullptr) {
+		warning("Artifact "+art_id.toString()+" doesn't exist.");
+		return(0);
+	}
+
+	artifact->delTag(TagID{ lua_tostring(lua, 3) });
+	return(0);
 }
 
 /* Wraper class */
@@ -2057,27 +2130,26 @@ Luawrapper::Luawrapper(class Server * server) :
 	lua_register(this->lua_state, "gauge_isvisible", l_gauge_isvisible);
 	lua_register(this->lua_state, "gauge_setvisible", l_gauge_setvisible);
 
+	lua_register(this->lua_state, "create_inventory", l_create_inventory);
+	lua_register(this->lua_state, "delete_inventory", l_delete_inventory);
+	lua_register(this->lua_state, "inventory_size", l_inventory_size);
+	lua_register(this->lua_state, "inventory_resize", l_inventory_resize);
+	lua_register(this->lua_state, "inventory_total", l_inventory_total);
+	lua_register(this->lua_state, "inventory_available", l_inventory_available);
+	lua_register(this->lua_state, "inventory_get", l_inventory_get);
+	lua_register(this->lua_state, "inventory_get_all", l_inventory_get_all);
+
 	lua_register(this->lua_state, "create_artifact", l_create_artifact);
 	lua_register(this->lua_state, "delete_artifact", l_delete_artifact);
+	lua_register(this->lua_state, "artifact_move", l_artifact_move);
 	lua_register(this->lua_state, "artifact_getname", l_artifact_getname);
 	lua_register(this->lua_state, "artifact_setname", l_artifact_setname);
+	lua_register(this->lua_state, "artifact_gettype", l_artifact_gettype);
+	lua_register(this->lua_state, "artifact_settype", l_artifact_settype);
+	lua_register(this->lua_state, "artifact_getquantity", l_artifact_getquantity);
 	lua_register(this->lua_state, "artifact_gettag", l_artifact_gettag);
 	lua_register(this->lua_state, "artifact_settag", l_artifact_settag);
 	lua_register(this->lua_state, "artifact_deltag", l_artifact_deltag);
-
-	lua_register(this->lua_state, "create_inventory", l_create_inventory);
-	lua_register(this->lua_state, "delete_inventory", l_delete_inventory);
-	lua_register(this->lua_state, "inventory_get", l_inventory_get);
-	lua_register(this->lua_state, "inventory_get_all", l_inventory_get_all);
-	lua_register(this->lua_state, "inventory_size", l_inventory_size);
-	lua_register(this->lua_state, "inventory_resize", l_inventory_resize);
-	lua_register(this->lua_state, "inventory_available", l_inventory_available);
-	lua_register(this->lua_state, "inventory_add", l_inventory_add);
-	lua_register(this->lua_state, "inventory_add_all", l_inventory_add_all);
-	lua_register(this->lua_state, "inventory_del", l_inventory_del);
-	lua_register(this->lua_state, "inventory_del_all", l_inventory_del_all);
-	lua_register(this->lua_state, "inventory_move", l_inventory_move);
-	lua_register(this->lua_state, "inventory_move_all", l_inventory_move_all);
 
 	this->executeFile(LUA_INIT_SCRIPT);
 }

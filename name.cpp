@@ -35,6 +35,10 @@ const std::string& Name::toString() const {
 	return(data);
 }
 
+bool Name::operator ==(const Name& n) const {
+	return(this->data == n.data);
+}
+
 /* Named */
 
 Named::Named(const Name& name) :
