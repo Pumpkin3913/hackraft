@@ -12,10 +12,12 @@
 
 Player::Player(int fd, class Character* character) :
 	fd(fd),
-	loopThread(nullptr),
+	loopThread(new std::thread(&Player::loopFunction, this)),
 	stop(false),
 	character(character)
-{ }
+{
+	this->follow(character);
+}
 
 Player::~Player() {
 	info("Player "+std::to_string(this->fd)+" deleted.");
@@ -25,12 +27,6 @@ Player::~Player() {
 		// Only when deleted by something else than its own loopThread.
 		this->loopThread->detach();
 		delete(this->loopThread);
-	}
-}
-
-void Player::spawn() {
-	if(!this->loopThread) {
-		this->loopThread = new std::thread(&Player::loopFunction, this);
 	}
 }
 

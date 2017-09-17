@@ -24,7 +24,10 @@ public:
 	Server();
 	~Server();
 
-	void _open(unsigned short port);
+	Server(Server const &) = delete;
+	void operator=(Server const &) = delete;
+
+	void _open(unsigned short port, std::string spawn_zone, unsigned int spawn_x, unsigned int spawn_y);
 	void _close();
 	bool isOpen();
 	unsigned short getPort();
@@ -83,6 +86,11 @@ private:
 	std::thread * acceptThread;
 	class Luawrapper * luawrapper;
 	std::mutex terminaisonLock;
+
+	/* Spawn */
+	// std::string spawn_zone; // TODO
+	unsigned int spawn_x;
+	unsigned int spawn_y;
 
 	void acceptLoop();
 };

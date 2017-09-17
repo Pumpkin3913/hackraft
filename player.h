@@ -10,7 +10,6 @@ class Player {
 public:
 	Player(int fd, class Character* character);
 	~Player();
-	void spawn();
 
 	/* Send messages to client */
 	void message(std::string message);

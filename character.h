@@ -20,7 +20,6 @@ class Character : public Aspected, public Named, public Tagged {
 public:
 	Character(Uuid id, Name name, const Aspect& aspect);
 	~Character();
-	void spawn(class Zone * zone, int x, int y); // Add itself to the zone and start the parsing loop. Do nothing if already running.
 	Uuid getId();
 	class Zone * getZone(); // May return nullptr.
 	unsigned int getX();
@@ -28,7 +27,7 @@ public:
 	void setXY(int x, int y); // dont check if canLand(); auto bcast new position.
 	void move(int xShift, int yShift); // check if canLand() and setXY() if yes.
 	void changeZone(class Zone * newZone, int x, int y); // exit this zone, enter the new one.
-	void set_player(class Player * player);
+	void setPlayer(class Player * player);
 
 	/* Scripts */
 	const Script& getWhenDeath();

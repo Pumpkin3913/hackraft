@@ -47,16 +47,6 @@ Character::~Character() {
 	}
 }
 
-void Character::spawn(class Zone * zone, int x, int y) {
-	if(this->player) {
-		this->player->spawn();
-	}
-	this->zone = zone;
-	this->zone->enterCharacter(this, x, y);
-	this->follow(this);
-	info("Character "+this->getId().toString()+" spawn successfully.");
-}
-
 Uuid Character::getId() {
 	return(this->id);
 }
@@ -109,12 +99,12 @@ void Character::move(int xShift, int yShift) {
 void Character::changeZone(class Zone * newZone, int x, int y) {
 	if(this->zone) {
 		this->zone->exitCharacter(this);
-		this->zone = newZone;
-		this->zone->enterCharacter(this, x, y);
 	}
+	this->zone = newZone;
+	this->zone->enterCharacter(this, x, y);
 }
 
-void Character::set_player(class Player * player) {
+void Character::setPlayer(class Player * player) {
 	this->player = player;
 }
 

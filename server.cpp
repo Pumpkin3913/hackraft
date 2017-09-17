@@ -42,18 +42,24 @@ void Server::acceptLoop() {
 					+ " on socket #"
 					+ std::to_string(fd)
 					);
-			Uuid id {};
-			class Character * character = new Character(id, Name{}, Aspect{});
-			this->addCharacter(character);
+			// class Zone* spawn_z = this->getZone(this->spawn_zone); // TODO
+			class Zone* spawn_z = this->getZone("lobby"); // XXX
+			if(spawn_z == nullptr) {
+				// warning("Spawn zone not found : "+this->spawn_zone); // TODO
+				warning("Spawn zone not found : lobby"); // XXX
+				close(fd);
+			} else {
+				Uuid id {};
+				class Character * character = new Character(id, Name{}, Aspect{});
+				this->addCharacter(character);
 
-			class Player * player = new Player(fd, character);
-			this->players.push_back(player);
-			character->set_player(player);
+				class Player * player = new Player(fd, character);
+				this->players.push_back(player);
+				character->setPlayer(player);
 
-			this->luawrapper->spawnScript(character);
-			if(character->getZone() == nullptr) {
-				warning("Spawn script didn't call spawn().");
-				this->delCharacter(character->getId());
+				character->changeZone(spawn_z, spawn_x, spawn_y);
+
+				this->luawrapper->spawnScript(character);
 			}
 		}
 
@@ -107,7 +113,7 @@ Server::~Server() {
 	this->terminaisonLock.unlock();
 }
 
-void Server::_open(unsigned short port) {
+void Server::_open(unsigned short port, std::string spawn_zone, unsigned int spawn_x, unsigned int spawn_y) {
 	if(this->connexion_fd != 0) {
 		this->_close();
 	}
@@ -151,6 +157,15 @@ void Server::_open(unsigned short port) {
 
 #elif defined _WIN32
 #endif
+
+	// this->spawn_zone = spawn_zone; // TODO
+	this->spawn_x = spawn_x;
+	this->spawn_y = spawn_y;
+	/* XXX // TODO
+	if(this->getZone(spawn_zone) == nullptr) {
+		warning("Spawn zone not found: "+spawn_zone);
+	}
+	// XXX */
 
 	info("Server opened.");
 	// TODO : IPv4/IPv6 connexions.

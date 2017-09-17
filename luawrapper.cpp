@@ -84,11 +84,17 @@ int l_halt(lua_State * lua) {
 }
 
 int l_open(lua_State * lua) {
-	if(not lua_isnumber(lua, 1)) {
-		lua_arg_error("open(port)");
+	if(not lua_isnumber(lua, 1)
+			or not lua_isstring(lua, 2)
+			or not lua_isnumber(lua, 3)
+			or not lua_isnumber(lua, 4)) {
+		lua_arg_error("open(port, zone, x, y)");
 	} else {
 		unsigned short int port = lua_tointeger(lua, 1);
-		Luawrapper::server->_open(port);
+		std::string zone { lua_tostring(lua, 2) };
+		unsigned int x = lua_tointeger(lua, 3);
+		unsigned int y = lua_tointeger(lua, 4);
+		Luawrapper::server->_open(port, zone, x, y);
 	}
 	return(0);
 }
@@ -712,32 +718,6 @@ int l_assert_character(lua_State * lua) {
 		}
 	}
 	return(1);
-}
-
-int l_character_spawn(lua_State * lua) {
-	if(not lua_isstring(lua, 1)
-			or not lua_isstring(lua, 2)
-			or not lua_isnumber(lua, 3)
-			or not lua_isnumber(lua, 4)) {
-		lua_arg_error("character_spawn(character_id, zone_id, x, y)");
-	} else {
-		Uuid character_id { lua_tostring(lua, 1) };
-		class Character * character = Luawrapper::server->getCharacter(character_id);
-		if(character != nullptr) {
-			std::string zone_id = lua_tostring(lua, 2);
-			class Zone * zone = Luawrapper::server->getZone(zone_id);
-			if(zone != nullptr) {
-				int x = lua_tointeger(lua, 3);
-				int y = lua_tointeger(lua, 4);
-				character->spawn(zone, x, y);
-			} else {
-				warning("Zone '"+zone_id+"' doesn't exist.");
-			}
-		} else {
-			warning("Character '"+character_id.toString()+"' doesn't exist.");
-		}
-	}
-	return(0);
 }
 
 int l_character_getname(lua_State * lua) {
@@ -2035,7 +2015,6 @@ Luawrapper::Luawrapper(class Server * server) :
 
 	lua_register(this->lua_state, "delete_character", l_delete_character);
 	lua_register(this->lua_state, "assert_character", l_assert_character);
-	lua_register(this->lua_state, "character_spawn", l_character_spawn);
 	lua_register(this->lua_state, "character_getname", l_character_getname);
 	lua_register(this->lua_state, "character_setname", l_character_setname);
 	lua_register(this->lua_state, "character_getaspect", l_character_getaspect);
@@ -2146,4 +2125,3 @@ void Luawrapper::executeCode(std::string code, class Character * character, std:
 void Luawrapper::spawnScript(class Character * character) {
 	this->executeFile(LUA_SPAWN_SCRIPT, character);
 }
-
