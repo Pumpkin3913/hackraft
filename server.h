@@ -11,13 +11,10 @@ class Inventory;
 #include "player.h"
 
 #include <map>
-#include <thread>
-#include <mutex>
 #include <list>
+#include <string>
 
 #define MAX_SOCKET_QUEUE 8
-
-// TODO : Add mutexes around every atomic non-cascading operations.
 
 class Server {
 public:
@@ -27,7 +24,7 @@ public:
 	Server(Server const &) = delete;
 	void operator=(Server const &) = delete;
 
-	void _open(unsigned short port, std::string spawn_zone, unsigned int spawn_x, unsigned int spawn_y);
+	void _open(unsigned short port, const std::string& spawn_zone, unsigned int spawn_x, unsigned int spawn_y);
 	void _close();
 	bool isOpen();
 	unsigned short getPort();
@@ -64,11 +61,13 @@ public:
 	void setTimerRemaining(Uuid id, unsigned int remaining);
 
 	class Luawrapper * getLua();
-	void waitForTerminaison();
+
+	void loop();
 
 private:
 	int connexion_fd;
 	unsigned short port;
+	bool stop = false;
 	std::map<std::string, class Zone *> zones;
 	std::map<Uuid, class Character *> characters;
 	std::map<std::string, Script> actions;
@@ -79,18 +78,17 @@ private:
 	/* Timers */
 	struct Timer { unsigned int remaining; Script script; };
 	std::map<Uuid,struct Timer> timers;
-	std::thread timersThread;
-	// std::mutex timersLock; // TODO
-	void timersLoop();
 
-	std::thread * acceptThread;
 	class Luawrapper * luawrapper;
-	std::mutex terminaisonLock;
 
 	/* Spawn */
-	// std::string spawn_zone; // TODO
+	std::string spawn_zone;
 	unsigned int spawn_x;
 	unsigned int spawn_y;
 
-	void acceptLoop();
+	void check_connection();
+	void check_action(class Player* player);
+	void check_console();
+	void check_players();
+	void step_timers();
 };

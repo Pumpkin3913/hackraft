@@ -12,22 +12,25 @@
 
 Player::Player(int fd, class Character* character) :
 	fd(fd),
-	loopThread(new std::thread(&Player::loopFunction, this)),
-	stop(false),
 	character(character)
-{
-	this->follow(character);
-}
+{ }
 
 Player::~Player() {
 	info("Player "+std::to_string(this->fd)+" deleted.");
-	this->_close();
-	if(this->loopThread != nullptr &&
-			this->loopThread->get_id() != std::this_thread::get_id()) {
-		// Only when deleted by something else than its own loopThread.
-		this->loopThread->detach();
-		delete(this->loopThread);
+	close(this->fd);
+	this->character->setPlayer(nullptr);
+	// TODO: delete controlled character?
+}
+
+void Player::check_action() {
+	std::string msg = this->receive();
+	if(msg != "") {
+		this->parse(msg);
 	}
+}
+
+bool Player::delme() {
+	return(this->_delme);
 }
 
 void Player::message(std::string message) {
@@ -169,102 +172,68 @@ void Player::hint(Aspect aspect, std::string hint) {
 void Player::send(std::string message) {
 	if(this->fd) {
 		std::string toSend = message + "\n";
-#ifdef __linux__
 		write(this->fd, toSend.c_str(), toSend.length());
 		// this->socket << message << std::endl;
-#elif defined _WIN32
-#endif
 	}
 }
 
 std::string Player::receive() {
 	std::string msg = "";
-#ifdef __linux__
 	char c;
 	int flag;
 	flag = read(this->fd, &c, 1);
-	while(flag && c != '\n') {
+	while(flag > 0 and c != '\n') {
 		msg.push_back(c);
 		flag = read(this->fd, &c, 1);
 	}
-	if(!flag) {
-#ifdef __linux__
-		close(this->fd);
-#elif defined _WIN32
-#endif
-		this->fd = 0;
-		this->stop = true;
+	// EAGAIN and EWOULDBLOCK are "errors" when nothing is available on a non-blocking socket.
+	if(flag == 0 or (flag == -1 and errno != EAGAIN and errno != EWOULDBLOCK)) {
+		this->_delme = true;
 	}
-#elif defined _WIN32
-#endif
 	return(msg);
 }
 
-void Player::_close() {
-	if(this->fd) {
-		this->send("EOF");
-#ifdef __linux__
-		close(this->fd);
-#elif defined _WIN32
-#endif
-		this->fd = 0;
-		this->stop = true;
-	}
-}
-
-void Player::loopFunction() {
-	while(!this->stop) {
-		this->parse();
-	}
-	this->loopThread = nullptr;
-	delete(this);
-}
-
-void Player::parse() {
-	std::string msg;
+void Player::parse(std::string msg) {
 	std::string cmd;
 	std::string arg;
 	std::size_t separator;
 
-	msg = this->receive();
-	if(!this->stop) {
-		separator = msg.find_first_of(' ');
-		if(separator == std::string::npos) {
-			cmd = msg;
-			arg = "";
-		} else {
-			cmd = msg.substr(0, separator);
-			arg = msg.substr(separator+1); // from separator+1 to the end.
-		}
+	separator = msg.find_first_of(' ');
+	if(separator == std::string::npos) {
+		cmd = msg;
+		arg = "";
+	} else {
+		cmd = msg.substr(0, separator);
+		arg = msg.substr(separator+1); // from separator+1 to the end.
+	}
 
-		if(cmd[0] == '/') {
-			if(this->character->getZone()) {
-				this->character->getZone()->getServer()->doAction(cmd.substr(1), *this->character, arg);
-			}
-		} else if(cmd == "move") {
-			signed int xShift = 0;
-			signed int yShift = 0;
-			bool valid = true;
-			if(arg == "north") {
-				yShift--;
-			} else if(arg == "south") {
-				yShift++;
-			} else if(arg == "west") {
-				xShift--;
-			} else if(arg == "east") {
-				xShift++;
-			} else {
-				valid = false;
-			}
-			if(valid) {
-				this->character->move(xShift, yShift);
-			}
-		} else if(cmd == "say") {
-			if(this->character->getZone()) {
-				this->character->getZone()->event(this->character->getName().toString()+": "+arg);
-			}
-		} else if(cmd == "quit") {
-			this->stop = true;
+	if(cmd[0] == '/') {
+		if(this->character->getZone()) {
+			this->character->getZone()->getServer()->doAction(cmd.substr(1), *this->character, arg);
 		}
+	} else if(cmd == "move") {
+		signed int xShift = 0;
+		signed int yShift = 0;
+		bool valid = true;
+		if(arg == "north") {
+			yShift--;
+		} else if(arg == "south") {
+			yShift++;
+		} else if(arg == "west") {
+			xShift--;
+		} else if(arg == "east") {
+			xShift++;
+		} else {
+			valid = false;
+		}
+		if(valid) {
+			this->character->move(xShift, yShift);
+		}
+	} else if(cmd == "say") {
+		if(this->character->getZone()) {
+			this->character->getZone()->event(this->character->getName().toString()+": "+arg);
+		}
+	} else if(cmd == "quit") {
+		this->_delme = true;
 	}
 }

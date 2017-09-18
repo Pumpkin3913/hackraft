@@ -2,25 +2,17 @@
 #include <thread>
 #include <cstdlib> // srand()
 #include <ctime> // time()
-#ifdef __linux__
 #include <unistd.h>
-#elif defined _WIN32
-#endif
+
+#include <signal.h>
 
 #include "server.h"
 #include "luawrapper.h"
 #include "log.h"
 
-void luaLoop(class Server * server) {
-	std::string input;
-	while(getline(std::cin, input)) {
-		server->getLua()->executeCode(input);
-	}
-}
-
 int main (int argc, char** argv) {
-	class Server * server;
-	std::thread * luaLoopThread;
+	signal(SIGPIPE, SIG_IGN); // Ignore broken pipes.
+
 	if(argc >= 2) {
 		chdir(argv[1]);
 	}
@@ -28,13 +20,9 @@ int main (int argc, char** argv) {
 	// Seed RNG.
 	srand(time(nullptr));
 
-	server = new Server();
-	luaLoopThread = new std::thread(&luaLoop, server);
-
-	server->waitForTerminaison();
-
-	luaLoopThread->detach();
-	delete(luaLoopThread);
+	class Server * server = new Server();
+	server->loop();
 	info("Exiting...");
+	delete(server);
 }
 

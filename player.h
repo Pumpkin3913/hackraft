@@ -11,6 +11,9 @@ public:
 	Player(int fd, class Character* character);
 	~Player();
 
+	void check_action();
+	bool delme();
+
 	/* Send messages to client */
 	void message(std::string message);
 	void updateCharacter(class Character * character);
@@ -34,14 +37,10 @@ public:
 	void hint(Aspect aspect, std::string hint);
 private:
 	int fd;
-	std::thread * loopThread;
-	bool stop;
-
 	class Character* character;
+	bool _delme = false;
 
 	void send(std::string message);
 	std::string receive();
-	void _close();
-	void loopFunction();
-	void parse(); // Receive one line from the socket and execute it. Return false if socket closed.
+	void parse(std::string message);
 };
