@@ -19,7 +19,8 @@ Player::~Player() {
 	info("Player "+std::to_string(this->fd)+" deleted.");
 	close(this->fd);
 	this->character->setPlayer(nullptr);
-	// TODO: delete controlled character?
+	// For now, the disconnection of a player kills the character. Later, a reconnection feature might be interesting.
+	this->character->getZone()->getServer()->delCharacter(this->character->getId());
 }
 
 void Player::check_action() {

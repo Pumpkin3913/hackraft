@@ -13,12 +13,18 @@
 #include <arpa/inet.h> // inet_ntoa()
 #include <fcntl.h> // fcntl()
 
+#include <thread> // std::this_thread::sleep_for()
+#include <chrono> // std::chrono::milliseconds
+
 #include <iostream>
+
+const int console = 0; // File descriptor.
 
 /* Public */
 
 Server::Server() {
 	this->luawrapper = new Luawrapper(this);
+	fcntl(console, F_SETFL, fcntl(console, F_GETFL) | O_NONBLOCK); // Make console non-blocking.
 }
 
 Server::~Server() {
@@ -276,11 +282,11 @@ class Luawrapper * Server::getLua() {
 void Server::loop() {
 	while(not this->stop) {
 		this->check_connection();
-		// this->check_console(); // TODO
+		this->check_console();
 		this->check_players();
-		usleep(10000); // 0.01 sec.
-		// std::this_thread::sleep_for(std::chrono::milliseconds(10));
-		// TODO: when to step timers?
+		this->check_timers();
+
+		std::this_thread::sleep_for(std::chrono::milliseconds(10));
 	}
 }
 
@@ -332,11 +338,23 @@ void Server::check_connection() {
 }
 
 void Server::check_console() {
-	std::string input;
-	std::getline(std::cin, input);
-	if(input != "") {
-		this->getLua()->executeCode(input);
+	char buffer[BUFSIZ];
+	int flag = read(console, buffer, BUFSIZ-1); // -1 is room for '\0'.
+	// while(flag > 0) { }
+
+	if(flag == -1 and (errno == EAGAIN or errno == EWOULDBLOCK)) {
+		// Nothing available. Skip.
+		return;
 	}
+
+	if(flag <= 0) {
+		warning("Console read error.");
+		return;
+	}
+
+	buffer[flag] = '\0';
+	std::string input{ buffer };
+	this->getLua()->executeCode(input);
 }
 
 void Server::check_players() {
@@ -349,6 +367,16 @@ void Server::check_players() {
 			(*player)->check_action();
 			player++;
 		}
+	}
+}
+
+void Server::check_timers() {
+	static auto prev = std::chrono::high_resolution_clock::now();
+
+	auto now = std::chrono::high_resolution_clock::now();
+	if(now >= prev + std::chrono::seconds(1)) {
+		this->step_timers();
+		prev = now;
 	}
 }
 

@@ -90,5 +90,6 @@ private:
 	void check_action(class Player* player);
 	void check_console();
 	void check_players();
+	void check_timers();
 	void step_timers();
 };
