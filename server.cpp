@@ -297,6 +297,10 @@ void Server::check_connection() {
 	socklen_t addr_len = sizeof(struct sockaddr_in);
 	int fd;
 
+	if (port == 0) {
+		return; /* Prevent error message spam if server isn't open yet */
+	}
+
 	fd = accept(connexion_fd, (struct sockaddr*) &remote_addr, &addr_len);
 	if(fd == -1) {
 		if(errno == EAGAIN or errno == EWOULDBLOCK) {
