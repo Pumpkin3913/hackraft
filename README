@@ -1,0 +1,13 @@
+
+Compiling
+=========
+
+Requires: clang, lua 5.3, autotools
+
+$ ./bootstrap
+
+$ ./configure [--enable-debug]
+
+$ make 
+
+$ make install

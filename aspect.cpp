@@ -84,7 +84,7 @@ bool Aspect::getAspectDefaultPassable(const Aspect& aspect) {
 
 /* Aspected */
 
-Aspected::Aspected(const Aspect& aspect) : data(aspect) {};
+Aspected::Aspected(const Aspect& aspect) : data(aspect) {}
 
 const Aspect& Aspected::getAspect() const {
 	return(this->data);
