@@ -136,7 +136,7 @@ bool Inventory::move(Inventory& destination, Uuid id, unsigned int asked_qtt) {
 
 	if(qtt == asked_qtt) {
 		// Move all.
-		destination.content[id] = std::move(this->content[id]);
+		destination.add(std::move(this->content[id]));
 		this->content.erase(id);
 	} else {
 		// Split stack.
